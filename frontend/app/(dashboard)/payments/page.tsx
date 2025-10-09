@@ -1,47 +1,53 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { PageHeader } from "@/components/page-header"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Upload, Search, FileSpreadsheet, ArrowUpDown } from "lucide-react"
-import { PaymentUploadCard } from "@/components/payments/payment-upload-card"
-import { PaymentListItem } from "@/components/payments/payment-list-item"
-import { mockPayments, mockPaymentUploads } from "@/lib/mock-data"
-import Link from "next/link"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useState } from "react";
+import { PageHeader } from "@/components/page-header";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Upload, Search, FileSpreadsheet, ArrowUpDown } from "lucide-react";
+import { PaymentUploadCard } from "@/components/payments/payment-upload-card";
+import { PaymentListItem } from "@/components/payments/payment-list-item";
+import { mockPayments, mockPaymentUploads } from "@/lib/mock-data";
+import Link from "next/link";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function PaymentsPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [sortBy, setSortBy] = useState<string>("date-desc")
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<string>("date-desc");
 
   const filteredPayments = mockPayments.filter(
     (p) =>
       p.reference.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.agence.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.bacNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.studentName?.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+      p.studentName?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const sortedPayments = [...filteredPayments].sort((a, b) => {
     switch (sortBy) {
       case "date-desc":
-        return new Date(b.date).getTime() - new Date(a.date).getTime()
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
       case "date-asc":
-        return new Date(a.date).getTime() - new Date(b.date).getTime()
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
       case "amount-desc":
-        return b.amount - a.amount
+        return b.amount - a.amount;
       case "amount-asc":
-        return a.amount - b.amount
+        return a.amount - b.amount;
       case "status-matched":
-        return a.status === "matched" ? -1 : 1
+        return a.status === "matched" ? -1 : 1;
       case "status-unmatched":
-        return a.status === "unmatched" ? -1 : 1
+        return a.status === "unmatched" ? -1 : 1;
       default:
-        return 0
+        return 0;
     }
-  })
+  });
 
   return (
     <div className="flex h-full flex-col">
@@ -85,12 +91,20 @@ export default function PaymentsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="date-desc">Date (Newest)</SelectItem>
-                    <SelectItem value="date-asc">Date (Oldest)</SelectItem>
-                    <SelectItem value="amount-desc">Amount (High to Low)</SelectItem>
-                    <SelectItem value="amount-asc">Amount (Low to High)</SelectItem>
-                    <SelectItem value="status-matched">Matched First</SelectItem>
-                    <SelectItem value="status-unmatched">Unmatched First</SelectItem>
+                    <SelectItem value="date-desc">Date (Récente)</SelectItem>
+                    <SelectItem value="date-asc">Date (Ancienne)</SelectItem>
+                    <SelectItem value="amount-desc">
+                      Amount (High to Low)
+                    </SelectItem>
+                    <SelectItem value="amount-asc">
+                      Amount (Low to High)
+                    </SelectItem>
+                    <SelectItem value="status-matched">
+                      Matched First
+                    </SelectItem>
+                    <SelectItem value="status-unmatched">
+                      Unmatched First
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -98,8 +112,12 @@ export default function PaymentsPage() {
               {/* Stats */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="rounded-lg border border-border bg-card p-4">
-                  <p className="text-sm text-muted-foreground">Total Payments</p>
-                  <p className="text-2xl font-semibold text-foreground">{mockPayments.length}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Total Payments
+                  </p>
+                  <p className="text-2xl font-semibold text-foreground">
+                    {mockPayments.length}
+                  </p>
                 </div>
                 <div className="rounded-lg border border-border bg-card p-4">
                   <p className="text-sm text-muted-foreground">Matched</p>
@@ -110,7 +128,10 @@ export default function PaymentsPage() {
                 <div className="rounded-lg border border-border bg-card p-4">
                   <p className="text-sm text-muted-foreground">Unmatched</p>
                   <p className="text-2xl font-semibold text-yellow-500">
-                    {mockPayments.filter((p) => p.status === "unmatched").length}
+                    {
+                      mockPayments.filter((p) => p.status === "unmatched")
+                        .length
+                    }
                   </p>
                 </div>
               </div>
@@ -148,5 +169,5 @@ export default function PaymentsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

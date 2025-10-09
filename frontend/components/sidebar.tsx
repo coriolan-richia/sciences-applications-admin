@@ -1,52 +1,61 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { FileText, CreditCard, CheckSquare, GraduationCap, LogOut, Shield } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { useAuth } from "@/lib/auth-context"
-import { Button } from "@/components/ui/button"
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  FileText,
+  CreditCard,
+  CheckSquare,
+  GraduationCap,
+  LogOut,
+  Shield,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth-context";
+import { Button } from "@/components/ui/button";
 
 const navigation = [
   {
-    name: "Preregistrations",
+    name: "Préinscriptions",
     href: "/preregistrations",
     icon: FileText,
   },
   {
-    name: "Payments",
+    name: "Paiements",
     href: "/payments",
     icon: CreditCard,
   },
   {
-    name: "Preselection",
+    name: "Présélection",
     href: "/preselection",
     icon: CheckSquare,
   },
-]
+];
 
 export function Sidebar() {
-  const pathname = usePathname()
-  const { user, logout } = useAuth()
-  const router = useRouter()
+  const pathname = usePathname();
+  const { user, logout } = useAuth();
+  const router = useRouter();
 
   const handleLogout = () => {
-    logout()
-    router.push("/login")
-  }
+    logout();
+    router.push("/login");
+  };
 
   return (
-    <div className="flex h-screen w-64 flex-col border-r border-border bg-card">
+    <div className="flex h-screen w-72 flex-col border-r border-border bg-card">
       {/* Logo/Header */}
       <div className="flex h-16 items-center gap-2 border-b border-border px-6">
-        <GraduationCap className="h-6 w-6 text-primary" />
-        <span className="text-lg font-semibold text-foreground">College Admin</span>
+        {/* <GraduationCap className="h-6 w-6 text-primary" /> */}
+        <span className="text-lg font-semibold text-foreground">
+          Gestion des Candidatures
+        </span>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 p-4">
         {navigation.map((item) => {
-          const isActive = pathname.startsWith(item.href)
+          const isActive = pathname.startsWith(item.href);
           return (
             <Link
               key={item.name}
@@ -55,13 +64,13 @@ export function Sidebar() {
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 isActive
                   ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
               )}
             >
               <item.icon className="h-5 w-5" />
               {item.name}
             </Link>
-          )
+          );
         })}
 
         {user?.role === "superadmin" && (
@@ -71,11 +80,11 @@ export function Sidebar() {
               "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
               pathname.startsWith("/admin")
                 ? "bg-primary/10 text-primary"
-                : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
             )}
           >
             <Shield className="h-5 w-5" />
-            User Management
+            Gestion des Utilisateurs
           </Link>
         )}
       </nav>
@@ -89,12 +98,17 @@ export function Sidebar() {
               {user?.role}
             </p>
           </div>
-          <Button variant="outline" size="sm" className="w-full bg-transparent" onClick={handleLogout}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full bg-transparent"
+            onClick={handleLogout}
+          >
             <LogOut className="mr-2 h-4 w-4" />
             Logout
           </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }
