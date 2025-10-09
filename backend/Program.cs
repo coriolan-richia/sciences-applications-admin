@@ -1,6 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+
+
 using backend.Context;
 using backend.Models.Enums;
+using backend.Models;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +27,8 @@ builder.Services.AddAuthorization();
 // These one are for swagger guy
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IPasswordHasher<Utilisateur>, PasswordHasher<Utilisateur>>();
 
 var app = builder.Build();
 
