@@ -1,4 +1,18 @@
+using Microsoft.EntityFrameworkCore;
+using PreregistrationsAdmin.Context;
+using PreregistrationsAdmin.Models.Enums;
+
 var builder = WebApplication.CreateBuilder(args);
+
+var FacConnectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string"
+        + "'DefaultConnection' not found.");
+
+builder.Services.AddDbContext<FacContext>(options =>
+    options.UseNpgsql(
+        FacConnectionString,
+        o => o.MapEnum<TypeModePreinscription>("type_mode_preinscription")
+        .MapEnum<TypeMedia>("type_media")
+    ));
 
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
