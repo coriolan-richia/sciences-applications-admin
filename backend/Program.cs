@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using PreregistrationsAdmin.Context;
-using PreregistrationsAdmin.Models.Enums;
+using backend.Context;
+using backend.Models.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +12,8 @@ builder.Services.AddDbContext<FacContext>(options =>
         FacConnectionString,
         o => o.MapEnum<TypeModePreinscription>("type_mode_preinscription")
         .MapEnum<TypeMedia>("type_media")
-    ));
+    )
+);
 
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();

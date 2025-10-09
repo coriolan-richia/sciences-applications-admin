@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using PreregistrationsAdmin.Models.Enums;
+using backend.Models.Enums;
 
-namespace PreregistrationsAdmin.Models;
+namespace backend.Models;
 
 public partial class Medium
 {

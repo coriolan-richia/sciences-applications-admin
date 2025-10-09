@@ -1,4 +1,4 @@
-﻿namespace PreregistrationsAdmin.Models.Enums;
+﻿namespace backend.Models.Enums;
 public enum TypeMedia
 {
     Image,

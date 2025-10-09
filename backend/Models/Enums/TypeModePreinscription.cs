@@ -1,4 +1,4 @@
-namespace PreregistrationsAdmin.Models.Enums
+namespace backend.Models.Enums
 {
     public enum TypeModePreinscription
     {
@@ -6,9 +6,7 @@ namespace PreregistrationsAdmin.Models.Enums
 
         Poste,
 
-
         Sms,
-
 
         Presentielle
     }

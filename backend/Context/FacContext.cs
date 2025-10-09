@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using PreregistrationsAdmin.Models;
+using backend.Models;
 
-namespace PreregistrationsAdmin.Context;
+namespace backend.Context;
 
 public partial class FacContext : DbContext
 {

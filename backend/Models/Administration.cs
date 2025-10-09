@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace PreregistrationsAdmin.Models;
+namespace backend.Models;
 
 public partial class Administration
 {
