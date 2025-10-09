@@ -24,6 +24,18 @@ builder.Services.AddDbContext<FacContext>(options =>
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
 
+
+/* -----------------CORS !!!!!--------------------- */
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
+
 // These one are for swagger guy
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -40,6 +52,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+/* -----------------CORS !!!!!--------------------- */
+app.UseCors("AllowAll");
+
 app.UseAuthorization();
 
 // make all of the controller visible when consulting them
