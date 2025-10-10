@@ -14,9 +14,7 @@ namespace backend.Controllers
         private readonly FacContext _facDBContext = facDBContext;
         private readonly IPasswordHasher<Utilisateur> _hasher = hasher;
 
-
-
-        [HttpPost("register")]
+        [HttpGet("register")]
         public IActionResult Register()
         {
             var already = _facDBContext.Utilisateurs.SingleOrDefault(u => u.Identifiant == "admin");

@@ -1,8 +1,12 @@
-import type { Preregistration, StudyBranch } from "@/types/preregistration"
-import type { Payment, PaymentUpload } from "@/types/payment"
-import type { PreselectionCriteria, PreselectionCandidate, PreselectionResult } from "@/types/preselection"
-import type { User } from "@/types/user"
-import type { BranchConfiguration } from "@/types/preselection"
+import type { Preregistration, StudyBranch } from "@/types/preregistration";
+import type { Payment, PaymentUpload } from "@/types/payment";
+import type {
+  PreselectionCriteria,
+  PreselectionCandidate,
+  PreselectionResult,
+} from "@/types/preselection";
+import type { User } from "@/types/user";
+import type { BranchConfiguration } from "@/types/preselection";
 
 export const studyBranches: StudyBranch[] = [
   { id: "1", name: "Computer Science", code: "CS" },
@@ -10,7 +14,7 @@ export const studyBranches: StudyBranch[] = [
   { id: "3", name: "Mechanical Engineering", code: "ME" },
   { id: "4", name: "Business Administration", code: "BA" },
   { id: "5", name: "Mathematics", code: "MATH" },
-]
+];
 
 export const mockPreregistrations: Preregistration[] = [
   {
@@ -66,7 +70,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentAgence: "BMCE Bank",
     status: "verified",
   },
-]
+];
 
 export const mockPayments: Payment[] = [
   {
@@ -115,7 +119,7 @@ export const mockPayments: Payment[] = [
     agence: "CIH Bank",
     status: "unmatched",
   },
-]
+];
 
 export const mockPaymentUploads: PaymentUpload[] = [
   {
@@ -139,7 +143,7 @@ export const mockPaymentUploads: PaymentUpload[] = [
     recordCount: 95,
     status: "completed",
   },
-]
+];
 
 export const mockPreselectionCriteria: PreselectionCriteria[] = [
   {
@@ -167,7 +171,7 @@ export const mockPreselectionCriteria: PreselectionCriteria[] = [
     value: "Bien",
     priority: 1,
   },
-]
+];
 
 export const mockPreselectionCandidates: PreselectionCandidate[] = [
   {
@@ -200,7 +204,7 @@ export const mockPreselectionCandidates: PreselectionCandidate[] = [
     score: 12.8,
     status: "waiting",
   },
-]
+];
 
 export const mockPreselectionResults: PreselectionResult[] = [
   {
@@ -223,7 +227,7 @@ export const mockPreselectionResults: PreselectionResult[] = [
     lastRun: "2024-09-20T15:30:00",
     validated: false,
   },
-]
+];
 
 export const mockUsers: User[] = [
   {
@@ -232,7 +236,6 @@ export const mockUsers: User[] = [
     password: "super123",
     name: "Super Admin",
     role: "superadmin" as const,
-    createdAt: "2024-01-01T00:00:00",
   },
   {
     id: "2",
@@ -240,7 +243,6 @@ export const mockUsers: User[] = [
     password: "admin123",
     name: "Admin User",
     role: "admin" as const,
-    createdAt: "2024-02-15T00:00:00",
   },
   {
     id: "3",
@@ -248,9 +250,8 @@ export const mockUsers: User[] = [
     password: "viewer123",
     name: "Viewer User",
     role: "viewer" as const,
-    createdAt: "2024-03-20T00:00:00",
   },
-]
+];
 
 export const mockBranchConfigurations: BranchConfiguration[] = [
   {
@@ -288,7 +289,7 @@ export const mockBranchConfigurations: BranchConfiguration[] = [
     maxCapacity: 15,
     overflowAction: "reject",
   },
-]
+];
 
 export const baccalaureateSubjects = [
   "Mathematics",
@@ -305,4 +306,4 @@ export const baccalaureateSubjects = [
   "Accounting",
   "Engineering Sciences",
   "Earth & Life Sciences",
-]
+];

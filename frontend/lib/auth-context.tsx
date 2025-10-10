@@ -25,7 +25,6 @@ const MOCK_USERS: Array<User & { password: string }> = [
     password: "super123",
     name: "Super Admin",
     role: "superadmin",
-    createdAt: new Date().toISOString(),
   },
   {
     id: "2",
@@ -33,7 +32,6 @@ const MOCK_USERS: Array<User & { password: string }> = [
     password: "admin123",
     name: "Admin User",
     role: "admin",
-    createdAt: new Date().toISOString(),
   },
   {
     id: "3",
@@ -41,7 +39,6 @@ const MOCK_USERS: Array<User & { password: string }> = [
     password: "viewer123",
     name: "Viewer User",
     role: "viewer",
-    createdAt: new Date().toISOString(),
   },
   {
     id: "4",
@@ -49,7 +46,6 @@ const MOCK_USERS: Array<User & { password: string }> = [
     password: "123456",
     name: "Main Admin",
     role: "superadmin",
-    createdAt: new Date().toISOString(),
   },
 ];
 
