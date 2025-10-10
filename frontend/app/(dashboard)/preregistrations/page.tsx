@@ -18,11 +18,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// La page d'accueil de la préinscription
 export default function PreregistrationsPage() {
   const [view, setView] = useState<"card" | "list">("card");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<string>("date-desc");
 
+  // Need a fetch
   const filteredPreregistrations = mockPreregistrations.filter(
     (p) =>
       p.bacNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -156,7 +158,7 @@ export default function PreregistrationsPage() {
 
           {/* List/Card View */}
           {view === "card" ? (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,auto))]  gap-4 fmd:grid-cols-2 flg:grid-cols-3 ">
               {sortedPreregistrations.map((preregistration) => (
                 <PreregistrationCard
                   key={preregistration.id}
