@@ -1,4 +1,10 @@
-import type { Preregistration, StudyBranch } from "@/types/preregistration";
+import {
+  Preregistration,
+  StudyBranch,
+  STATUS_PENDING,
+  STATUS_REJECTED,
+  STATUS_VERIFIED,
+} from "@/types/preregistration";
 import type { Payment, PaymentUpload } from "@/types/payment";
 import type {
   PreselectionCriteria,
@@ -9,11 +15,11 @@ import type { User } from "@/types/user";
 import type { BranchConfiguration } from "@/types/preselection";
 
 export const studyBranches: StudyBranch[] = [
-  { id: "1", name: "Computer Science", code: "CS" },
-  { id: "2", name: "Electrical Engineering", code: "EE" },
-  { id: "3", name: "Mechanical Engineering", code: "ME" },
-  { id: "4", name: "Business Administration", code: "BA" },
-  { id: "5", name: "Mathematics", code: "MATH" },
+  { id: "1", name: "Informatique et Technologie", code: "IT" },
+  { id: "2", name: "Mathématiques et Informatique", code: "MI" },
+  { id: "3", name: "Physique et Application", code: "PA" },
+  { id: "4", name: "Sciences de la Vie et de la Terre", code: "SVT" },
+  { id: "5", name: "Chimie", code: "Chimie" },
 ];
 
 export const mockPreregistrations: Preregistration[] = [
@@ -29,7 +35,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-14",
     paymentReference: "PAY2024001",
     paymentAgence: "Bank of Madagascar",
-    status: "verified",
+    status: STATUS_PENDING,
   },
   {
     id: "2",
@@ -43,7 +49,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-15",
     paymentReference: "PAY2024002",
     paymentAgence: "BNI Madagascar",
-    status: "verified",
+    status: STATUS_VERIFIED,
   },
   {
     id: "3",
@@ -54,7 +60,7 @@ export const mockPreregistrations: Preregistration[] = [
     preregistrationDate: "2024-09-17",
     email: "etudiant3@email.com",
     phone: "+261340000003",
-    status: "pending",
+    status: STATUS_PENDING,
   },
   {
     id: "4",
@@ -68,7 +74,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-17",
     paymentReference: "PAY2024003",
     paymentAgence: "Bank of Africa",
-    status: "verified",
+    status: STATUS_VERIFIED,
   },
   {
     id: "5",
@@ -82,7 +88,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-18",
     paymentReference: "PAY2024005",
     paymentAgence: "BNI Madagascar",
-    status: "verified",
+    status: STATUS_VERIFIED,
   },
   {
     id: "6",
@@ -93,7 +99,7 @@ export const mockPreregistrations: Preregistration[] = [
     preregistrationDate: "2024-09-20",
     email: "etudiant6@email.com",
     phone: "+261340000006",
-    status: "pending",
+    status: STATUS_VERIFIED,
   },
   {
     id: "7",
@@ -107,7 +113,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-20",
     paymentReference: "PAY2024007",
     paymentAgence: "Bank of Madagascar",
-    status: "verified",
+    status: STATUS_VERIFIED,
   },
   {
     id: "8",
@@ -121,7 +127,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-21",
     paymentReference: "PAY2024008",
     paymentAgence: "BNI Madagascar",
-    status: "verified",
+    status: STATUS_VERIFIED,
   },
   {
     id: "9",
@@ -132,7 +138,7 @@ export const mockPreregistrations: Preregistration[] = [
     preregistrationDate: "2024-09-23",
     email: "etudiant9@email.com",
     phone: "+261340000009",
-    status: "pending",
+    status: STATUS_PENDING,
   },
   {
     id: "10",
@@ -146,7 +152,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-23",
     paymentReference: "PAY2024010",
     paymentAgence: "Bank of Africa",
-    status: "verified",
+    status: STATUS_VERIFIED,
   },
   {
     id: "11",
@@ -160,7 +166,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-24",
     paymentReference: "PAY2024011",
     paymentAgence: "Bank of Madagascar",
-    status: "verified",
+    status: STATUS_VERIFIED,
   },
   {
     id: "12",
@@ -171,7 +177,7 @@ export const mockPreregistrations: Preregistration[] = [
     preregistrationDate: "2024-09-26",
     email: "student12@email.com",
     phone: "+261340000012",
-    status: "pending",
+    status: STATUS_PENDING,
   },
   {
     id: "13",
@@ -182,7 +188,7 @@ export const mockPreregistrations: Preregistration[] = [
     preregistrationDate: "2024-09-27",
     email: "student13@email.com",
     phone: "+261340000013",
-    status: "pending",
+    status: STATUS_PENDING,
   },
   {
     id: "14",
@@ -196,7 +202,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-27",
     paymentReference: "PAY2024014",
     paymentAgence: "Bank of Africa",
-    status: "verified",
+    status: STATUS_VERIFIED,
   },
   {
     id: "15",
@@ -207,7 +213,7 @@ export const mockPreregistrations: Preregistration[] = [
     preregistrationDate: "2024-09-29",
     email: "student15@email.com",
     phone: "+261340000015",
-    status: "pending",
+    status: STATUS_PENDING,
   },
   {
     id: "16",
@@ -221,7 +227,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-29",
     paymentReference: "PAY2024016",
     paymentAgence: "Bank of Madagascar",
-    status: "verified",
+    status: STATUS_VERIFIED,
   },
   {
     id: "17",
@@ -232,7 +238,7 @@ export const mockPreregistrations: Preregistration[] = [
     preregistrationDate: "2024-10-01",
     email: "student17@email.com",
     phone: "+261340000017",
-    status: "pending",
+    status: STATUS_PENDING,
   },
   {
     id: "18",
@@ -243,7 +249,7 @@ export const mockPreregistrations: Preregistration[] = [
     preregistrationDate: "2024-10-02",
     email: "student18@email.com",
     phone: "+261340000018",
-    status: "pending",
+    status: STATUS_PENDING,
   },
   {
     id: "19",
@@ -257,7 +263,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-10-02",
     paymentReference: "PAY2024019",
     paymentAgence: "Bank of Africa",
-    status: "verified",
+    status: STATUS_VERIFIED,
   },
   {
     id: "20",
@@ -268,7 +274,7 @@ export const mockPreregistrations: Preregistration[] = [
     preregistrationDate: "2024-10-04",
     email: "student20@email.com",
     phone: "+261340000020",
-    status: "pending",
+    status: STATUS_PENDING,
   },
 ];
 
