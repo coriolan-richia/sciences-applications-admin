@@ -1,4 +1,4 @@
-"use client";
+"use client"; // Directive Next.js qui indique que ce programme s'exécute du côté client
 
 import {
   createContext,
@@ -7,57 +7,37 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
+
 import type { User, AuthState } from "@/types/auth";
 
 interface AuthContextType extends AuthState {
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (identifiant: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
+// Un contexte qui partage l'état d'authentification à toute l'application
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for demonstration
-// This will be replaced when linked to the backend
-const MOCK_USERS: Array<User & { password: string }> = [
-  {
-    id: "1",
-    email: "superadmin@college.edu",
-    password: "super123",
-    name: "Super Admin",
-    role: "superadmin",
-  },
-  {
-    id: "2",
-    email: "admin@college.edu",
-    password: "admin123",
-    name: "Admin User",
-    role: "admin",
-  },
-  {
-    id: "3",
-    email: "viewer@college.edu",
-    password: "viewer123",
-    name: "Viewer User",
-    role: "viewer",
-  },
-  {
-    id: "4",
-    email: "admin",
-    password: "123456",
-    name: "Main Admin",
-    role: "superadmin",
-  },
-];
+//[!] Un PROVIDER est un composant React qui fournit des données ou fonctions à tout ce qui est au dessous de lui dans l'arbre.
 
+// Un PROVIDER qui:
+//    Fournit l'état global d'authentification (AuthState)
+//    Recharge l'utilisateur stocké dans localStorage au montage (useEffect) => et le stockq (voir code)
+//    Fournit les fonctions login() et logout() qui sont utilisées pour s'authentifier et se déconnecter.
 export function AuthProvider({ children }: { children: ReactNode }) {
+  // Nous n'avons aucun utilisateur de connecté au démarrage.
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     isAuthenticated: false,
   });
 
+  // On recherche s'il y a un utilisateur connecté stocké dans le localStorage
+  // S'il existe, alors on connecte cet utilisateur à l'application
   useEffect(() => {
-    // Check for stored user on mount
+    // Quand l'appli est monté, on cherche s'il y a un utilisateur connecté dans le localStorage
     const storedUser = localStorage.getItem("user");
+
+    // Si l'utilisateur existe, on le connecte
     if (storedUser) {
       setAuthState({
         user: JSON.parse(storedUser),
@@ -66,27 +46,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500));
+  // La fonction Login authentifie une personne depuis la page d'authentification
+  // La fonction login:
+  //    est Asynchrone
+  //    prend en paramètre un identifiant et un mot de passe.
+  //    retourne une promesse qui se résoudra plus tard en booléen
+  const login = async (
+    identifiant: string,
+    password: string
+  ): Promise<boolean> => {
+    // L'url d'athentification
+    const authUrl = "http://localhost:5174/api/Authentication";
 
-    const user = MOCK_USERS.find(
-      (u) => u.email === email && u.password === password
-    );
+    // Requête vers l'api
+    const response = await fetch(authUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ identifiant: identifiant, motDePasse: password }),
+    });
 
-    if (user) {
+    const user = await response.json(); // La transformation en JSON est une promise
+
+    // Si un identifiant est disponible dans la réponse, on enregistre l'utilisateur authentifié dans:
+    //  Le localStorage
+    //  L'état d'authentification, qui est alors marqué comme authentifié.
+    //  La fonction de login retourne un booléen true
+    if (user["identifiant"]) {
       const { password: _, ...userWithoutPassword } = user;
       setAuthState({
-        user: userWithoutPassword,
+        user: { ...userWithoutPassword, role: "superadmin" },
         isAuthenticated: true,
       });
+
       localStorage.setItem("user", JSON.stringify(userWithoutPassword));
+      console.log(localStorage.getItem("user"));
+
       return true;
     }
 
     return false;
   };
 
+  // La fonction de déconnexion:
+  //  Efface l'état d'authentification
+  //  Supprime l'utilisateur du localStorage
   const logout = () => {
     setAuthState({
       user: null,
