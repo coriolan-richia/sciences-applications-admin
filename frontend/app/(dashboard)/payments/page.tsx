@@ -18,10 +18,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { getPaymentStatusLabel as getStatusLabel } from "@/types/payment";
+
 export default function PaymentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<string>("date-desc");
 
+  // [FETCH]
   const filteredPayments = mockPayments.filter(
     (p) =>
       p.reference.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -52,13 +55,13 @@ export default function PaymentsPage() {
   return (
     <div className="flex h-full flex-col">
       <PageHeader
-        title="Payments"
-        description="Manage payment information and relevés"
+        title="Paiements"
+        description="Gestion des données de paiements et des relevés"
         action={
           <Link href="/payments/upload">
             <Button>
               <Upload className="mr-2 h-4 w-4" />
-              Upload Relevé
+              Importer un Relevé
             </Button>
           </Link>
         }
@@ -68,8 +71,10 @@ export default function PaymentsPage() {
         <div className="p-8">
           <Tabs defaultValue="payments" className="space-y-6">
             <TabsList>
-              <TabsTrigger value="payments">Payment Records</TabsTrigger>
-              <TabsTrigger value="uploads">Upload History</TabsTrigger>
+              <TabsTrigger value="payments">Relevés de Paiement</TabsTrigger>
+              <TabsTrigger value="uploads">
+                Historique d'Importation
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="payments" className="space-y-6">
@@ -78,7 +83,7 @@ export default function PaymentsPage() {
                 <div className="relative flex-1 max-w-md">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
-                    placeholder="Search by reference, bank, BAC number..."
+                    placeholder="Rechercher par référence, agence, numéro au bac..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-9"
@@ -94,16 +99,16 @@ export default function PaymentsPage() {
                     <SelectItem value="date-desc">Date (Récente)</SelectItem>
                     <SelectItem value="date-asc">Date (Ancienne)</SelectItem>
                     <SelectItem value="amount-desc">
-                      Amount (High to Low)
+                      Montant (Décroissante)
                     </SelectItem>
                     <SelectItem value="amount-asc">
-                      Amount (Low to High)
+                      Montant (Croissante)
                     </SelectItem>
                     <SelectItem value="status-matched">
-                      Matched First
+                      {getStatusLabel("matched")} en Premier
                     </SelectItem>
                     <SelectItem value="status-unmatched">
-                      Unmatched First
+                      {getStatusLabel("unmatched")} en Premier
                     </SelectItem>
                   </SelectContent>
                 </Select>
@@ -113,20 +118,24 @@ export default function PaymentsPage() {
               <div className="grid grid-cols-3 gap-4">
                 <div className="rounded-lg border border-border bg-card p-4">
                   <p className="text-sm text-muted-foreground">
-                    Total Payments
+                    Nombre Total de Paiements
                   </p>
                   <p className="text-2xl font-semibold text-foreground">
                     {mockPayments.length}
                   </p>
                 </div>
                 <div className="rounded-lg border border-border bg-card p-4">
-                  <p className="text-sm text-muted-foreground">Matched</p>
+                  <p className="text-sm text-muted-foreground">
+                    {getStatusLabel("matched")}
+                  </p>
                   <p className="text-2xl font-semibold text-green-500">
                     {mockPayments.filter((p) => p.status === "matched").length}
                   </p>
                 </div>
                 <div className="rounded-lg border border-border bg-card p-4">
-                  <p className="text-sm text-muted-foreground">Unmatched</p>
+                  <p className="text-sm text-muted-foreground">
+                    {getStatusLabel("unmatched")}
+                  </p>
                   <p className="text-2xl font-semibold text-yellow-500">
                     {
                       mockPayments.filter((p) => p.status === "unmatched")
@@ -139,13 +148,13 @@ export default function PaymentsPage() {
               {/* Payment List */}
               <div className="rounded-lg border border-border bg-card">
                 <div className="flex items-center gap-4 border-b border-border bg-secondary/30 px-6 py-3 text-xs font-medium text-muted-foreground">
-                  <div className="w-32">Reference</div>
-                  <div className="w-32">Amount</div>
+                  <div className="w-32">Reéférence</div>
+                  <div className="w-32">Montant</div>
                   <div className="w-32">Date</div>
-                  <div className="w-48">Bank</div>
-                  <div className="flex-1">Student Name</div>
-                  <div className="w-32">BAC Number</div>
-                  <div className="w-24">Status</div>
+                  <div className="w-48">Agence</div>
+                  <div className="flex-1">Nom de l'Étudiant</div>
+                  <div className="w-32">Numéro au Bac</div>
+                  <div className="w-24">Statut</div>
                 </div>
                 {sortedPayments.map((payment) => (
                   <PaymentListItem key={payment.id} payment={payment} />
@@ -156,7 +165,7 @@ export default function PaymentsPage() {
             <TabsContent value="uploads" className="space-y-6">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <FileSpreadsheet className="h-4 w-4" />
-                <span>{mockPaymentUploads.length} files uploaded</span>
+                <span>{mockPaymentUploads.length} fichiers importés</span>
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">

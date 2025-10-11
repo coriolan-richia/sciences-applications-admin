@@ -18,11 +18,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { getPreregistrationStatusLabel as getStatusLabel } from "@/types/preregistration";
+
+// La page d'accueil de la préinscription
 export default function PreregistrationsPage() {
   const [view, setView] = useState<"card" | "list">("card");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<string>("date-desc");
 
+  // Need a fetch
   const filteredPreregistrations = mockPreregistrations.filter(
     (p) =>
       p.bacNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -126,7 +130,9 @@ export default function PreregistrationsPage() {
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card p-4">
-              <p className="text-sm text-muted-foreground">Vérifié</p>
+              <p className="text-sm text-muted-foreground">
+                {getStatusLabel("verified")}
+              </p>
               <p className="text-2xl font-semibold text-green-500">
                 {
                   mockPreregistrations.filter((p) => p.status === "verified")
@@ -135,7 +141,9 @@ export default function PreregistrationsPage() {
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card p-4">
-              <p className="text-sm text-muted-foreground">En Attente</p>
+              <p className="text-sm text-muted-foreground">
+                {getStatusLabel("pending")}
+              </p>
               <p className="text-2xl font-semibold text-yellow-500">
                 {
                   mockPreregistrations.filter((p) => p.status === "pending")
@@ -144,7 +152,9 @@ export default function PreregistrationsPage() {
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card p-4">
-              <p className="text-sm text-muted-foreground">Non Conformes</p>
+              <p className="text-sm text-muted-foreground">
+                {getStatusLabel("rejected")}
+              </p>
               <p className="text-2xl font-semibold text-red-500">
                 {
                   mockPreregistrations.filter((p) => p.status === "rejected")
@@ -156,7 +166,7 @@ export default function PreregistrationsPage() {
 
           {/* List/Card View */}
           {view === "card" ? (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,auto))]  gap-4 fmd:grid-cols-2 flg:grid-cols-3 ">
               {sortedPreregistrations.map((preregistration) => (
                 <PreregistrationCard
                   key={preregistration.id}

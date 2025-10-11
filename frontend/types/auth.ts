@@ -2,9 +2,17 @@ export type UserRole = "superadmin" | "admin" | "viewer";
 
 export interface User {
   id: string;
-  email: string;
-  name: string;
+  identifiant: string;
+  email?: string;
+  name?: string;
   role: UserRole;
+}
+
+export interface ResponseUser {
+  id: string;
+  identifiant: string;
+  role: UserRole;
+  [key: string]: any;
 }
 
 export interface AuthState {

@@ -19,6 +19,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/lib/auth-context";
 import { AlertCircle } from "lucide-react";
 
+// La page de login
 export default function LoginPage() {
   const [identifiant, setidentifiant] = useState("");
   const [password, setPassword] = useState("");
@@ -32,16 +33,42 @@ export default function LoginPage() {
     setError("");
     setIsLoading(true);
 
-    console.log("Login attempt with:", { identifiant, password });
+    console.log(
+      "Tentative de connexion avec:",
+      `{${identifiant}, ${password}}`
+    );
 
     const success = await login(identifiant, password);
 
-    console.log("Login result:", success);
+    console.log("Résultat de la connexion:", success);
 
-    if (success) {
+    if (success.success) {
       router.push("/preregistrations");
     } else {
-      setError("Identifiant ou mot de passe invalide.");
+      switch (success.type) {
+        case "auth":
+          setError(
+            typeof success.error === "string"
+              ? success.error
+              : "Erreur inconnue survenue"
+          );
+          break;
+
+        case "network":
+          setError("Erreur de connexion au serveur");
+          break;
+
+        case "parse":
+          setError("Format de données non reconnu");
+          break;
+
+        case "http":
+          setError(`Erreur HTTP survenue : ${success.status}`);
+          break;
+
+        default:
+          setError("Une erreur inconnue est survenue");
+      }
     }
 
     setIsLoading(false);
@@ -51,9 +78,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto mb-4 flex h-18 w-18 items-center justify-center rounded-full bg-primary/10">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
             <img src="images/fs.jpg" />
-            {/* <GraduationCap className="h-6 w-6 text-primary" /> */}
           </div>
           <CardTitle className="text-2xl font-bold">
             Gestion des Candidatures
@@ -64,18 +90,6 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* <div className="space-y-2">
-              <Label htmlFor="email">identifiant</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="admin@college.edu"
-                value={email}
-                onChange={(e) => setidentifiant(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div> */}
             <div className="space-y-2">
               <Label htmlFor="identifier">Identifiant</Label>
               <Input
@@ -85,6 +99,7 @@ export default function LoginPage() {
                 value={identifiant}
                 onChange={(e) => setidentifiant(e.target.value)}
                 required
+                autoComplete="username"
                 disabled={isLoading}
               />
             </div>
@@ -97,6 +112,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoComplete="current-password"
                 disabled={isLoading}
               />
             </div>
@@ -113,18 +129,9 @@ export default function LoginPage() {
               className="w-full bg-purple-700"
               disabled={isLoading}
             >
-              {isLoading ? "Connextion ..." : "Se connecter"}
+              {isLoading ? "Connexion ..." : "Se connecter"}
             </Button>
           </form>
-
-          {/* <div className="mt-6 space-y-2 rounded-lg border border-border/50 bg-muted/30 p-4 text-sm">
-            <p className="font-medium text-foreground">Demo Credentials:</p>
-            <div className="space-y-1 text-muted-foreground">
-              <p>SuperAdmin: superadmin@college.edu / super123</p>
-              <p>Admin: admin@college.edu / admin123</p>
-              <p>Viewer: viewer@college.edu / viewer123</p>
-            </div>
-          </div> */}
         </CardContent>
 
         <CardFooter>
