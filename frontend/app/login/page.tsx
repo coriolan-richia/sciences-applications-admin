@@ -42,10 +42,33 @@ export default function LoginPage() {
 
     console.log("Résultat de la connexion:", success);
 
-    if (success) {
+    if (success.success) {
       router.push("/preregistrations");
     } else {
-      setError("Identifiant ou mot de passe invalide.");
+      switch (success.type) {
+        case "auth":
+          setError(
+            typeof success.error === "string"
+              ? success.error
+              : "Erreur inconnue survenue"
+          );
+          break;
+
+        case "network":
+          setError("Erreur de connexion au serveur");
+          break;
+
+        case "parse":
+          setError("Format de données non reconnu");
+          break;
+
+        case "http":
+          setError(`Erreur HTTP survenue : ${success.status}`);
+          break;
+
+        default:
+          setError("Une erreur inconnue est survenue");
+      }
     }
 
     setIsLoading(false);
@@ -106,7 +129,7 @@ export default function LoginPage() {
               className="w-full bg-purple-700"
               disabled={isLoading}
             >
-              {isLoading ? "Connextion ..." : "Se connecter"}
+              {isLoading ? "Connexion ..." : "Se connecter"}
             </Button>
           </form>
         </CardContent>

@@ -4,8 +4,15 @@ export interface User {
   id: string;
   identifiant: string;
   email?: string;
-  name: string;
+  name?: string;
   role: UserRole;
+}
+
+export interface ResponseUser {
+  id: string;
+  identifiant: string;
+  role: UserRole;
+  [key: string]: any;
 }
 
 export interface AuthState {

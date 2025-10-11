@@ -9,10 +9,18 @@ import {
 } from "react";
 
 import type { User, AuthState } from "@/types/auth";
+import { logIfDev } from "@/lib/utils";
 
 interface AuthContextType extends AuthState {
-  login: (identifiant: string, password: string) => Promise<boolean>;
+  login: (identifiant: string, password: string) => Promise<LoginResult>;
   logout: () => void;
+}
+
+interface LoginResult {
+  success: boolean;
+  type: "ok" | "network" | "http" | "parse" | "auth";
+  status?: number;
+  error?: string;
 }
 
 // Un contexte qui partage l'état d'authentification à toute l'application
@@ -54,39 +62,85 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (
     identifiant: string,
     password: string
-  ): Promise<boolean> => {
+  ): Promise<LoginResult> => {
     // L'url d'athentification
     const authUrl = "http://localhost:5174/api/Authentication";
 
-    // Requête vers l'api
-    const response = await fetch(authUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ identifiant: identifiant, motDePasse: password }),
-    });
+    try {
+      // Requête vers l'api
+      const response = await fetch(authUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          identifiant: identifiant,
+          motDePasse: password,
+        }),
+      });
 
-    const user = await response.json(); // La transformation en JSON est une promise
+      let responseAsText = await response.text();
 
-    // Si un identifiant est disponible dans la réponse, on enregistre l'utilisateur authentifié dans:
-    //  Le localStorage
-    //  L'état d'authentification, qui est alors marqué comme authentifié.
-    //  La fonction de login retourne un booléen true
-    if (user["identifiant"]) {
-      const { password: _, ...userWithoutPassword } = user;
+      // Lecture du message
+      let data: any = null;
+      if (responseAsText) {
+        try {
+          data = JSON.parse(responseAsText);
+        } catch {
+          logIfDev("log", "Réponse Non JSON:", responseAsText);
+          return { success: false, type: "parse" };
+        }
+      }
+
+      // Erreurs HTTP
+      if (!response.ok) {
+        const errorMessage =
+          data?.error ||
+          data?.message ||
+          response.statusText ||
+          "Erreur Inconnue";
+        logIfDev(
+          "error",
+          `Erreur HTTP: ${response.status} ${response.statusText}`
+        );
+        return {
+          success: false,
+          type:
+            response.status === 401 || response.status === 400
+              ? "auth"
+              : "http",
+          status: response.status,
+          error: errorMessage,
+        };
+      }
+
+      // Si un identifiant est disponible dans la réponse, on enregistre l'utilisateur authentifié dans:
+      //  Le localStorage
+      //  L'état d'authentification, qui est alors marqué comme authentifié.
+      //  La fonction de login retourne un booléen true
+      if (!data?.identifiant) {
+        logIfDev("error", "Identifiants incorrects ou Utilisateur Introuvable");
+        return { success: false, type: "auth" };
+      }
+
+      const { ...userWithoutPassword } = data;
       setAuthState({
         user: { ...userWithoutPassword, role: "superadmin" },
         isAuthenticated: true,
       });
 
       localStorage.setItem("user", JSON.stringify(userWithoutPassword));
-      console.log(localStorage.getItem("user"));
+      logIfDev("log", "Utilisateur authentifié:", localStorage.getItem("user"));
 
-      return true;
+      return { success: true, type: "ok" };
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : String(error ?? "Erreur inconnue");
+      logIfDev("log", "Erreur réseau ou requête échouée:", error);
+      return { success: false, type: "network", error: message };
     }
-
-    return false;
   };
 
   // La fonction de déconnexion:
