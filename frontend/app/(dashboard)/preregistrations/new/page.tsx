@@ -36,36 +36,65 @@ const initialFormData = {
   paymentDate: "",
 };
 export default function NewPreregistrationPage() {
-  const router = useRouter();
+  // const router = useRouter();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState(initialFormData);
   const formRef = useRef<HTMLFormElement>(null);
   const [formError, setFormError] = useState<string[]>([]);
+  const [step1Signature, setStep1Signature] = useState("");
 
   const addToFormError = (value: string) => {
     setFormError((prev) => [...prev, value]);
   };
+
+  const controlFields = (
+    table: { value: string | string[]; message: string }[]
+  ): boolean => {
+    let dataAreOk: boolean = true;
+
+    table.forEach((entry) => {
+      let { value, message } = entry;
+      if (
+        (Array.isArray(value) && value.every((v) => isNullOrEmpty(v))) ||
+        (typeof value === "string" && isNullOrEmpty(value))
+      ) {
+        addToFormError(message);
+        dataAreOk = false;
+      }
+    });
+    return dataAreOk;
+  };
+
   const handleNext = () => {
     setFormError([]);
-    let dataAreOk = true;
     // [FETCH]
-    if (isNullOrEmpty(formData.email) && isNullOrEmpty(formData.phone)) {
-      addToFormError(
-        "Au moins un email ou un numéro de téléphone doit être fourni."
-      );
-      dataAreOk = false;
-    }
-    if (isNullOrEmpty(formData.bacYear)) {
-      addToFormError("L'année de bac ne doit pas être vide");
-      dataAreOk = false;
-    }
-    if (isNullOrEmpty(formData.bacNumber)) {
-      addToFormError("Le numéro de bac ne doit pas être vide.");
-      dataAreOk = false;
-    }
+    let dataAreOk = controlFields([
+      {
+        value: formData.email,
+        message:
+          "Au moins un email ou un numéro de téléphone doit être fourni.",
+      },
+      {
+        value: formData.bacYear,
+        message: "L'année de bac ne doit pas être vide",
+      },
+      {
+        value: formData.bacNumber,
+        message: "Le numéro de bac ne doit pas être vide",
+      },
+    ]);
+
     console.log(formError);
 
-    if (dataAreOk) setStep(2);
+    if (dataAreOk) {
+      const newSig = `${formData.email}-${formData.phone}-${formData.bacNumber}-${formData.bacYear}`;
+      console.log(newSig);
+      if (step1Signature && newSig !== step1Signature) {
+        resetStep2(); // vide les champs du step 2
+      }
+      setStep1Signature(newSig);
+      setStep(2);
+    }
   };
 
   const handleBack = () => {
@@ -87,6 +116,7 @@ export default function NewPreregistrationPage() {
       paymentAgence: "",
       paymentDate: "",
     }));
+    setFormError([]);
   };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,9 +124,35 @@ export default function NewPreregistrationPage() {
 
     // [FETCH]
     // Here you would typically send the data to your backend
+
+    let dataAreOk = controlFields([
+      {
+        value: formData.studyBranch,
+        message: "Le choix de mention est obligatoire.",
+      },
+      {
+        value: formData.preregistrationDate,
+        message: "La date de préinscription est requise.",
+      },
+      {
+        value: formData.paymentReference,
+        message: "La référence de paiement est requise.",
+      },
+      {
+        value: formData.paymentAgence,
+        message: "L'agence de paiement est requise.",
+      },
+      {
+        value: formData.paymentDate,
+        message: "La date de paiement est requise.",
+      },
+    ]);
     console.log("Formulaire Soumis:", formData);
-    setFormData(initialFormData);
-    setStep(1);
+    if (dataAreOk) {
+      setTimeout(() => {}, 2000);
+      setFormData(initialFormData);
+      setStep(1);
+    }
     // router.push("/preregistrations");
   };
 
