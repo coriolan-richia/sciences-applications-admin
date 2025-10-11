@@ -18,6 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { getPreregistrationStatusLabel as getStatusLabel } from "@/types/preregistration";
+
 // La page d'accueil de la préinscription
 export default function PreregistrationsPage() {
   const [view, setView] = useState<"card" | "list">("card");
@@ -128,32 +130,35 @@ export default function PreregistrationsPage() {
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card p-4">
-              <p className="text-sm text-muted-foreground">Vérifié</p>
+              <p className="text-sm text-muted-foreground">
+                {getStatusLabel("verified")}
+              </p>
               <p className="text-2xl font-semibold text-green-500">
                 {
-                  mockPreregistrations.filter(
-                    (p) => p.status.code === "verified"
-                  ).length
+                  mockPreregistrations.filter((p) => p.status === "verified")
+                    .length
                 }
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card p-4">
-              <p className="text-sm text-muted-foreground">En Attente</p>
+              <p className="text-sm text-muted-foreground">
+                {getStatusLabel("pending")}
+              </p>
               <p className="text-2xl font-semibold text-yellow-500">
                 {
-                  mockPreregistrations.filter(
-                    (p) => p.status.code === "pending"
-                  ).length
+                  mockPreregistrations.filter((p) => p.status === "pending")
+                    .length
                 }
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card p-4">
-              <p className="text-sm text-muted-foreground">Non Conformes</p>
+              <p className="text-sm text-muted-foreground">
+                {getStatusLabel("rejected")}
+              </p>
               <p className="text-2xl font-semibold text-red-500">
                 {
-                  mockPreregistrations.filter(
-                    (p) => p.status.code === "rejected"
-                  ).length
+                  mockPreregistrations.filter((p) => p.status === "rejected")
+                    .length
                 }
               </p>
             </div>

@@ -1,10 +1,4 @@
-import {
-  Preregistration,
-  StudyBranch,
-  STATUS_PENDING,
-  STATUS_REJECTED,
-  STATUS_VERIFIED,
-} from "@/types/preregistration";
+import { Preregistration, StudyBranch } from "@/types/preregistration";
 import type { Payment, PaymentUpload } from "@/types/payment";
 import type {
   PreselectionCriteria,
@@ -35,7 +29,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-14",
     paymentReference: "PAY2024001",
     paymentAgence: "Bank of Madagascar",
-    status: STATUS_PENDING,
+    status: "pending",
   },
   {
     id: "2",
@@ -49,7 +43,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-15",
     paymentReference: "PAY2024002",
     paymentAgence: "BNI Madagascar",
-    status: STATUS_VERIFIED,
+    status: "verified",
   },
   {
     id: "3",
@@ -60,7 +54,7 @@ export const mockPreregistrations: Preregistration[] = [
     preregistrationDate: "2024-09-17",
     email: "etudiant3@email.com",
     phone: "+261340000003",
-    status: STATUS_PENDING,
+    status: "pending",
   },
   {
     id: "4",
@@ -74,7 +68,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-17",
     paymentReference: "PAY2024003",
     paymentAgence: "Bank of Africa",
-    status: STATUS_VERIFIED,
+    status: "verified",
   },
   {
     id: "5",
@@ -88,7 +82,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-18",
     paymentReference: "PAY2024005",
     paymentAgence: "BNI Madagascar",
-    status: STATUS_VERIFIED,
+    status: "verified",
   },
   {
     id: "6",
@@ -99,7 +93,7 @@ export const mockPreregistrations: Preregistration[] = [
     preregistrationDate: "2024-09-20",
     email: "etudiant6@email.com",
     phone: "+261340000006",
-    status: STATUS_VERIFIED,
+    status: "verified",
   },
   {
     id: "7",
@@ -113,7 +107,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-20",
     paymentReference: "PAY2024007",
     paymentAgence: "Bank of Madagascar",
-    status: STATUS_VERIFIED,
+    status: "verified",
   },
   {
     id: "8",
@@ -127,7 +121,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-21",
     paymentReference: "PAY2024008",
     paymentAgence: "BNI Madagascar",
-    status: STATUS_VERIFIED,
+    status: "verified",
   },
   {
     id: "9",
@@ -138,7 +132,7 @@ export const mockPreregistrations: Preregistration[] = [
     preregistrationDate: "2024-09-23",
     email: "etudiant9@email.com",
     phone: "+261340000009",
-    status: STATUS_PENDING,
+    status: "pending",
   },
   {
     id: "10",
@@ -152,7 +146,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-23",
     paymentReference: "PAY2024010",
     paymentAgence: "Bank of Africa",
-    status: STATUS_VERIFIED,
+    status: "verified",
   },
   {
     id: "11",
@@ -166,7 +160,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-24",
     paymentReference: "PAY2024011",
     paymentAgence: "Bank of Madagascar",
-    status: STATUS_VERIFIED,
+    status: "verified",
   },
   {
     id: "12",
@@ -177,7 +171,7 @@ export const mockPreregistrations: Preregistration[] = [
     preregistrationDate: "2024-09-26",
     email: "student12@email.com",
     phone: "+261340000012",
-    status: STATUS_PENDING,
+    status: "pending",
   },
   {
     id: "13",
@@ -188,7 +182,7 @@ export const mockPreregistrations: Preregistration[] = [
     preregistrationDate: "2024-09-27",
     email: "student13@email.com",
     phone: "+261340000013",
-    status: STATUS_PENDING,
+    status: "pending",
   },
   {
     id: "14",
@@ -202,7 +196,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-27",
     paymentReference: "PAY2024014",
     paymentAgence: "Bank of Africa",
-    status: STATUS_VERIFIED,
+    status: "verified",
   },
   {
     id: "15",
@@ -213,7 +207,7 @@ export const mockPreregistrations: Preregistration[] = [
     preregistrationDate: "2024-09-29",
     email: "student15@email.com",
     phone: "+261340000015",
-    status: STATUS_PENDING,
+    status: "pending",
   },
   {
     id: "16",
@@ -227,7 +221,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-09-29",
     paymentReference: "PAY2024016",
     paymentAgence: "Bank of Madagascar",
-    status: STATUS_VERIFIED,
+    status: "verified",
   },
   {
     id: "17",
@@ -238,7 +232,7 @@ export const mockPreregistrations: Preregistration[] = [
     preregistrationDate: "2024-10-01",
     email: "student17@email.com",
     phone: "+261340000017",
-    status: STATUS_PENDING,
+    status: "pending",
   },
   {
     id: "18",
@@ -249,7 +243,7 @@ export const mockPreregistrations: Preregistration[] = [
     preregistrationDate: "2024-10-02",
     email: "student18@email.com",
     phone: "+261340000018",
-    status: STATUS_PENDING,
+    status: "pending",
   },
   {
     id: "19",
@@ -263,7 +257,7 @@ export const mockPreregistrations: Preregistration[] = [
     paymentDate: "2024-10-02",
     paymentReference: "PAY2024019",
     paymentAgence: "Bank of Africa",
-    status: STATUS_VERIFIED,
+    status: "verified",
   },
   {
     id: "20",
@@ -274,19 +268,19 @@ export const mockPreregistrations: Preregistration[] = [
     preregistrationDate: "2024-10-04",
     email: "student20@email.com",
     phone: "+261340000020",
-    status: STATUS_PENDING,
+    status: "pending",
   },
 ];
-
+// --- Mock Payments ---
 export const mockPayments: Payment[] = [
   {
     id: "1",
     reference: "PAY2024001",
     amount: 5000,
     date: "2024-09-14",
-    agence: "Bank Al-Maghrib",
-    studentName: "Ahmed Benali",
-    bacNumber: "BAC2024001",
+    agence: "Bank of Madagascar",
+    studentName: "Etudiant 1",
+    bacNumber: "3182035",
     status: "matched",
   },
   {
@@ -294,9 +288,9 @@ export const mockPayments: Payment[] = [
     reference: "PAY2024002",
     amount: 5000,
     date: "2024-09-15",
-    agence: "Attijariwafa Bank",
-    studentName: "Fatima Zahra",
-    bacNumber: "BAC2024002",
+    agence: "BNI Madagascar",
+    studentName: "Etudiant 2",
+    bacNumber: "3182036",
     status: "matched",
   },
   {
@@ -304,26 +298,30 @@ export const mockPayments: Payment[] = [
     reference: "PAY2024003",
     amount: 5000,
     date: "2024-09-17",
-    agence: "BMCE Bank",
-    studentName: "Mohammed Alami",
-    bacNumber: "BAC2023045",
+    agence: "Bank of Africa",
+    studentName: "Etudiant 4",
+    bacNumber: "3182038",
     status: "matched",
   },
   {
     id: "4",
-    reference: "PAY2024004",
+    reference: "PAY2024005",
     amount: 5000,
     date: "2024-09-18",
-    agence: "Banque Populaire",
-    status: "unmatched",
+    agence: "BNI Madagascar",
+    studentName: "Etudiant 5",
+    bacNumber: "1182039",
+    status: "matched",
   },
   {
     id: "5",
-    reference: "PAY2024005",
+    reference: "PAY2024007",
     amount: 5000,
-    date: "2024-09-19",
-    agence: "CIH Bank",
-    status: "unmatched",
+    date: "2024-09-20",
+    agence: "Bank of Madagascar",
+    studentName: "Etudiant 7",
+    bacNumber: "3182041",
+    status: "matched",
   },
 ];
 

@@ -22,6 +22,7 @@ export default function PaymentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<string>("date-desc");
 
+  // [FETCH]
   const filteredPayments = mockPayments.filter(
     (p) =>
       p.reference.toLowerCase().includes(searchQuery.toLowerCase()) ||

@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+import { getPreregistrationStatusLabel as getStatusLabel } from "@/types/preregistration";
 interface PreregistrationListItemProps {
   preregistration: Preregistration;
 }
@@ -37,10 +38,10 @@ export function PreregistrationListItem({
         <Badge
           className={cn(
             "w-20 justify-center",
-            statusColors[preregistration.status.code]
+            statusColors[preregistration.status]
           )}
         >
-          {preregistration.status.label}
+          {getStatusLabel(preregistration.status)}
         </Badge>
       </div>
     </Link>

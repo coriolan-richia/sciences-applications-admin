@@ -15,6 +15,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import Link from "next/link";
+import { getPreregistrationStatusLabel as getStatusLabel } from "@/types/preregistration";
 
 export default async function PreregistrationDetailPage({
   params,
@@ -54,10 +55,10 @@ export default async function PreregistrationDetailPage({
           {/* Status Badge */}
           <div className="flex items-center gap-3">
             <Badge
-              className={statusColors[preregistration.status.code]}
+              className={statusColors[preregistration.status]}
               // variant="outline"
             >
-              {preregistration.status.label}
+              {getStatusLabel(preregistration.status)}
             </Badge>
           </div>
 
