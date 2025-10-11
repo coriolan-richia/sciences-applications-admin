@@ -23,6 +23,7 @@ export default async function PreregistrationDetailPage({
   params: { id: string };
 }) {
   const { id } = await params;
+  // [FETCH]
   const preregistration = mockPreregistrations.find((p) => p.id === id);
 
   if (!preregistration) {
