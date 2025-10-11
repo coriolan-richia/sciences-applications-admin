@@ -1,9 +1,11 @@
-import type { Preregistration } from "@/types/preregistration";
+import {
+  type Preregistration,
+  getPreregistrationStatusLabel as getStatusLabel,
+} from "@/types/preregistration";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-import { getPreregistrationStatusLabel as getStatusLabel } from "@/types/preregistration";
 interface PreregistrationListItemProps {
   preregistration: Preregistration;
 }

@@ -1,4 +1,7 @@
-import type { Preregistration } from "@/types/preregistration";
+import {
+  type Preregistration,
+  getPreregistrationStatusLabel as getStatusLabel,
+} from "@/types/preregistration";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, GraduationCap, BookOpen } from "lucide-react";
@@ -26,8 +29,8 @@ export function PreregistrationCard({
               <h3 className="font-semibold text-foreground">
                 {preregistration.bacNumber}
               </h3>
-              <Badge className={statusColors[preregistration.status.code]}>
-                {preregistration.status.label}
+              <Badge className={statusColors[preregistration.status]}>
+                {getStatusLabel(preregistration.status)}
               </Badge>
             </div>
 
