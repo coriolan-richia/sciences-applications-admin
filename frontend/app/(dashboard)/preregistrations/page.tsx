@@ -131,8 +131,9 @@ export default function PreregistrationsPage() {
               <p className="text-sm text-muted-foreground">Vérifié</p>
               <p className="text-2xl font-semibold text-green-500">
                 {
-                  mockPreregistrations.filter((p) => p.status === "verified")
-                    .length
+                  mockPreregistrations.filter(
+                    (p) => p.status.code === "verified"
+                  ).length
                 }
               </p>
             </div>
@@ -140,8 +141,9 @@ export default function PreregistrationsPage() {
               <p className="text-sm text-muted-foreground">En Attente</p>
               <p className="text-2xl font-semibold text-yellow-500">
                 {
-                  mockPreregistrations.filter((p) => p.status === "pending")
-                    .length
+                  mockPreregistrations.filter(
+                    (p) => p.status.code === "pending"
+                  ).length
                 }
               </p>
             </div>
@@ -149,8 +151,9 @@ export default function PreregistrationsPage() {
               <p className="text-sm text-muted-foreground">Non Conformes</p>
               <p className="text-2xl font-semibold text-red-500">
                 {
-                  mockPreregistrations.filter((p) => p.status === "rejected")
-                    .length
+                  mockPreregistrations.filter(
+                    (p) => p.status.code === "rejected"
+                  ).length
                 }
               </p>
             </div>
