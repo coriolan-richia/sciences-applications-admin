@@ -4,21 +4,23 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using backend.Models;
 using backend.DTOs;
+using backend.Services;
 
 namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthenticationController(FacContext facDBContext, IPasswordHasher<Utilisateur> hasher) : ControllerBase
+    public class AuthenticationController(FacContext facDBContext, IPasswordHasher<Utilisateur> hasher, JwtService jwtService) : ControllerBase
     {
         private readonly FacContext _facDBContext = facDBContext;
         private readonly IPasswordHasher<Utilisateur> _hasher = hasher;
+        private readonly JwtService _jwtService = jwtService;
 
         [HttpGet("register")]
         public IActionResult Register()
         {
             var already = _facDBContext.Utilisateurs.SingleOrDefault(u => u.Identifiant == "admin");
-            
+
             if (already is not null)
             {
                 return BadRequest("L'utilisateur 'admin' existe déjà.");
@@ -54,11 +56,14 @@ namespace backend.Controllers
                 return Unauthorized(new { message = "Identifiants incorrects." });
             }
 
+            string token = _jwtService.GenerateToken(user.IdUtilisateur, user.Identifiant);            
+
             var userResponse = new
             {
                 user.IdUtilisateur,
                 user.Identifiant,
-                user.RoleUtilisateurs
+                user.RoleUtilisateurs,
+                token,
             };
 
             return Ok(userResponse);
