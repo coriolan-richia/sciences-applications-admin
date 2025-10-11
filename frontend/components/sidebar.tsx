@@ -6,7 +6,6 @@ import {
   FileText,
   CreditCard,
   CheckSquare,
-  GraduationCap,
   LogOut,
   Shield,
 } from "lucide-react";
@@ -91,12 +90,19 @@ export function Sidebar() {
 
       <div className="border-t border-border p-4">
         <div className="space-y-3">
-          <div className="text-xs">
-            <p className="font-medium text-foreground">{user?.name}</p>
-            <p className="text-muted-foreground">{user?.email}</p>
-            <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-              {user?.role}
-            </p>
+          <div className="flex flex-row gap-2 items-center h-min">
+            <div className="h-12 aspect-square">
+              <img src="images/fs.jpg" />
+            </div>
+            <div className="flex-1 text-xs">
+              <p className="text-sm font-medium text-foreground">
+                {user?.identifiant}
+              </p>
+              {/* <p className="text-muted-foreground">{user?.email}</p> */}
+              <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                {user?.role}
+              </p>
+            </div>
           </div>
           <Button
             variant="outline"
