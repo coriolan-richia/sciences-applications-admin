@@ -20,9 +20,11 @@ import Link from "next/link";
 
 // [FETCH]
 import { studyBranches } from "@/lib/mock-data";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { isNullOrEmpty } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+
+import { logIfDev } from "@/lib/utils";
 
 const initialFormData = {
   email: "",
@@ -84,11 +86,11 @@ export default function NewPreregistrationPage() {
       },
     ]);
 
-    console.log(formError);
+    // logIfDev("log", formError);
 
     if (dataAreOk) {
       const newSig = `${formData.email}-${formData.phone}-${formData.bacNumber}-${formData.bacYear}`;
-      console.log(newSig);
+      // logIfDev("log", newSig);
       if (step1Signature && newSig !== step1Signature) {
         resetStep2(); // vide les champs du step 2
       }
@@ -147,7 +149,7 @@ export default function NewPreregistrationPage() {
         message: "La date de paiement est requise.",
       },
     ]);
-    console.log("Formulaire Soumis:", formData);
+    // logIfDev("log", "Formulaire Soumis:", formData);
     if (dataAreOk) {
       setTimeout(() => {}, 2000);
       setFormData(initialFormData);
