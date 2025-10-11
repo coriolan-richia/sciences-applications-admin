@@ -4,7 +4,7 @@ import { useState } from "react";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, FileCheck, ArrowUpDown } from "lucide-react";
+import { Plus, Search, FileCheck, ArrowUpDown, RefreshCw } from "lucide-react";
 import { ViewToggle } from "@/components/preregistrations/view-toggle";
 import { PreregistrationCard } from "@/components/preregistrations/preregistration-card";
 import { PreregistrationListItem } from "@/components/preregistrations/preregistration-list-item";
@@ -26,7 +26,8 @@ export default function PreregistrationsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<string>("date-desc");
 
-  // Need a fetch
+  // [FETCH]
+  // We might need to add some refresh to the list.
   const filteredPreregistrations = mockPreregistrations.filter(
     (p) =>
       p.bacNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -117,7 +118,11 @@ export default function PreregistrationsPage() {
                   <SelectItem value="branch-desc">Mention (Z-A)</SelectItem>
                 </SelectContent>
               </Select>
+              <Button variant="outline" title="Actualiser">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
             </div>
+
             <ViewToggle view={view} onViewChange={setView} />
           </div>
 
