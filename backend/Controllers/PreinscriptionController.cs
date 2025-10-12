@@ -33,6 +33,7 @@ namespace backend.Controllers
                 return StatusCode(500, new { message = "Erreur interne du serveur", error = ex.Message });
             }
         }
+        
 
         [HttpGet("listingall")]
         public async Task<IActionResult> ListingAll()

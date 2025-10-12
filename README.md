@@ -3,8 +3,12 @@
 An application for handling applications and preregistrations at the Faculty of Sciences of the University of Antananarivo.
 For the administrations.
 
-Here is My appsettings.json , please configure yours
+### Important
+DROP YOUR DATABASE "Fac",
+Redump with the another one
 
+### configure this
+Here is My appsettings.json , please configure yours
 ```
 {
   "ConnectionStrings": {
