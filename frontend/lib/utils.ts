@@ -10,3 +10,7 @@ export function logIfDev(level: "log" | "warn" | "error", ...args: unknown[]) {
     console[level](...args);
   }
 }
+
+export function isNullOrEmpty(value: string): boolean {
+  return value === null || value === undefined || value === "";
+}

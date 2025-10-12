@@ -14,9 +14,8 @@ import {
   CheckCircle2,
   CircleAlert,
   RotateCcw,
-  List,
   FileUp,
-  X,
+  Eraser,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -32,6 +31,10 @@ export default function UploadPaymentPage() {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
     }
+  };
+
+  const handleErase = () => {
+    setSelectedFile(null);
   };
 
   const handleUpload = async () => {
@@ -71,7 +74,7 @@ export default function UploadPaymentPage() {
           <Link href="/payments">
             <Button variant="outline">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Retour aux Paiements
+              Retour aux paiements
             </Button>
           </Link>
         }
@@ -139,11 +142,15 @@ export default function UploadPaymentPage() {
                 </div>
 
                 <div className="flex justify-end gap-2 pt-4">
-                  <Link href="/payments">
-                    <Button variant="outline">
-                      <X className="mr-2 h-4 w-4" /> Annuler
-                    </Button>
-                  </Link>
+                  {/* <Link href="/payments"> */}
+                  <Button
+                    variant="outline"
+                    onClick={handleErase}
+                    disabled={!selectedFile || isUploading}
+                  >
+                    <Eraser className="mr-2 h-4 w-4" /> Effacer
+                  </Button>
+                  {/* </Link> */}
                   <Button
                     onClick={handleUpload}
                     disabled={!selectedFile || isUploading}
@@ -167,8 +174,8 @@ export default function UploadPaymentPage() {
                 <div className="flex justify-end gap-2 pt-4">
                   <Link href="/payments">
                     <Button variant="outline">
-                      <List className="mr-2 h-4 w-4" />
-                      Voir la liste
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Retour aux paiements
                     </Button>
                   </Link>
                   <Button onClick={handleNew}>
