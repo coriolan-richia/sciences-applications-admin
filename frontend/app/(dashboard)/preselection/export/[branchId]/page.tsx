@@ -23,6 +23,7 @@ export default function ExportPreselectionPage() {
   const result = mockPreselectionResults.find((r) => r.branchId === branchId);
 
   const handleExport = () => {
+    setExportSuccess(false);
     setExportComplete(false);
     setIsExporting(true);
     logIfDev(
@@ -140,7 +141,7 @@ export default function ExportPreselectionPage() {
                     </li>
                     <li>• Statut de sélection et rang</li>
                     <li>• Mention de choix: {branch.name}</li>
-                    <li>• Formaté pour usage officiel</li>
+                    <li>• Formatage pour usage officiel</li>
                   </ul>
                 </div>
 
