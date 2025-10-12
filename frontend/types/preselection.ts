@@ -19,7 +19,9 @@ export interface PreselectionCandidate {
   status: "selected" | "waiting" | "rejected";
 }
 
-export function getPreselectionCandidateStatusLabel(status: string): string {
+export function getPreselectionCandidateStatusLabel(
+  status: "selected" | "waiting" | "rejected"
+): string {
   switch (status) {
     case "selected":
       return "Sélectionné";
