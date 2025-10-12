@@ -8,7 +8,8 @@ Here is My appsettings.json , please configure yours
 ```
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Database=[your_database];Username=[your_user];Password=[your_password]"
+    "ConnectionToFac": "Host=localhost;Database=[fac_database_name];Username=[your_username];Password=[your_password]",
+    "ConnectionToBac": "Host=localhost;Database=[bac_database_name];Username=[your_username];Password=[your_password]"
   },
   "Jwt": {
     "Key": "LaClefSecreteDuGrandSANDANIAINAAdrien!!!",

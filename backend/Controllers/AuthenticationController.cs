@@ -2,7 +2,7 @@ using backend.Context;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using backend.Models;
+using backend.Models.Fac;
 using backend.DTOs;
 using backend.Services;
 

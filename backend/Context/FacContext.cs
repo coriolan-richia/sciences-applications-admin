@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using backend.Models;
+using backend.Models.Fac;
 
 namespace backend.Context;
 
@@ -20,8 +20,6 @@ public partial class FacContext : DbContext
 
     public virtual DbSet<ActualiteMedium> ActualiteMedia { get; set; }
 
-    public virtual DbSet<Administration> Administrations { get; set; }
-
     public virtual DbSet<Appartenance> Appartenances { get; set; }
 
     public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
@@ -38,11 +36,7 @@ public partial class FacContext : DbContext
 
     public virtual DbSet<Bac> Bacs { get; set; }
 
-    public virtual DbSet<Bachelier> Bacheliers { get; set; }
-
     public virtual DbSet<CategorieActualite> CategorieActualites { get; set; }
-
-    public virtual DbSet<Centre> Centres { get; set; }
 
     public virtual DbSet<Cofac> Cofacs { get; set; }
 
@@ -50,35 +44,23 @@ public partial class FacContext : DbContext
 
     public virtual DbSet<EcoleDoctorale> EcoleDoctorales { get; set; }
 
-    public virtual DbSet<Etablissement> Etablissements { get; set; }
-
     public virtual DbSet<Fonction> Fonctions { get; set; }
 
     public virtual DbSet<Grade> Grades { get; set; }
-
-    public virtual DbSet<Historique> Historiques { get; set; }
 
     public virtual DbSet<LaboMedium> LaboMedia { get; set; }
 
     public virtual DbSet<Laboratoire> Laboratoires { get; set; }
 
-    public virtual DbSet<Matiere> Matieres { get; set; }
-
     public virtual DbSet<Medium> Media { get; set; }
 
     public virtual DbSet<Mention> Mentions { get; set; }
-
-    public virtual DbSet<Mention1> Mentions1 { get; set; }
 
     public virtual DbSet<MentionNiveauParcour> MentionNiveauParcours { get; set; }
 
     public virtual DbSet<MentionResponsable> MentionResponsables { get; set; }
 
     public virtual DbSet<Niveau> Niveaus { get; set; }
-
-    public virtual DbSet<Note> Notes { get; set; }
-
-    public virtual DbSet<Option> Options { get; set; }
 
     public virtual DbSet<Paiement> Paiements { get; set; }
 
@@ -90,8 +72,6 @@ public partial class FacContext : DbContext
 
     public virtual DbSet<Personne> Personnes { get; set; }
 
-    public virtual DbSet<Personne1> Personnes1 { get; set; }
-
     public virtual DbSet<Portail> Portails { get; set; }
 
     public virtual DbSet<PortailSerie> PortailSeries { get; set; }
@@ -101,8 +81,6 @@ public partial class FacContext : DbContext
     public virtual DbSet<Preinscription> Preinscriptions { get; set; }
 
     public virtual DbSet<Professeur> Professeurs { get; set; }
-
-    public virtual DbSet<Province> Provinces { get; set; }
 
     public virtual DbSet<RespoLabo> RespoLabos { get; set; }
 
@@ -119,7 +97,24 @@ public partial class FacContext : DbContext
     public virtual DbSet<TitreProfesseur> TitreProfesseurs { get; set; }
 
     public virtual DbSet<Utilisateur> Utilisateurs { get; set; }
-        
+
+/*     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseNpgsql("Host=localhost;Database=fac;Username=admin;Password=123456");
+ */    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            // Lecture de la configuration depuis appsettings.json
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            var connectionString = configuration.GetConnectionString("ConnectionToFac");
+            optionsBuilder.UseNpgsql(connectionString);
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -198,15 +193,6 @@ public partial class FacContext : DbContext
                 .HasForeignKey(d => d.IdMedia)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("fk_media");
-        });
-
-        modelBuilder.Entity<Administration>(entity =>
-        {
-            entity.HasKey(e => e.IdAdmin);
-
-            entity.HasIndex(e => e.Username, "IX_Administrations_Username").IsUnique();
-
-            entity.Property(e => e.Username).HasMaxLength(100);
         });
 
         modelBuilder.Entity<Appartenance>(entity =>
@@ -302,35 +288,6 @@ public partial class FacContext : DbContext
             entity.Property(e => e.NumBacc).HasColumnName("num_bacc");
         });
 
-        modelBuilder.Entity<Bachelier>(entity =>
-        {
-            entity.HasKey(e => e.IdBachelier);
-
-            entity.HasIndex(e => e.IdCentre, "IX_Bacheliers_IdCentre");
-
-            entity.HasIndex(e => e.IdEtablissement, "IX_Bacheliers_IdEtablissement");
-
-            entity.HasIndex(e => e.IdMention, "IX_Bacheliers_IdMention");
-
-            entity.HasIndex(e => e.IdOption, "IX_Bacheliers_IdOption");
-
-            entity.HasIndex(e => e.IdPersonne, "IX_Bacheliers_IdPersonne");
-
-            entity.HasIndex(e => new { e.NumeroCandidat, e.Annee }, "IX_Bacheliers_NumeroCandidat_Annee").IsUnique();
-
-            entity.Property(e => e.Moyenne).HasPrecision(18, 2);
-
-            entity.HasOne(d => d.IdCentreNavigation).WithMany(p => p.Bacheliers).HasForeignKey(d => d.IdCentre);
-
-            entity.HasOne(d => d.IdEtablissementNavigation).WithMany(p => p.Bacheliers).HasForeignKey(d => d.IdEtablissement);
-
-            entity.HasOne(d => d.IdMentionNavigation).WithMany(p => p.Bacheliers).HasForeignKey(d => d.IdMention);
-
-            entity.HasOne(d => d.IdOptionNavigation).WithMany(p => p.Bacheliers).HasForeignKey(d => d.IdOption);
-
-            entity.HasOne(d => d.IdPersonneNavigation).WithMany(p => p.Bacheliers).HasForeignKey(d => d.IdPersonne);
-        });
-
         modelBuilder.Entity<CategorieActualite>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("categorie_actualite_pkey");
@@ -343,17 +300,6 @@ public partial class FacContext : DbContext
             entity.Property(e => e.Nom)
                 .HasMaxLength(255)
                 .HasColumnName("nom");
-        });
-
-        modelBuilder.Entity<Centre>(entity =>
-        {
-            entity.HasKey(e => e.IdCentre);
-
-            entity.HasIndex(e => e.IdProvince, "IX_Centres_IdProvince");
-
-            entity.Property(e => e.NomCentre).HasMaxLength(200);
-
-            entity.HasOne(d => d.IdProvinceNavigation).WithMany(p => p.Centres).HasForeignKey(d => d.IdProvince);
         });
 
         modelBuilder.Entity<Cofac>(entity =>
@@ -426,13 +372,6 @@ public partial class FacContext : DbContext
                 .HasColumnName("nom_ecole_doctorale");
         });
 
-        modelBuilder.Entity<Etablissement>(entity =>
-        {
-            entity.HasKey(e => e.IdEtablissement);
-
-            entity.Property(e => e.NomEtablissement).HasMaxLength(200);
-        });
-
         modelBuilder.Entity<Fonction>(entity =>
         {
             entity.HasKey(e => e.IdFonction).HasName("pk_fonction");
@@ -455,21 +394,6 @@ public partial class FacContext : DbContext
                 .HasDefaultValueSql("nextval('grade_id_grade_seq1'::regclass)")
                 .HasColumnName("id_grade");
             entity.Property(e => e.NomGrade).HasColumnName("nom_grade");
-        });
-
-        modelBuilder.Entity<Historique>(entity =>
-        {
-            entity.HasKey(e => e.IdHistorique);
-
-            entity.HasIndex(e => e.AdminId, "IX_Historiques_AdminId");
-
-            entity.HasIndex(e => e.IdProvince, "IX_Historiques_IdProvince");
-
-            entity.Property(e => e.DateEvenement).HasDefaultValueSql("now()");
-
-            entity.HasOne(d => d.Admin).WithMany(p => p.Historiques).HasForeignKey(d => d.AdminId);
-
-            entity.HasOne(d => d.IdProvinceNavigation).WithMany(p => p.Historiques).HasForeignKey(d => d.IdProvince);
         });
 
         modelBuilder.Entity<LaboMedium>(entity =>
@@ -523,13 +447,6 @@ public partial class FacContext : DbContext
                 .HasConstraintName("fk_laboratoire_mention");
         });
 
-        modelBuilder.Entity<Matiere>(entity =>
-        {
-            entity.HasKey(e => e.IdMatiere);
-
-            entity.Property(e => e.NomMatiere).HasMaxLength(100);
-        });
-
         modelBuilder.Entity<Medium>(entity =>
         {
             entity.HasKey(e => e.IdMedia).HasName("pk_media");
@@ -544,15 +461,6 @@ public partial class FacContext : DbContext
         });
 
         modelBuilder.Entity<Mention>(entity =>
-        {
-            entity.HasKey(e => e.IdMention);
-
-            entity.Property(e => e.Max).HasDefaultValue(20);
-            entity.Property(e => e.Min).HasDefaultValue(0);
-            entity.Property(e => e.NomMention).HasMaxLength(100);
-        });
-
-        modelBuilder.Entity<Mention1>(entity =>
         {
             entity.HasKey(e => e.IdMention).HasName("mention_pkey");
 
@@ -649,29 +557,6 @@ public partial class FacContext : DbContext
             entity.Property(e => e.NomNiveau)
                 .HasMaxLength(10)
                 .HasColumnName("nom_niveau");
-        });
-
-        modelBuilder.Entity<Note>(entity =>
-        {
-            entity.HasKey(e => e.IdNote);
-
-            entity.HasIndex(e => e.IdBachelier, "IX_Notes_IdBachelier");
-
-            entity.HasIndex(e => e.IdMatiere, "IX_Notes_IdMatiere");
-
-            entity.Property(e => e.EstOptionnel).HasDefaultValue(false);
-            entity.Property(e => e.ValeurNote).HasPrecision(18, 2);
-
-            entity.HasOne(d => d.IdBachelierNavigation).WithMany(p => p.Notes).HasForeignKey(d => d.IdBachelier);
-
-            entity.HasOne(d => d.IdMatiereNavigation).WithMany(p => p.Notes).HasForeignKey(d => d.IdMatiere);
-        });
-
-        modelBuilder.Entity<Option>(entity =>
-        {
-            entity.HasKey(e => e.IdOption);
-
-            entity.Property(e => e.Serie).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Paiement>(entity =>
@@ -790,17 +675,6 @@ public partial class FacContext : DbContext
 
         modelBuilder.Entity<Personne>(entity =>
         {
-            entity.HasKey(e => e.IdPersonne);
-
-            entity.Property(e => e.LieuNaissance).HasMaxLength(200);
-            entity.Property(e => e.NomPrenom).HasMaxLength(200);
-            entity.Property(e => e.Sexe)
-                .HasMaxLength(1)
-                .HasDefaultValueSql("'M'::character varying");
-        });
-
-        modelBuilder.Entity<Personne1>(entity =>
-        {
             entity.HasKey(e => e.IdPersonne).HasName("pk_personne");
 
             entity.ToTable("personne");
@@ -877,7 +751,7 @@ public partial class FacContext : DbContext
 
             entity.ToTable("preinscription");
 
-            entity.HasIndex(e => new { e.Agence, e.DatePaiement, e.RefBancaire }, "unique_ref_date_agence").IsUnique();
+            entity.HasIndex(e => e.RefBancaire, "unq_ref").IsUnique();
 
             entity.Property(e => e.IdPreinscription)
                 .HasDefaultValueSql("nextval('preinscription_id_preinscription_seq1'::regclass)")
@@ -948,13 +822,6 @@ public partial class FacContext : DbContext
                 .HasForeignKey(d => d.Titre)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("fk_professeur_titre_professeur");
-        });
-
-        modelBuilder.Entity<Province>(entity =>
-        {
-            entity.HasKey(e => e.IdProvince);
-
-            entity.Property(e => e.NomProvince).HasMaxLength(100);
         });
 
         modelBuilder.Entity<RespoLabo>(entity =>

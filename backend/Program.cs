@@ -6,12 +6,14 @@ using System.Text;
 
 using backend.Context;
 using backend.Models.Enums;
-using backend.Models;
+using backend.Models.Fac;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var FacConnectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string"
-        + "'DefaultConnection' not found.");
+var FacConnectionString = builder.Configuration.GetConnectionString("ConnectionToFac") ?? throw new InvalidOperationException("Connection string"
+        + "'ConnectionToFac' not found.");
+var BacConnectionString = builder.Configuration.GetConnectionString("ConnectionToBac") ?? throw new InvalidOperationException("Connection string"
+        + "'ConnectionToBac' not found.");
 
 builder.Services.AddDbContext<FacContext>(options =>
     options.UseNpgsql(
@@ -19,6 +21,10 @@ builder.Services.AddDbContext<FacContext>(options =>
         o => o.MapEnum<TypeModePreinscription>("type_mode_preinscription")
         .MapEnum<TypeMedia>("type_media")
     )
+);
+
+builder.Services.AddDbContext<BacContext>(options =>
+    options.UseNpgsql(BacConnectionString)
 );
 
 var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("jwt key not found"));
