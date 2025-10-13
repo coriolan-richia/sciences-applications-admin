@@ -36,7 +36,8 @@ public partial class Preinscription
     public int? IdBac { get; set; }
 
     [Column("mode_preinscription")]
-    public TypeModePreinscription ModePreinscription { get; set; } = TypeModePreinscription.Enligne;
+    public TypeModePreinscription ModePreinscription { get; set; } = TypeModePreinscription.Poste;
+
     public virtual Utilisateur? AdminValidationNavigation { get; set; }
 
     public virtual Bac? IdBacNavigation { get; set; }

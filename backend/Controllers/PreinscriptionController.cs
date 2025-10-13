@@ -21,11 +21,14 @@ namespace backend.Controllers
         {
             try
             {
+
+                request.Email = "test@example.com"; request.Phone = "0612345678"; request.BacYear = "2025"; request.BacNumber = "3002042"; request.IdStudyBranch = 5; request.PreregistrationDate = DateTime.Now; request.PaymentReference = "PAY123KK256789"; request.PaymentAgence = "Wafacash"; request.PaymentDate = DateTime.Now;
                 if (request == null)
                     return BadRequest("Invalid data");
 
                 /* Quelques vérifications 
                     --> PayementReference existe ?
+                    --> Parcours existe ?
                     --> Les data de Bac dans Bacheliers ? 
                     --> already preinscrit in the options ?
 
@@ -36,7 +39,11 @@ namespace backend.Controllers
                 var ExistingPaymentReference = await _facDBContext.Preinscriptions.AnyAsync(pre => pre.RefBancaire == request.PaymentReference);
                 if (ExistingPaymentReference)
                     return BadRequest("Référence paiement déjà utilisée");
-                
+
+                var parcour = await _facDBContext.Portails.FirstOrDefaultAsync(p => p.IdPortail == request.IdStudyBranch);
+                if (parcour == null)
+                    return BadRequest("Portail non existant pour cette preinscription");
+
                 var bachelier = await _bacDBContext.Bacheliers.FirstOrDefaultAsync(b => b.Annee.Year.ToString() == request.BacYear && b.NumeroCandidat == request.BacNumber);
                 if (bachelier == null)
                     return BadRequest("Candidat non trouvé dans la BD nationale des bacheliers");
@@ -66,7 +73,6 @@ namespace backend.Controllers
                 if (alreadyPreinscrit)
                     return BadRequest("Candidat déjà préinscrit dans ce parcours");
 
-
                 var newPreinscription = new Preinscription
                 {
                     Email = request.Email,
@@ -88,7 +94,6 @@ namespace backend.Controllers
                 return Ok(new
                 {
                     message = "Préinscription enregistrée avec succès",
-                    preinscription = newPreinscription
                 });
             }
             catch (Exception ex)
@@ -175,44 +180,6 @@ namespace backend.Controllers
 
             return Ok(result);
         }
-
-        /*         [HttpPost("does-bac-exist")]
-                public async Task<IActionResult> DoesBacExist([FromBody] BacNumberToData request)
-                {
-                    try
-                    {
-                        var bachelier = await (
-                            from b in _bacDBContext.Bacheliers
-                            join p in _bacDBContext.Personnes on b.IdPersonne equals p.IdPersonne
-                            join m in _bacDBContext.Mentions on b.IdMention equals m.IdMention into mentionGroup
-                            from m in mentionGroup.DefaultIfEmpty()
-                            join o in _bacDBContext.Options on b.IdOption equals o.IdOption into optGroup
-                            from o in optGroup.DefaultIfEmpty()
-                            where b.NumeroCandidat == request.NumBacc
-                                && b.Annee.Year.ToString() == request.AnneeBacc
-
-                            select new
-                            {
-                                nom_prenom = p.NomPrenom,
-                                date_naissance = p.DateNaissance,
-                                lieu_naissance = p.LieuNaissance,
-                                sexe = p.Sexe,
-                                mention = m != null ? m.NomMention : null,
-                                option = o != null ? o.Serie : null,
-                                num_bacc = b.NumeroCandidat
-                            }).FirstOrDefaultAsync();
-
-                        if (bachelier == null)
-                            return NotFound(new { message = "Aucun bachelier Trouver pour ce numéro et cette année" });
-
-                        return Ok(bachelier);
-                    }
-                    catch (Exception ex)
-                    {
-                        return StatusCode(500, new { message = "Erreur interne du serveur", error = ex.Message });
-                    }
-                } */
-
 
     }
 }
