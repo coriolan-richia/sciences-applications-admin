@@ -19,7 +19,7 @@ import { AlertCircle, ArrowLeft, ArrowRight, Eraser } from "lucide-react";
 import Link from "next/link";
 
 // [FETCH]
-import { studyBranches } from "@/lib/mock-data";
+// import { studyBranches } from "@/lib/mock-data";
 // import { useRouter } from "next/navigation";
 import { isNullOrEmpty } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -44,6 +44,9 @@ export default function NewPreregistrationPage() {
   const formRef = useRef<HTMLFormElement>(null);
   const [formError, setFormError] = useState<string[]>([]);
   const [step1Signature, setStep1Signature] = useState("");
+  const [studyBranches, setStudyBranches] = useState<
+    { idPortail: number; abbreviation: string; nomPortail: string }[]
+  >([]);
 
   const addToFormError = (value: string) => {
     setFormError((prev) => [...prev, value]);
@@ -96,6 +99,33 @@ export default function NewPreregistrationPage() {
     }
   };
 
+  const getAdequateParcours = async (): Promise<void> => {
+    try {
+      const fetchUrl =
+        "http://localhost:5174/api/Preinscription/get-adequate-parcours";
+      const response = await fetch(fetchUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          numBacc: formData.bacNumber,
+          anneeBacc: formData.bacYear,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Erreur serveur :", response.status);
+      }
+
+      const data = await response.json();
+
+      setStudyBranches(data.parcoursList);
+    } catch (error) {
+      addToFormError("Erreur du serveur.");
+    }
+  };
+
   const handleNext = async () => {
     setFormError([]);
     // [FETCH]
@@ -129,6 +159,7 @@ export default function NewPreregistrationPage() {
       resetStep2(); // vide les champs du step 2
     }
     setStep1Signature(newSig);
+    await getAdequateParcours();
     setStep(2);
   };
 
@@ -333,8 +364,11 @@ export default function NewPreregistrationPage() {
                         </SelectTrigger>
                         <SelectContent>
                           {studyBranches.map((branch) => (
-                            <SelectItem key={branch.id} value={branch.name}>
-                              {branch.name} ({branch.code})
+                            <SelectItem
+                              key={branch.idPortail}
+                              value={branch.idPortail.toString()}
+                            >
+                              {branch.nomPortail} ({branch.abbreviation})
                             </SelectItem>
                           ))}
                         </SelectContent>
