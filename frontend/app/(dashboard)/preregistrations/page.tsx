@@ -30,7 +30,7 @@ export default function PreregistrationsPage() {
   const [sortBy, setSortBy] = useState<string>("date-desc");
   const [data, setData] = useState<Preregistration[]>([]);
 
-  const fetchUrl = "http://localhost:5174/api/Preinscription/listingall";
+  const fetchUrl = "http://localhost:5174/api/Preinscription/list-all";
 
   // [FETCH]
 
