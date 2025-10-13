@@ -6,10 +6,10 @@ namespace backend.DTOs
         public string Phone { get; set; } = string.Empty;
         public string BacYear { get; set; } = string.Empty;
         public string BacNumber { get; set; } = string.Empty;
-        public string StudyBranch { get; set; } = string.Empty;
+        public int IdStudyBranch { get; set; }
         public DateTime PreregistrationDate { get; set; }
         public string PaymentReference { get; set; } = string.Empty;
         public string PaymentAgence { get; set; } = string.Empty;
-        public DateTime PaymentDate { get; set; }
+        public DateTime PaymentDate { get; set; } 
     }
 }

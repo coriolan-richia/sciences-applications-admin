@@ -1,7 +1,7 @@
-using System.ComponentModel;
 using backend.Context;
 using backend.DTOs;
 using backend.Models.Bac;
+using backend.Models.Enums;
 using backend.Models.Fac;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,14 +10,97 @@ namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class PreinscriptionController : ControllerBase
+    public class PreinscriptionController(FacContext facDBContext, BacContext bacDBContext) : ControllerBase
     {
-        private readonly FacContext _facDBContext;
-        private readonly BacContext _bacDBContext;
-        public PreinscriptionController(FacContext facDBContext, BacContext bacDBContext)
+        private readonly FacContext _facDBContext = facDBContext;
+        private readonly BacContext _bacDBContext = bacDBContext;
+        
+
+        [HttpPost("insert-preinscription")]
+        public async Task<IActionResult> InsertPreinscription([FromBody] NewPreinscription request)
         {
-            _facDBContext = facDBContext;
-            _bacDBContext = bacDBContext;
+            try
+            {
+                request.Email = "test@example.com";
+                request.Phone = "0612345678";
+                request.BacYear = "2025";
+                request.BacNumber = "3018066";
+                request.IdStudyBranch = 5;
+                request.PreregistrationDate = DateTime.Now;
+                request.PaymentReference = "PAY123456789";
+                request.PaymentAgence = "Wafacash";
+                request.PaymentDate = DateTime.Now;
+
+                if (request == null)
+                    return BadRequest("Invalid data");
+
+                /* Quelques vérifications 
+                    --> PayementReference existe ?
+                    --> Les data de Bac dans Bacheliers ? 
+                    --> already preinscrit in the options ?
+                */
+                var ExistingPaymentReference = await _facDBContext.Preinscriptions.AnyAsync(pre => pre.RefBancaire == request.PaymentReference);
+                if (ExistingPaymentReference)
+                    return BadRequest("Référence paiement déjà utilisée");
+                
+                var bachelier = await _bacDBContext.Bacheliers.FirstOrDefaultAsync(b => b.Annee.Year.ToString() == request.BacYear && b.NumeroCandidat == request.BacNumber);
+                if (bachelier == null)
+                    return BadRequest("Candidat non trouvé dans la BD nationale des bacheliers");
+
+                var existingBac = await _facDBContext.Bacs.FirstOrDefaultAsync(b => b.AnneeBacc.ToString() == request.BacYear && b.NumBacc.ToString() == request.BacNumber);
+                int idBacFac;
+                if (existingBac == null)
+                {
+                    var newBac = new Bac
+                    {
+                        AnneeBacc = int.Parse(request.BacYear),
+                        NumBacc = int.Parse(request.BacNumber),
+                        DocBac = "",
+                        EstMalagasy = true
+                    };
+                    _facDBContext.Bacs.Add(newBac);
+                    await _facDBContext.SaveChangesAsync();
+                    idBacFac = newBac.IdBac;
+                }
+                else
+                {
+                    idBacFac = existingBac.IdBac;
+                }
+
+                bool alreadyPreinscrit = await _facDBContext.Preinscriptions.AnyAsync(p => p.IdBac == idBacFac && p.IdPortail == request.IdStudyBranch);
+
+                if (alreadyPreinscrit)
+                    return BadRequest("Candidat déjà préinscrit dans ce parcours");
+
+
+                var newPreinscription = new Preinscription
+                {
+                    Email = request.Email,
+                    Tel = request.Phone,
+                    RefBancaire = request.PaymentReference,
+                    Agence = request.PaymentAgence,
+                    DatePaiement = request.PaymentDate,
+                    DatePreinscription = request.PreregistrationDate,
+                    IdPortail = request.IdStudyBranch,
+                    IdBac = idBacFac,
+                    EstSelectionner = false,
+                    EstValide = false,
+                    ModePreinscription = TypeModePreinscription.Poste
+                };
+
+                _facDBContext.Preinscriptions.Add(newPreinscription);
+                await _facDBContext.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    message = "Préinscription enregistrée avec succès",
+                    preinscription = newPreinscription
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erreur interne du serveur", error = ex.Message });
+            }
         }
 
         [HttpPost("get-adequate-parcours")]
@@ -40,12 +123,12 @@ namespace backend.Controllers
                             p.NomPortail
                         }).ToListAsync();
 
-                if (parcoursList.Count==0)
+                if (parcoursList.Count == 0)
                     return Ok(new { message = "Aucun parcours adéquat trouvé pour cette série" });
 
                 return Ok(new { parcoursList });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Erreur interne du serveur", error = ex.Message });
             }
@@ -65,7 +148,7 @@ namespace backend.Controllers
                 return StatusCode(500, new { message = "Erreur interne du serveur", error = ex.Message });
             }
         }
-        
+
         [HttpGet("listingall")]
         public async Task<IActionResult> ListingAll()
         {
@@ -98,6 +181,7 @@ namespace backend.Controllers
 
             return Ok(result);
         }
+
         /*         [HttpPost("does-bac-exist")]
                 public async Task<IActionResult> DoesBacExist([FromBody] BacNumberToData request)
                 {
@@ -135,6 +219,6 @@ namespace backend.Controllers
                     }
                 } */
 
-        
+
     }
 }
