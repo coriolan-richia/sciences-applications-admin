@@ -21,16 +21,6 @@ namespace backend.Controllers
         {
             try
             {
-                request.Email = "test@example.com";
-                request.Phone = "0612345678";
-                request.BacYear = "2025";
-                request.BacNumber = "3018066";
-                request.IdStudyBranch = 5;
-                request.PreregistrationDate = DateTime.Now;
-                request.PaymentReference = "PAY123456789";
-                request.PaymentAgence = "Wafacash";
-                request.PaymentDate = DateTime.Now;
-
                 if (request == null)
                     return BadRequest("Invalid data");
 
@@ -38,6 +28,10 @@ namespace backend.Controllers
                     --> PayementReference existe ?
                     --> Les data de Bac dans Bacheliers ? 
                     --> already preinscrit in the options ?
+
+                    /// Insértions :
+                    --> bac d'abord si n'existe pas encore
+                    --> puis preinscription
                 */
                 var ExistingPaymentReference = await _facDBContext.Preinscriptions.AnyAsync(pre => pre.RefBancaire == request.PaymentReference);
                 if (ExistingPaymentReference)
