@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict ZDUMNscNmuI0Sff3nNmKWWgSastBRX28yb7l3E6KVYjk1DPjQaZuf0012Apo5SK
+\restrict FR8OZd0UP0oYuEqVSLHG0qcoul9TuhGlN4GAcITfF4f9BhvFcFe7r431InO5bQd
 
 -- Dumped from database version 14.19 (Ubuntu 14.19-0ubuntu0.22.04.1)
 -- Dumped by pg_dump version 14.19 (Ubuntu 14.19-0ubuntu0.22.04.1)
@@ -17,22 +17,6 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
---
--- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
---
-
-CREATE SCHEMA public;
-
-
-ALTER SCHEMA public OWNER TO postgres;
-
---
--- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
---
-
-COMMENT ON SCHEMA public IS 'standard public schema';
-
 
 --
 -- Name: type_formation; Type: TYPE; Schema: public; Owner: admin
@@ -1168,13 +1152,15 @@ CREATE TABLE public.paiement (
     nom_payeur character varying(200),
     nom_beneficiaire character varying(200),
     agence character varying(200),
-    ref_bancaire character varying(100),
+    reference character varying(100),
     date_paiement date,
     date_insertion date DEFAULT CURRENT_DATE,
-    espece integer,
+    montant integer,
     id_preinscription integer,
     motif_paiement character varying(255),
-    id_utilisateur integer
+    id_utilisateur integer,
+    libelle text,
+    valeur date
 );
 
 
@@ -4635,11 +4621,11 @@ ALTER TABLE ONLY public.bac
 
 
 --
--- Name: paiement unique_refe_date_agence; Type: CONSTRAINT; Schema: public; Owner: admin
+-- Name: paiement unq_paiement; Type: CONSTRAINT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY public.paiement
-    ADD CONSTRAINT unique_refe_date_agence UNIQUE (agence, date_paiement, ref_bancaire);
+    ADD CONSTRAINT unq_paiement UNIQUE (reference);
 
 
 --
@@ -5039,5 +5025,5 @@ ALTER TABLE ONLY public.role_utilisateur
 -- PostgreSQL database dump complete
 --
 
--- \unrestrict ZDUMNscNmuI0Sff3nNmKWWgSastBRX28yb7l3E6KVYjk1DPjQaZuf0012Apo5SK
+-- \unrestrict FR8OZd0UP0oYuEqVSLHG0qcoul9TuhGlN4GAcITfF4f9BhvFcFe7r431InO5bQd
 

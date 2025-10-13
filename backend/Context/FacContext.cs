@@ -101,7 +101,8 @@ public partial class FacContext : DbContext
 /*     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseNpgsql("Host=localhost;Database=fac;Username=admin;Password=123456");
- */    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+ */    
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
         {
@@ -115,7 +116,6 @@ public partial class FacContext : DbContext
             optionsBuilder.UseNpgsql(connectionString);
         }
     }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
@@ -565,7 +565,7 @@ public partial class FacContext : DbContext
 
             entity.ToTable("paiement");
 
-            entity.HasIndex(e => new { e.Agence, e.DatePaiement, e.RefBancaire }, "unique_refe_date_agence").IsUnique();
+            entity.HasIndex(e => e.Reference, "unq_paiement").IsUnique();
 
             entity.Property(e => e.IdPaiement)
                 .HasDefaultValueSql("nextval('paiement_id_paiement_seq1'::regclass)")
@@ -577,9 +577,10 @@ public partial class FacContext : DbContext
                 .HasDefaultValueSql("CURRENT_DATE")
                 .HasColumnName("date_insertion");
             entity.Property(e => e.DatePaiement).HasColumnName("date_paiement");
-            entity.Property(e => e.Espece).HasColumnName("espece");
             entity.Property(e => e.IdPreinscription).HasColumnName("id_preinscription");
             entity.Property(e => e.IdUtilisateur).HasColumnName("id_utilisateur");
+            entity.Property(e => e.Libelle).HasColumnName("libelle");
+            entity.Property(e => e.Montant).HasColumnName("montant");
             entity.Property(e => e.MotifPaiement)
                 .HasMaxLength(255)
                 .HasColumnName("motif_paiement");
@@ -589,9 +590,10 @@ public partial class FacContext : DbContext
             entity.Property(e => e.NomPayeur)
                 .HasMaxLength(200)
                 .HasColumnName("nom_payeur");
-            entity.Property(e => e.RefBancaire)
+            entity.Property(e => e.Reference)
                 .HasMaxLength(100)
-                .HasColumnName("ref_bancaire");
+                .HasColumnName("reference");
+            entity.Property(e => e.Valeur).HasColumnName("valeur");
 
             entity.HasOne(d => d.IdPreinscriptionNavigation).WithMany(p => p.Paiements)
                 .HasForeignKey(d => d.IdPreinscription)

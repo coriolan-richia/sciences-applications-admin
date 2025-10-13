@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using backend.Models.Enums;
 
 namespace backend.Models.Fac;
 
@@ -32,6 +34,9 @@ public partial class Preinscription
     public int? AdminValidation { get; set; }
 
     public int? IdBac { get; set; }
+
+    [Column("mode_preinscription")]
+    public TypeModePreinscription ModePreinscription { get; set; } = TypeModePreinscription.Poste;
 
     public virtual Utilisateur? AdminValidationNavigation { get; set; }
 

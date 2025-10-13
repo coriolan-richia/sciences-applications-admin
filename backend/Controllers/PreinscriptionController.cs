@@ -1,7 +1,7 @@
-using System.ComponentModel;
 using backend.Context;
 using backend.DTOs;
 using backend.Models.Bac;
+using backend.Models.Enums;
 using backend.Models.Fac;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,14 +10,96 @@ namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class PreinscriptionController : ControllerBase
+    public class PreinscriptionController(FacContext facDBContext, BacContext bacDBContext) : ControllerBase
     {
-        private readonly FacContext _facDBContext;
-        private readonly BacContext _bacDBContext;
-        public PreinscriptionController(FacContext facDBContext, BacContext bacDBContext)
+        private readonly FacContext _facDBContext = facDBContext;
+        private readonly BacContext _bacDBContext = bacDBContext;
+        
+
+        [HttpPost("insert-preinscription")]
+        public async Task<IActionResult> InsertPreinscription([FromBody] NewPreinscription request)
         {
-            _facDBContext = facDBContext;
-            _bacDBContext = bacDBContext;
+            try
+            {
+
+                request.Email = "test@example.com"; request.Phone = "0612345678"; request.BacYear = "2025"; request.BacNumber = "3002042"; request.IdStudyBranch = 5; request.PreregistrationDate = DateTime.Now; request.PaymentReference = "PAY123KK256789"; request.PaymentAgence = "Wafacash"; request.PaymentDate = DateTime.Now;
+                if (request == null)
+                    return BadRequest("Invalid data");
+
+                /* Quelques vérifications 
+                    --> PayementReference existe ?
+                    --> Parcours existe ?
+                    --> Les data de Bac dans Bacheliers ? 
+                    --> already preinscrit in the options ?
+
+                    /// Insértions :
+                    --> bac d'abord si n'existe pas encore
+                    --> puis preinscription
+                */
+                var ExistingPaymentReference = await _facDBContext.Preinscriptions.AnyAsync(pre => pre.RefBancaire == request.PaymentReference);
+                if (ExistingPaymentReference)
+                    return BadRequest("Référence paiement déjà utilisée");
+
+                var parcour = await _facDBContext.Portails.FirstOrDefaultAsync(p => p.IdPortail == request.IdStudyBranch);
+                if (parcour == null)
+                    return BadRequest("Portail non existant pour cette preinscription");
+
+                var bachelier = await _bacDBContext.Bacheliers.FirstOrDefaultAsync(b => b.Annee.Year.ToString() == request.BacYear && b.NumeroCandidat == request.BacNumber);
+                if (bachelier == null)
+                    return BadRequest("Candidat non trouvé dans la BD nationale des bacheliers");
+
+                var existingBac = await _facDBContext.Bacs.FirstOrDefaultAsync(b => b.AnneeBacc.ToString() == request.BacYear && b.NumBacc.ToString() == request.BacNumber);
+                int idBacFac;
+                if (existingBac == null)
+                {
+                    var newBac = new Bac
+                    {
+                        AnneeBacc = int.Parse(request.BacYear),
+                        NumBacc = int.Parse(request.BacNumber),
+                        DocBac = "",
+                        EstMalagasy = true
+                    };
+                    _facDBContext.Bacs.Add(newBac);
+                    await _facDBContext.SaveChangesAsync();
+                    idBacFac = newBac.IdBac;
+                }
+                else
+                {
+                    idBacFac = existingBac.IdBac;
+                }
+
+                bool alreadyPreinscrit = await _facDBContext.Preinscriptions.AnyAsync(p => p.IdBac == idBacFac && p.IdPortail == request.IdStudyBranch);
+
+                if (alreadyPreinscrit)
+                    return BadRequest("Candidat déjà préinscrit dans ce parcours");
+
+                var newPreinscription = new Preinscription
+                {
+                    Email = request.Email,
+                    Tel = request.Phone,
+                    RefBancaire = request.PaymentReference,
+                    Agence = request.PaymentAgence,
+                    DatePaiement = request.PaymentDate,
+                    DatePreinscription = request.PreregistrationDate,
+                    IdPortail = request.IdStudyBranch,
+                    IdBac = idBacFac,
+                    EstSelectionner = false,
+                    EstValide = false,
+                    ModePreinscription = TypeModePreinscription.Poste
+                };
+
+                _facDBContext.Preinscriptions.Add(newPreinscription);
+                await _facDBContext.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    message = "Préinscription enregistrée avec succès",
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erreur interne du serveur", error = ex.Message });
+            }
         }
 
         [HttpPost("get-adequate-parcours")]
@@ -40,12 +122,12 @@ namespace backend.Controllers
                             p.NomPortail
                         }).ToListAsync();
 
-                if (parcoursList.Count==0)
+                if (parcoursList.Count == 0)
                     return Ok(new { message = "Aucun parcours adéquat trouvé pour cette série" });
 
                 return Ok(new { parcoursList });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Erreur interne du serveur", error = ex.Message });
             }
@@ -65,7 +147,7 @@ namespace backend.Controllers
                 return StatusCode(500, new { message = "Erreur interne du serveur", error = ex.Message });
             }
         }
-        
+
         [HttpGet("listingall")]
         public async Task<IActionResult> ListingAll()
         {
@@ -98,43 +180,6 @@ namespace backend.Controllers
 
             return Ok(result);
         }
-        /*         [HttpPost("does-bac-exist")]
-                public async Task<IActionResult> DoesBacExist([FromBody] BacNumberToData request)
-                {
-                    try
-                    {
-                        var bachelier = await (
-                            from b in _bacDBContext.Bacheliers
-                            join p in _bacDBContext.Personnes on b.IdPersonne equals p.IdPersonne
-                            join m in _bacDBContext.Mentions on b.IdMention equals m.IdMention into mentionGroup
-                            from m in mentionGroup.DefaultIfEmpty()
-                            join o in _bacDBContext.Options on b.IdOption equals o.IdOption into optGroup
-                            from o in optGroup.DefaultIfEmpty()
-                            where b.NumeroCandidat == request.NumBacc
-                                && b.Annee.Year.ToString() == request.AnneeBacc
 
-                            select new
-                            {
-                                nom_prenom = p.NomPrenom,
-                                date_naissance = p.DateNaissance,
-                                lieu_naissance = p.LieuNaissance,
-                                sexe = p.Sexe,
-                                mention = m != null ? m.NomMention : null,
-                                option = o != null ? o.Serie : null,
-                                num_bacc = b.NumeroCandidat
-                            }).FirstOrDefaultAsync();
-
-                        if (bachelier == null)
-                            return NotFound(new { message = "Aucun bachelier Trouver pour ce numéro et cette année" });
-
-                        return Ok(bachelier);
-                    }
-                    catch (Exception ex)
-                    {
-                        return StatusCode(500, new { message = "Erreur interne du serveur", error = ex.Message });
-                    }
-                } */
-
-        
     }
 }
