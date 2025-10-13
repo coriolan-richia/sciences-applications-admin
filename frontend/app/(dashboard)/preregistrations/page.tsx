@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,17 +18,36 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { getPreregistrationStatusLabel as getStatusLabel } from "@/types/preregistration";
+import {
+  getPreregistrationStatusLabel as getStatusLabel,
+  Preregistration,
+} from "@/types/preregistration";
 
 // La page d'accueil de la préinscription
 export default function PreregistrationsPage() {
   const [view, setView] = useState<"card" | "list">("card");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<string>("date-desc");
+  const [data, setData] = useState<Preregistration[]>([]);
+
+  const fetchUrl = "http://localhost:5174/api/Preinscription/listingall";
 
   // [FETCH]
-  // We might need to add some refresh to the list.
-  const filteredPreregistrations = mockPreregistrations.filter(
+
+  useEffect(() => {
+    async function loadList() {
+      // try {
+      const response = await fetch(fetchUrl);
+      let responseAsJSON = await response.json();
+      console.log(responseAsJSON);
+      setData(responseAsJSON);
+    }
+    loadList();
+  }, []);
+  // console.log("Preregistrations:", data);
+
+  // } catch {}
+  const filteredPreregistrations = data.filter(
     (p) =>
       p.bacNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.studyBranch.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -131,7 +150,7 @@ export default function PreregistrationsPage() {
             <div className="rounded-lg border border-border bg-card p-4">
               <p className="text-sm text-muted-foreground">Total</p>
               <p className="text-2xl font-semibold text-foreground">
-                {mockPreregistrations.length}
+                {data.length}
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card p-4">
@@ -139,10 +158,7 @@ export default function PreregistrationsPage() {
                 {getStatusLabel("verified")}
               </p>
               <p className="text-2xl font-semibold text-green-500">
-                {
-                  mockPreregistrations.filter((p) => p.status === "verified")
-                    .length
-                }
+                {data.filter((p) => p.status === "verified").length}
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card p-4">
@@ -150,10 +166,7 @@ export default function PreregistrationsPage() {
                 {getStatusLabel("pending")}
               </p>
               <p className="text-2xl font-semibold text-yellow-500">
-                {
-                  mockPreregistrations.filter((p) => p.status === "pending")
-                    .length
-                }
+                {data.filter((p) => p.status === "pending").length}
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card p-4">
@@ -161,10 +174,7 @@ export default function PreregistrationsPage() {
                 {getStatusLabel("rejected")}
               </p>
               <p className="text-2xl font-semibold text-red-500">
-                {
-                  mockPreregistrations.filter((p) => p.status === "rejected")
-                    .length
-                }
+                {data.filter((p) => p.status === "rejected").length}
               </p>
             </div>
           </div>

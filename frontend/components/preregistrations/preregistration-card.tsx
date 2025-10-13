@@ -21,7 +21,7 @@ export function PreregistrationCard({
   };
 
   return (
-    <Link href={`/preregistrations/${preregistration.id}`}>
+    <Link href={`/preregistrations/3#${preregistration.id}`}>
       <Card className="p-5 transition-all hover:border-primary/50 hover:shadow-md">
         <div className="flex items-start justify-between">
           <div className="space-y-3 flex-1">

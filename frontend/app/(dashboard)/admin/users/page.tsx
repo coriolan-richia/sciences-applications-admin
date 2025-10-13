@@ -10,7 +10,7 @@ import { Plus, Search, Edit, Shield, Eye, ArrowUpDown } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { mockUsers } from "@/lib/mock-data";
-import type { User as AuthUser } from "@/types/auth";
+import type { User } from "@/types/user";
 import {
   Select,
   SelectContent,
@@ -22,23 +22,21 @@ import {
 export default function UsersPage() {
   const { user: currentUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<string>("name-asc");
-  const [users] = useState<Array<AuthUser & { password?: string }>>(mockUsers);
+  const [sortBy, setSortBy] = useState<string>("id-asc");
+  const [users] = useState<Array<User & { password?: string }>>(
+    mockUsers as Array<User & { password?: string }>
+  );
 
   const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(searchQuery.toLowerCase())
+    user.identifiant?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     switch (sortBy) {
-      case "name-asc":
-        return a.name.localeCompare(b.name);
-      case "name-desc":
-        return b.name.localeCompare(a.name);
-      case "email-asc":
-        return a.email.localeCompare(b.email);
-      case "email-desc":
-        return b.email.localeCompare(a.email);
+      case "id-asc":
+        return a.identifiant.localeCompare(b.identifiant);
+      case "id-desc":
+        return b.identifiant.localeCompare(a.identifiant);
       case "role-superadmin":
         return a.role === "superadmin" ? -1 : 1;
       case "role-admin":
@@ -81,11 +79,11 @@ export default function UsersPage() {
       <div className="flex h-full items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-center">Access Denied</CardTitle>
+            <CardTitle className="text-center">Accès refusé</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-center text-muted-foreground">
-              You do not have permission to access this page.
+              Vous n'avez pas la permission d'accéder à cette page.
             </p>
           </CardContent>
         </Card>
@@ -96,16 +94,18 @@ export default function UsersPage() {
   return (
     <div className="flex h-full flex-col">
       <PageHeader
-        title="User Management"
-        description="Manage user accounts and permissions"
+        title="Gestion des Utilisateurs"
+        description="Gérer les comptes et permissions des utilisateurs"
       />
 
       <div className="flex-1 space-y-6 p-6">
         {/* Stats */}
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Nombre total des Utilisateurs
+              </CardTitle>
               <Eye className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -115,7 +115,7 @@ export default function UsersPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Administrators
+                Administrateurs
               </CardTitle>
               <Shield className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -129,7 +129,7 @@ export default function UsersPage() {
               </div>
             </CardContent>
           </Card>
-          <Card>
+          {/* <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Viewers</CardTitle>
               <Eye className="h-4 w-4 text-muted-foreground" />
@@ -139,7 +139,7 @@ export default function UsersPage() {
                 {users.filter((u) => u.role === "viewer").length}
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
 
         {/* Search and Actions */}
@@ -148,7 +148,7 @@ export default function UsersPage() {
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search users by name or email..."
+                placeholder="Rechercher des utilisateurs par identifiant ou rôle"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9"
@@ -161,22 +161,21 @@ export default function UsersPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-                <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-                <SelectItem value="email-asc">Email (A-Z)</SelectItem>
-                <SelectItem value="email-desc">Email (Z-A)</SelectItem>
+                <SelectItem value="id-asc">Identifiant (A-Z)</SelectItem>
+                <SelectItem value="id-desc">Identifiant (Z-A)</SelectItem>
                 <SelectItem value="role-superadmin">
-                  SuperAdmin First
+                  Superutilisateurs d'abord
                 </SelectItem>
-                <SelectItem value="role-admin">Admin First</SelectItem>
-                <SelectItem value="role-viewer">Viewer First</SelectItem>
+                <SelectItem value="role-admin">
+                  Administrateurs d'abord
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
           <Button asChild>
             <Link href="/admin/users/new">
               <Plus className="mr-2 h-4 w-4" />
-              Add User
+              Ajout d'un utilisateur
             </Link>
           </Button>
         </div>
@@ -197,20 +196,20 @@ export default function UsersPage() {
                     <div>
                       <div className="flex items-center gap-2">
                         <p className="font-medium text-foreground">
-                          {user.name}
+                          {user.identifiant}
                         </p>
-                        <Badge variant={getRoleBadgeVariant(user.role)}>
-                          {user.role}
-                        </Badge>
                         {user.id === currentUser?.id && (
                           <Badge variant="outline" className="text-xs">
                             You
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        {user.email}
-                      </p>
+                      <Badge variant={getRoleBadgeVariant(user.role)}>
+                        {user.role}
+                      </Badge>
+                      {/* <p className="text-sm text-muted-foreground">
+                        {user.identifiant}
+                      </p> */}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
