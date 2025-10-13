@@ -13,19 +13,23 @@ public partial class Paiement
 
     public string? Agence { get; set; }
 
-    public string? RefBancaire { get; set; }
+    public string? Reference { get; set; }
 
     public DateOnly? DatePaiement { get; set; }
 
     public DateOnly? DateInsertion { get; set; }
 
-    public int? Espece { get; set; }
+    public int? Montant { get; set; }
 
     public int? IdPreinscription { get; set; }
 
     public string? MotifPaiement { get; set; }
 
     public int? IdUtilisateur { get; set; }
+
+    public string? Libelle { get; set; }
+
+    public DateOnly? Valeur { get; set; }
 
     public virtual Preinscription? IdPreinscriptionNavigation { get; set; }
 
