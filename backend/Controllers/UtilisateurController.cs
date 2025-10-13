@@ -25,34 +25,71 @@ namespace MyApp.Namespace
                 .Include(u => u.RoleUtilisateurs)
                 .ThenInclude(ru => ru.IdRoleNavigation)
                 .FirstOrDefault(u => u.IdUtilisateur == id);
-            
-            if(authUser is null)
+
+            if (authUser is null)
             {
-                return BadRequest(new { error="Votre utilisateur authentifié n'est pas inscrit sur le serveur." });
+                return BadRequest(new { error = "Votre utilisateur authentifié n'est pas inscrit sur le serveur." });
             }
 
             int? idRole = authUser?.RoleUtilisateurs.FirstOrDefault()?.IdRole;
-            if(idRole!=1)
+            if (idRole != 1)
             {
-                return StatusCode(401, new { error = "Vous n'êtes pas autorisé à accéder à cette ressource;"});
-                
+                return StatusCode(401, new { error = "Vous n'êtes pas autorisé à accéder à cette ressource;" });
+
             }
 
             List<UserForListing> users = await (from us in _facDBContext.Utilisateurs
-                join ru in _facDBContext.RoleUtilisateurs on us.IdUtilisateur equals ru.IdUtilisateur
-                join ro in _facDBContext.Roles on ru.IdRole equals ro.IdRole
-                group new { ru, ro } by new { us.IdUtilisateur, us.Identifiant } into g
-                select new UserForListing
-                {
-                    IdUtilisateur = g.Key.IdUtilisateur,
-                    Identifiant = g.Key.Identifiant,
-                    Role = g.Select(x => x.ro.NomRole).FirstOrDefault()
-                }).ToListAsync();
-            
-            
+                                                join ru in _facDBContext.RoleUtilisateurs on us.IdUtilisateur equals ru.IdUtilisateur
+                                                join ro in _facDBContext.Roles on ru.IdRole equals ro.IdRole
+                                                group new { ru, ro } by new { us.IdUtilisateur, us.Identifiant } into g
+                                                select new UserForListing
+                                                {
+                                                    IdUtilisateur = g.Key.IdUtilisateur,
+                                                    Identifiant = g.Key.Identifiant,
+                                                    Role = g.Select(x => x.ro.NomRole).FirstOrDefault()??"undefined"
+                                                }).ToListAsync();
+
+
 
             return Ok(users);
         }
         
+        [HttpPost("insert-user")]
+        public async Task<IActionResult> InsertUser([FromBody] InsertUserRequest request){
+            var authUser = _facDBContext.Utilisateurs
+                .Include(u => u.RoleUtilisateurs)
+                .ThenInclude(ru => ru.IdRoleNavigation)
+                .FirstOrDefault(u => u.IdUtilisateur == request.IdUser);
+
+            if (authUser is null)
+            {
+                return BadRequest(new { error = "Votre utilisateur authentifié n'est pas inscrit sur le serveur." });
+            }
+
+            int? idRole = authUser?.RoleUtilisateurs.FirstOrDefault()?.IdRole;
+            if (idRole != 1)
+            {
+                return StatusCode(401, new { error = "Vous n'êtes pas autorisé à accéder à cette ressource;" });
+
+            }
+
+            Utilisateur? existingUser = _facDBContext.Utilisateurs.FirstOrDefault(u => u.Identifiant == request.NewUserIdentifiant);
+
+            if (existingUser is not null)
+            {
+                return BadRequest(new { message = "L'identifiant d'utilisateur souhaité est déjà utilisé" });
+            }
+            
+            Utilisateur newUser = new Utilisateur
+            {
+                Identifiant = request.NewUserIdentifiant
+            };
+            newUser.MotDePasse = _hasher.HashPassword(newUser, request.NewUserMotDePasse);
+            newUser.RoleUtilisateurs.Add(new RoleUtilisateur{IdRole = request.IdNewUserRole });
+            _facDBContext.Utilisateurs.Add(newUser);
+            await _facDBContext.SaveChangesAsync();
+
+            return Ok(new { status = true });
+        }
     }
 }
