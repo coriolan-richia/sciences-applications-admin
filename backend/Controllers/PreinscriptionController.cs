@@ -19,13 +19,45 @@ namespace backend.Controllers
             _facDBContext = facDBContext;
             _bacDBContext = bacDBContext;
         }
-        
+
+        [HttpPost("get-adequate-parcours")]
+        public async Task<IActionResult> GetAdequateParcours([FromBody] BacNumberToData request)
+        {
+            try
+            {
+                var bachelier = await _bacDBContext.Bacheliers.FirstOrDefaultAsync(b => b.NumeroCandidat == request.NumBacc && b.Annee.Year.ToString() == request.AnneeBacc);
+                if (bachelier == null)
+                    return NotFound(new { message = "bachelier not found" });
+                var IdSerie = bachelier.IdOption;
+                var parcoursList = await (
+                        from ps in _facDBContext.PortailSeries
+                        join p in _facDBContext.Portails on ps.IdPortail equals p.IdPortail
+                        where ps.IdSerie == IdSerie
+                        select new
+                        {
+                            p.IdPortail,
+                            p.Abbreviation,
+                            p.NomPortail
+                        }).ToListAsync();
+
+                if (parcoursList.Count==0)
+                    return Ok(new { message = "Aucun parcours adéquat trouvé pour cette série" });
+
+                return Ok(new { parcoursList });
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, new { message = "Erreur interne du serveur", error = ex.Message });
+            }
+        }
+
         [HttpPost("does-bac-exist")]
         public async Task<IActionResult> DoesBacExist([FromBody] BacNumberToData request)
         {
             try
             {
                 bool exist = await _bacDBContext.Bacheliers.AnyAsync(b => b.NumeroCandidat == request.NumBacc && b.Annee.Year.ToString() == request.AnneeBacc);
+
                 return Ok(new { exist });
             }
             catch (Exception ex)
@@ -34,7 +66,6 @@ namespace backend.Controllers
             }
         }
         
-
         [HttpGet("listingall")]
         public async Task<IActionResult> ListingAll()
         {
@@ -67,7 +98,6 @@ namespace backend.Controllers
 
             return Ok(result);
         }
-
         /*         [HttpPost("does-bac-exist")]
                 public async Task<IActionResult> DoesBacExist([FromBody] BacNumberToData request)
                 {
