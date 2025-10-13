@@ -148,34 +148,37 @@ namespace backend.Controllers
             }
         }
 
-        [HttpGet("listingall")]
+        [HttpGet("list-all")]
         public async Task<IActionResult> ListingAll()
         {
             List<Preinscription> preinscriptions = await _facDBContext.Preinscriptions.ToListAsync();
             List<Bachelier> bacheliers = await _bacDBContext.Bacheliers.ToListAsync();
             List<Option> options = await _bacDBContext.Options.ToListAsync();
             List<Parcour> parcours = await _facDBContext.Parcours.ToListAsync();
+            List<Bac> bacs = await _facDBContext.Bacs.ToListAsync();
 
-            var result = (from p in preinscriptions
-                          join b in bacheliers on p.IdBac equals b.IdBachelier
-                          join o in options on b.IdOption equals o.IdOption
-                          join pr in parcours on p.IdPortail equals pr.IdParcours into parcoursGroup
-                          from pr in parcoursGroup.DefaultIfEmpty()
-                          select new ListingModel
-                          {
-                              Id = p.IdPreinscription.ToString(),
-                              BacNumber = b.NumeroCandidat,
-                              BacYear = b.Annee.Year,
-                              BacOption = o.Serie,
-                              StudyBranch = pr.NomParcours ?? "No Parcour",
-                              PreregistrationDate = p.DatePreinscription?.ToString() ?? "No Preregistration date",
-                              Email = p.Email ?? "No Email Adress",
-                              Phone = p.Tel ?? "No Phone Number",
-                              PaymentDate = p.DatePaiement.ToString() ?? "No Payment date",
-                              PaymentReference = p.RefBancaire,
-                              PaymentAgence = p.Agence,
-                              Status = p.EstValide ?? false ? "verified" : "pending"
-                          }
+            var result = (
+                from p in preinscriptions
+                join ba in bacs on p.IdBac equals ba.IdBac
+                join b in bacheliers on ba.NumBacc.ToString() equals b.NumeroCandidat
+                join o in options on b.IdOption equals o.IdOption
+                join pr in parcours on p.IdPortail equals pr.IdParcours into parcoursGroup
+                from pr in parcoursGroup.DefaultIfEmpty()
+                select new ListingModel
+                {
+                    Id = p.IdPreinscription.ToString(),
+                    BacNumber = b.NumeroCandidat,
+                    BacYear = b.Annee.Year,
+                    BacOption = o.Serie,
+                    StudyBranch = pr.NomParcours ?? "No Parcour",
+                    PreregistrationDate = p.DatePreinscription?.ToString() ?? "No Preregistration date",
+                    Email = p.Email ?? "No Email Adress",
+                    Phone = p.Tel ?? "No Phone Number",
+                    PaymentDate = p.DatePaiement.ToString() ?? "No Payment date",
+                    PaymentReference = p.RefBancaire,
+                    PaymentAgence = p.Agence,
+                    Status = p.EstValide ?? false ? "verified" : "pending"
+                }
             ).ToList();
 
             return Ok(result);
