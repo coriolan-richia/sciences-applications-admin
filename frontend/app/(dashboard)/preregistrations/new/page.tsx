@@ -67,7 +67,36 @@ export default function NewPreregistrationPage() {
     return dataAreOk;
   };
 
-  const handleNext = () => {
+  const doesBacExist = async (): Promise<boolean> => {
+    try {
+      const fetchUrl =
+        "http://localhost:5174/api/Preinscription/does-bac-exist";
+      const response = await fetch(fetchUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          numBacc: formData.bacNumber,
+          anneeBacc: formData.bacYear,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Erreur serveur :", response.status);
+        return false;
+      }
+
+      const data = await response.json();
+      console.log("Esistenza :", data.exist);
+      return data.exist; // supposons que l'API renvoie { exists: true/false }
+    } catch (error) {
+      addToFormError("Erreur du serveur.");
+      return false;
+    }
+  };
+
+  const handleNext = async () => {
     setFormError([]);
     // [FETCH]
     let dataAreOk = controlFields([
@@ -87,16 +116,20 @@ export default function NewPreregistrationPage() {
     ]);
 
     // logIfDev("log", formError);
+    if (!dataAreOk) return;
 
-    if (dataAreOk) {
-      const newSig = `${formData.email}-${formData.phone}-${formData.bacNumber}-${formData.bacYear}`;
-      // logIfDev("log", newSig);
-      if (step1Signature && newSig !== step1Signature) {
-        resetStep2(); // vide les champs du step 2
-      }
-      setStep1Signature(newSig);
-      setStep(2);
+    const exists = await doesBacExist();
+    if (!exists) {
+      addToFormError("Aucune correspondance pour ce numéro de bac.");
+      return;
     }
+    const newSig = `${formData.email}-${formData.phone}-${formData.bacNumber}-${formData.bacYear}`;
+    // logIfDev("log", newSig);
+    if (step1Signature && newSig !== step1Signature) {
+      resetStep2(); // vide les champs du step 2
+    }
+    setStep1Signature(newSig);
+    setStep(2);
   };
 
   const handleBack = () => {

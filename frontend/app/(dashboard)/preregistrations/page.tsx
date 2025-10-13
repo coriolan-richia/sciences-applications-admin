@@ -44,7 +44,7 @@ export default function PreregistrationsPage() {
     }
     loadList();
   }, []);
-  console.log("Preregistrations:", data);
+  // console.log("Preregistrations:", data);
 
   // } catch {}
   const filteredPreregistrations = data.filter(
