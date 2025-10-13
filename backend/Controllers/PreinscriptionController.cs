@@ -22,7 +22,7 @@ namespace backend.Controllers
             try
             {
 
-                request.Email = "test@example.com"; request.Phone = "0612345678"; request.BacYear = "2025"; request.BacNumber = "3002042"; request.IdStudyBranch = 5; request.PreregistrationDate = DateTime.Now; request.PaymentReference = "PAY123KK256789"; request.PaymentAgence = "Wafacash"; request.PaymentDate = DateTime.Now;
+                // request.Email = "test@example.com"; request.Phone = "0612345678"; request.BacYear = "2025"; request.BacNumber = "3002042"; request.IdStudyBranch = 5; request.PreregistrationDate = DateTime.Now; request.PaymentReference = "PAY123KK256789"; request.PaymentAgence = "Wafacash"; request.PaymentDate = DateTime.Now;
                 if (request == null)
                     return BadRequest("Invalid data");
 
