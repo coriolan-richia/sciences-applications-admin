@@ -73,7 +73,7 @@ namespace MyApp.Namespace
 
             }
 
-            Utilisateur existingUser = _facDBContext.Utilisateurs.FirstOrDefault(u => u.Identifiant == request.NewUserIdentifiant);
+            Utilisateur? existingUser = _facDBContext.Utilisateurs.FirstOrDefault(u => u.Identifiant == request.NewUserIdentifiant);
 
             if (existingUser is not null)
             {
