@@ -456,21 +456,21 @@ export const mockPreselectionResults: PreselectionResult[] = [
 export const mockUsers: User[] = [
   {
     id: "1",
-    email: "superadmin@college.edu",
+    identifiant: "superadmin",
     password: "super123",
     name: "Super Admin",
     role: "superadmin" as const,
   },
   {
     id: "2",
-    email: "admin@college.edu",
+    identifiant: "admin",
     password: "admin123",
     name: "Admin User",
     role: "admin" as const,
   },
   {
     id: "3",
-    email: "viewer@college.edu",
+    identifiant: "viewer",
     password: "viewer123",
     name: "Viewer User",
     role: "viewer" as const,

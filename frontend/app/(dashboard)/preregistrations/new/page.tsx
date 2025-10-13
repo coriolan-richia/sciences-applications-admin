@@ -161,7 +161,7 @@ export default function NewPreregistrationPage() {
   return (
     <div className="flex h-full flex-col">
       <PageHeader
-        title="Nouveelle Préinscription"
+        title="Nouvelle Préinscription"
         description={`Étape ${step} sur 2`}
         action={
           <Link href="/preregistrations">
