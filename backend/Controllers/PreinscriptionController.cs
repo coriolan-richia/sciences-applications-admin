@@ -27,6 +27,7 @@ namespace backend.Controllers
                     return BadRequest("Invalid data");
 
                 /* Quelques vérifications 
+                    --> Email verification si !null ?
                     --> PayementReference existe ?
                     --> Parcours existe ?
                     --> Les data de Bac dans Bacheliers ? 
@@ -36,6 +37,9 @@ namespace backend.Controllers
                     --> bac d'abord si n'existe pas encore
                     --> puis preinscription
                 */
+                if (request.Email == null)
+                    return BadRequest("Le champ Email doit être rempli");
+                
                 var ExistingPaymentReference = await _facDBContext.Preinscriptions.AnyAsync(pre => pre.RefBancaire == request.PaymentReference);
                 if (ExistingPaymentReference)
                     return BadRequest("Référence paiement déjà utilisée");
