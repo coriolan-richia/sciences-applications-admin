@@ -154,7 +154,7 @@ namespace backend.Controllers
             List<Preinscription> preinscriptions = await _facDBContext.Preinscriptions.ToListAsync();
             List<Bachelier> bacheliers = await _bacDBContext.Bacheliers.ToListAsync();
             List<Option> options = await _bacDBContext.Options.ToListAsync();
-            List<Parcour> parcours = await _facDBContext.Parcours.ToListAsync();
+            List<Portail> portails = await _facDBContext.Portails.ToListAsync();
             List<Bac> bacs = await _facDBContext.Bacs.ToListAsync();
 
             var result = (
@@ -162,7 +162,7 @@ namespace backend.Controllers
                 join ba in bacs on p.IdBac equals ba.IdBac
                 join b in bacheliers on ba.NumBacc.ToString() equals b.NumeroCandidat
                 join o in options on b.IdOption equals o.IdOption
-                join pr in parcours on p.IdPortail equals pr.IdParcours into parcoursGroup
+                join pr in portails on p.IdPortail equals pr.IdPortail into parcoursGroup
                 from pr in parcoursGroup.DefaultIfEmpty()
                 select new ListingModel
                 {
@@ -170,7 +170,8 @@ namespace backend.Controllers
                     BacNumber = b.NumeroCandidat,
                     BacYear = b.Annee.Year,
                     BacOption = o.Serie,
-                    StudyBranch = pr.NomParcours ?? "No Parcour",
+                    StudyBranch = pr.NomPortail ?? "Non disponible",
+                    StudyBranchAbbrev = pr.Abbreviation ?? "N/A",
                     PreregistrationDate = p.DatePreinscription?.ToString() ?? "No Preregistration date",
                     Email = p.Email ?? "No Email Adress",
                     Phone = p.Tel ?? "No Phone Number",

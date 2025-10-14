@@ -28,10 +28,10 @@ export function PreregistrationListItem({
         <div className="w-20 text-sm text-muted-foreground">
           {preregistration.bacYear}
         </div>
-        <div className="flex-1 text-sm text-muted-foreground">
+        <div className="w-48 text-sm text-muted-foreground">
           {preregistration.bacOption}
         </div>
-        <div className="w-48 text-sm text-muted-foreground">
+        <div className="flex-1 text-sm text-muted-foreground">
           {preregistration.studyBranch}
         </div>
         <div className="w-32 text-sm text-muted-foreground">

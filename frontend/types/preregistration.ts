@@ -17,6 +17,7 @@ export interface Preregistration {
   bacYear: number;
   bacOption: string;
   studyBranch: string;
+  studyBranchAbbrev: string;
   preregistrationDate: string;
   email: string;
   phone: string;

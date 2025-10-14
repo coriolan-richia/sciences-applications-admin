@@ -11,6 +11,7 @@ namespace backend.DTOs
         public int BacYear { get; set; }
         public string BacOption { get; set; } = string.Empty;
         public string StudyBranch { get; set; } = string.Empty;
+        public string StudyBranchAbbrev { get; set; } = string.Empty;
         public string PreregistrationDate { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;

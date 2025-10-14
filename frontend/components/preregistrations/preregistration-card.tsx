@@ -10,6 +10,11 @@ import Link from "next/link";
 interface PreregistrationCardProps {
   preregistration: Preregistration;
 }
+function parseFrDate(dateStr: string) {
+  const [day, month, yearAndTime] = dateStr.split("/");
+  const [year, time] = yearAndTime.split(" ");
+  return new Date(`${year}-${month}-${day}T${time}`);
+}
 
 export function PreregistrationCard({
   preregistration,
@@ -45,7 +50,7 @@ export function PreregistrationCard({
               <div className="flex items-center gap-2 text-muted-foreground">
                 <BookOpen className="h-4 w-4" />
                 <span className="font-semibold">Mention Choisie</span>
-                <span>{preregistration.studyBranch}</span>
+                <span>{preregistration.studyBranchAbbrev}</span>
               </div>
 
               <div className="flex items-center gap-2 text-muted-foreground">
@@ -53,7 +58,7 @@ export function PreregistrationCard({
                 <span className="font-semibold">Date du Dossier</span>
                 <span>
                   {new Date(
-                    preregistration.preregistrationDate
+                    parseFrDate(preregistration.preregistrationDate)
                   ).toLocaleDateString()}
                 </span>
               </div>
