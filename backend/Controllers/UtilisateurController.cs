@@ -18,13 +18,13 @@ namespace MyApp.Namespace
         private readonly IPasswordHasher<Utilisateur> _hasher = hasher;
         private readonly JwtService _jwtService = jwtService;
 
-        [HttpGet("list-users")]
-        public async Task<IActionResult> ListUsers(int id)
+        [HttpPost("list-users")]
+        public async Task<IActionResult> ListUsers([FromBody] ListUsersRequest request)
         {
             var authUser = _facDBContext.Utilisateurs
                 .Include(u => u.RoleUtilisateurs)
                 .ThenInclude(ru => ru.IdRoleNavigation)
-                .FirstOrDefault(u => u.IdUtilisateur == id);
+                .FirstOrDefault(u => u.IdUtilisateur == request.authId);
 
             if (authUser is null)
             {
