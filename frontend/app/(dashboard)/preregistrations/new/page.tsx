@@ -24,8 +24,6 @@ import Link from "next/link";
 import { isNullOrEmpty } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-import { logIfDev } from "@/lib/utils";
-
 const initialFormData = {
   email: "",
   phone: "",
@@ -132,8 +130,7 @@ export default function NewPreregistrationPage() {
     let dataAreOk = controlFields([
       {
         value: formData.email,
-        message:
-          "Au moins un email ou un numéro de téléphone doit être fourni.",
+        message: "Le champ email doit être rempli.",
       },
       {
         value: formData.bacYear,
@@ -145,7 +142,6 @@ export default function NewPreregistrationPage() {
       },
     ]);
 
-    // logIfDev("log", formError);
     if (!dataAreOk) return;
 
     const exists = await doesBacExist();
@@ -153,8 +149,8 @@ export default function NewPreregistrationPage() {
       addToFormError("Aucune correspondance pour ce numéro de bac.");
       return;
     }
+
     const newSig = `${formData.email}-${formData.phone}-${formData.bacNumber}-${formData.bacYear}`;
-    // logIfDev("log", newSig);
     if (step1Signature && newSig !== step1Signature) {
       resetStep2(); // vide les champs du step 2
     }
@@ -184,7 +180,8 @@ export default function NewPreregistrationPage() {
     }));
     setFormError([]);
   };
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError([]);
 
@@ -213,13 +210,40 @@ export default function NewPreregistrationPage() {
         message: "La date de paiement est requise.",
       },
     ]);
-    // logIfDev("log", "Formulaire Soumis:", formData);
-    if (dataAreOk) {
-      setTimeout(() => {}, 2000);
+
+    if (!dataAreOk) return;
+
+    let submitUrl =
+      "http://localhost:5174/api/Preinscription/insert-preinscription";
+    try {
+      const response = await fetch(submitUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          phone: formData.phone,
+          bacYear: formData.bacYear,
+          bacNumber: formData.bacNumber,
+          idStudyBranch: formData.studyBranch,
+          preregistrationDate: formData.preregistrationDate,
+          paymentReference: formData.paymentReference,
+          paymentAgence: formData.paymentAgence,
+          paymentDate: formData.paymentDate,
+        }),
+      });
+
+      if (!response.ok) {
+        addToFormError(`Erreur HTTP : ${response.statusText}`);
+        return;
+      }
+
       setFormData(initialFormData);
       setStep(1);
+    } catch (error) {
+      addToFormError("Problème à l'appel au serveur.");
     }
-    // router.push("/preregistrations");
   };
 
   return (
