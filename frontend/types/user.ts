@@ -7,3 +7,9 @@ export interface User {
   password?: string;
   role: UserRole;
 }
+
+export interface UserForListing {
+  idUtilisateur: number;
+  identifiant: string;
+  role: string;
+}

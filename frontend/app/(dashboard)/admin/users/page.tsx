@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,8 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Edit, Shield, Eye, ArrowUpDown } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
-import { mockUsers } from "@/lib/mock-data";
-import type { User } from "@/types/user";
+import type { UserForListing } from "@/types/user";
 import {
   Select,
   SelectContent,
@@ -21,11 +21,51 @@ import {
 
 export default function UsersPage() {
   const { user: currentUser } = useAuth();
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<string>("id-asc");
-  const [users] = useState<Array<User & { password?: string }>>(
-    mockUsers as Array<User & { password?: string }>
+  const [users, setUsers] = useState<UserForListing[]>(
+    [] // mockUsers as Array<User & { password?: string }>
   );
+  const fetchUrl = "http://localhost:5174/api/Utilisateur/list-users";
+
+  let authUser = JSON.parse(localStorage.getItem("user") ?? "");
+  if (authUser === null) {
+    router.push("/login");
+    return;
+  }
+  console.log("UserId ", authUser.idUtilisateur);
+  useEffect(() => {
+    const loadList = async () => {
+      try {
+        const response = await fetch(fetchUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            authId: authUser.IdUtilisateur ?? 1,
+          }),
+        });
+
+        // console.log("UserId ", user.idUtilisateur);
+
+        if (!response.ok) {
+          console.error("Problème HTTP :", response.statusText);
+          return;
+        }
+
+        const data = await response.json();
+        setUsers(data);
+
+        // In a real app, this would call an API
+      } catch (error) {
+        console.error("Erreur de réseau :", error);
+      }
+    };
+
+    loadList();
+  }, []);
 
   const filteredUsers = users.filter((user) =>
     user.identifiant?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -100,7 +140,7 @@ export default function UsersPage() {
 
       <div className="flex-1 space-y-6 p-6">
         {/* Stats */}
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -115,31 +155,29 @@ export default function UsersPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Administrateurs
+                Superadministrateurs
               </CardTitle>
               <Shield className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {
-                  users.filter(
-                    (u) => u.role === "admin" || u.role === "superadmin"
-                  ).length
-                }
+                {users.filter((u) => u.role === "superadmin").length}
               </div>
             </CardContent>
           </Card>
-          {/* <Card>
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Viewers</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Administrateurs
+              </CardTitle>
               <Eye className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {users.filter((u) => u.role === "viewer").length}
+                {users.filter((u) => u.role === "admin").length}
               </div>
             </CardContent>
-          </Card> */}
+          </Card>
         </div>
 
         {/* Search and Actions */}
@@ -186,7 +224,7 @@ export default function UsersPage() {
             <div className="divide-y divide-border">
               {sortedUsers.map((user) => (
                 <div
-                  key={user.id}
+                  key={user.idUtilisateur}
                   className="flex items-center justify-between p-4 hover:bg-muted/50"
                 >
                   <div className="flex items-center gap-4">
@@ -198,7 +236,7 @@ export default function UsersPage() {
                         <p className="font-medium text-foreground">
                           {user.identifiant}
                         </p>
-                        {user.id === currentUser?.id && (
+                        {user.idUtilisateur === parseInt(currentUser?.id) && (
                           <Badge variant="outline" className="text-xs">
                             You
                           </Badge>
@@ -214,7 +252,7 @@ export default function UsersPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Button variant="ghost" size="sm" asChild>
-                      <Link href={`/admin/users/${user.id}/edit`}>
+                      <Link href={`/admin/users/${user.idUtilisateur}/edit`}>
                         <Edit className="h-4 w-4" />
                       </Link>
                     </Button>

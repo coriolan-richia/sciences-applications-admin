@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
@@ -24,15 +24,45 @@ export default function NewUserPage() {
   const [formData, setFormData] = useState({
     identifiant: "",
     password: "",
-    role: "admin",
+    role: 2,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const fetchUrl = "http://localhost:5174/api/Utilisateur/insert-user";
 
-    // In a real app, this would call an API
-    console.log("Création de l'utilisateur:", formData);
-    router.push("/admin/users");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    let user = JSON.parse(localStorage.getItem("user") ?? "");
+    if (user === null) {
+      router.push("/login");
+      return;
+    }
+    try {
+      const response = await fetch(fetchUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          idUser: user.idUtilisateur ?? 0,
+          newUserIdentifiant: formData.identifiant,
+          newUserMotDePasse: formData.password,
+          idNewUserRole: formData.role,
+        }),
+      });
+
+      console.log("UserId ", user.idUtilisateur);
+
+      if (!response.ok) {
+        console.error("Problème HTTP :", response.statusText);
+        return;
+      }
+
+      // In a real app, this would call an API
+      console.log("Création de l'utilisateur:", formData);
+      router.push("/admin/users");
+    } catch (error) {
+      console.error("Erreur de réseau :", error);
+    }
   };
 
   return (
@@ -95,25 +125,23 @@ export default function NewUserPage() {
               <div className="space-y-2">
                 <Label htmlFor="role">Rôle</Label>
                 <Select
-                  value={formData.role}
+                  value={formData.role.toString()}
                   onValueChange={(value) =>
-                    setFormData({ ...formData, role: value })
+                    setFormData({ ...formData, role: parseInt(value) })
                   }
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="admin">Administrateur</SelectItem>
-                    <SelectItem value="superadmin">
-                      Superadministrateur
-                    </SelectItem>
+                    <SelectItem value="2">Administrateur</SelectItem>
+                    <SelectItem value="1">Superadministrateur</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-sm text-muted-foreground">
-                  {formData.role === "superadmin" &&
+                  {formData.role === 1 &&
                     "Accès complet à toutes les fonctionnalités, y compris la gestion des utilisateurs"}
-                  {formData.role === "admin" &&
+                  {formData.role === 2 &&
                     "Peut gérer les préinscriptions, les paiements et les présélection"}
                   {/* {formData.role === "viewer" &&
                     "Read-only access to all sections"} */}
