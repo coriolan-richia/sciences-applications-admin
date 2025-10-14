@@ -8,7 +8,6 @@ import { ArrowLeft, FileDown, CheckCircle2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { studyBranches, mockPreselectionResults } from "@/lib/mock-data";
-import { logIfDev } from "@/lib/utils";
 import { getPreselectionCandidateStatusLabel as getStatusLabel } from "@/types/preselection";
 
 export default function ExportPreselectionPage() {
@@ -26,11 +25,6 @@ export default function ExportPreselectionPage() {
     setExportSuccess(false);
     setExportComplete(false);
     setIsExporting(true);
-    logIfDev(
-      "log",
-      "Exportation en cours des résultats de présélection de la mention",
-      branchId
-    );
 
     // Simulate PDF generation
     setTimeout(() => {

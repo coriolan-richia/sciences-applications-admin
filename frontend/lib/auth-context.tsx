@@ -9,7 +9,6 @@ import {
 } from "react";
 
 import type { User, AuthState } from "@/types/auth";
-import { logIfDev } from "@/lib/utils";
 
 interface AuthContextType extends AuthState {
   login: (identifiant: string, password: string) => Promise<LoginResult>;
@@ -87,7 +86,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           data = JSON.parse(responseAsText);
         } catch {
-          logIfDev("log", "Réponse Non JSON:", responseAsText);
           return { success: false, type: "parse" };
         }
       }
@@ -99,10 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           data?.message ||
           response.statusText ||
           "Erreur Inconnue";
-        logIfDev(
-          "error",
-          `Erreur HTTP: ${response.status} ${response.statusText}`
-        );
+
         return {
           success: false,
           type:
@@ -119,7 +114,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       //  L'état d'authentification, qui est alors marqué comme authentifié.
       //  La fonction de login retourne un booléen true
       if (!data?.identifiant) {
-        logIfDev("error", "Identifiants incorrects ou Utilisateur Introuvable");
         return { success: false, type: "auth" };
       }
 
@@ -130,7 +124,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       localStorage.setItem("user", JSON.stringify(userWithoutPassword));
-      logIfDev("log", "Utilisateur authentifié:", localStorage.getItem("user"));
 
       return { success: true, type: "ok" };
     } catch (error) {
@@ -138,7 +131,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         error instanceof Error
           ? error.message
           : String(error ?? "Erreur inconnue");
-      logIfDev("log", "Erreur réseau ou requête échouée:", error);
       return { success: false, type: "network", error: message };
     }
   };
