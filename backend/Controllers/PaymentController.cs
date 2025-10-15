@@ -16,7 +16,7 @@ namespace backend.Controllers
         private readonly FacContext _facDBContext = facDBContext;
 
         [HttpPost("upload-releve")]
-        public async Task<IActionResult> UploadReleve([FromBody] PaymentForm request)
+        public async Task<IActionResult> UploadReleve([FromForm] PaymentForm request)
         {
             if (request.File == null || request.File.Length == 0)
                 return BadRequest("Aucun fichier uploader");
