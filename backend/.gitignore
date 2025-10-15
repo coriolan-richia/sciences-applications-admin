@@ -3,6 +3,8 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+[Uu]ploads/*
+
 appsettings.json
 
 # dotenv files

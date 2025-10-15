@@ -38,17 +38,24 @@ export default function UploadPaymentPage() {
   };
 
   const handleUpload = async () => {
+    const currentUser = JSON.parse(localStorage.getItem("user") ?? "");
+
     if (!selectedFile) return;
     const uploadURL = "http://localhost:5174/api/Payment/upload-releve";
 
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    formData.append("idUploader", currentUser.idUtilisateur);
     setIsUploading(true);
     try {
       const response = await fetch(uploadURL, {
         method: "POST",
-        body: selectedFile,
+        // headers:{"Content-Type":"multipart/form-data"}
+        body: formData,
       });
 
       if (!response.ok) {
+        alert(response.statusText);
         setIsUploading(false);
         setUploadComplete(true);
         setUploadSuccess(false);
