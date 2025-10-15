@@ -4,6 +4,7 @@ using OfficeOpenXml;
 using backend.Models.Fac;
 using System.Globalization;
 using backend.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace backend.Controllers
@@ -85,8 +86,10 @@ namespace backend.Controllers
     
         private async Task<IActionResult> InsertPaiement(OfficeOpenXml.ExcelWorksheet ws, int totalRows, int IdUploader)
         {
+
             try
             {
+                List<string> existingReferences = [];
                 for (int row = 2; row <= totalRows; row++)
                 {
                     string dateText = ws.Cells[row, 1].Text.Trim();
@@ -112,24 +115,40 @@ namespace backend.Controllers
                     else if (!string.IsNullOrWhiteSpace(creditText))
                         montant = (int)decimal.Parse(creditText.Replace(" ", ""));
 
-                    var paiement = new Paiement
+                    var paiementExist = await _facDBContext.Paiements.AnyAsync(pay=> pay.Reference==reference);
+                    if (!paiementExist)
                     {
-                        NomPayeur = libelle,
-                        NomBeneficiaire = "FACULTE DES SCIENCES",
-                        Agence = "BOA Antananarivo A",
-                        Reference = reference,
-                        DatePaiement = datePaiement,
-                        Valeur = valeur,
-                        Montant = montant,
-                        MotifPaiement = libelle,
-                        Libelle = libelle,
-                        IdUtilisateur = IdUploader, 
-                    };
-
-                    _facDBContext.Paiements.Add(paiement);
+                        var paiement = new Paiement
+                        {
+                            NomPayeur = libelle,
+                            NomBeneficiaire = "FACULTE DES SCIENCES",
+                            Agence = "BOA Antananarivo A",
+                            Reference = reference,
+                            DatePaiement = datePaiement,
+                            Valeur = valeur,
+                            Montant = montant,
+                            MotifPaiement = libelle,
+                            Libelle = libelle,
+                            IdUtilisateur = IdUploader, 
+                        };
+                        _facDBContext.Paiements.Add(paiement);
+                    } else
+                    {
+                        existingReferences.Add(reference);
+                    }
+                    
                 }
                 await _facDBContext.SaveChangesAsync();
-                return Ok(new { });
+
+                // return Ok(new { });
+                if(existingReferences.Count != 0)
+                {
+                    return BadRequest(new { message = "Les réferences suivantes sont déjà utilisées", references = existingReferences});
+                }
+                else
+                {
+                    return Ok(new { });
+                }
 
             }
             catch(Exception ex)
