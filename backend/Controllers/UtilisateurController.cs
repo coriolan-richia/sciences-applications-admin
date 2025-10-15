@@ -75,7 +75,7 @@ namespace MyApp.Namespace
             int? idRole = authUser?.RoleUtilisateurs.FirstOrDefault()?.IdRole;
             if (idRole is null)
             {
-                return StatusCode(401, "Vous n'avez aucune droit");;
+                return StatusCode(401, "Vous n'avez aucune droit");
             }
             if (idRole != 1)
             {
@@ -90,7 +90,7 @@ namespace MyApp.Namespace
             }
             
             targetUser.Identifiant = request.TargetIdentifiant;
-            if (!string.IsNullOrEmpty(request.Password)) targetUser.MotDePasse = request.Password;
+            if (!string.IsNullOrEmpty(request.Password)) targetUser.MotDePasse = _hasher.HashPassword(targetUser, request.Password);
 
             
             var roleUtilisateurs = targetUser.RoleUtilisateurs.FirstOrDefault();

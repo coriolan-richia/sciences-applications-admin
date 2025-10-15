@@ -34,7 +34,7 @@ export default function UsersPage() {
     router.push("/login");
     return;
   }
-  console.log("UserId ", authUser.idUtilisateur);
+  // console.log("UserId ", authUser.idUtilisateur);
   useEffect(() => {
     const loadList = async () => {
       try {
