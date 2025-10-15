@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using OfficeOpenXml;
 using System.Text;
 
 using backend.Context;
@@ -20,8 +21,10 @@ builder.Services.AddDbContext<FacContext>(options =>
         FacConnectionString,
         o => o.MapEnum<TypeModePreinscription>("type_mode_preinscription")
         .MapEnum<TypeMedia>("type_media")
+    
     )
 );
+ExcelPackage.License.SetNonCommercialPersonal("MIT PROM 2027");
 
 builder.Services.AddDbContext<BacContext>(options =>
     options.UseNpgsql(BacConnectionString)

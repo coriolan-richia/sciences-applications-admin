@@ -48,6 +48,8 @@ public partial class FacContext : DbContext
 
     public virtual DbSet<Grade> Grades { get; set; }
 
+    public virtual DbSet<HistoriquePaiement> HistoriquePaiements { get; set; }
+
     public virtual DbSet<LaboMedium> LaboMedia { get; set; }
 
     public virtual DbSet<Laboratoire> Laboratoires { get; set; }
@@ -98,24 +100,6 @@ public partial class FacContext : DbContext
 
     public virtual DbSet<Utilisateur> Utilisateurs { get; set; }
 
-/*     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=localhost;Database=fac;Username=admin;Password=123456");
- */    
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
-            // Lecture de la configuration depuis appsettings.json
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("appsettings.json")
-                .Build();
-
-            var connectionString = configuration.GetConnectionString("ConnectionToFac");
-            optionsBuilder.UseNpgsql(connectionString);
-        }
-    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
@@ -394,6 +378,23 @@ public partial class FacContext : DbContext
                 .HasDefaultValueSql("nextval('grade_id_grade_seq1'::regclass)")
                 .HasColumnName("id_grade");
             entity.Property(e => e.NomGrade).HasColumnName("nom_grade");
+        });
+
+        modelBuilder.Entity<HistoriquePaiement>(entity =>
+        {
+            entity.HasKey(e => e.IdHistorique).HasName("pk_historique_paiement");
+
+            entity.ToTable("historique_paiement");
+
+            entity.Property(e => e.IdHistorique).HasColumnName("id_historique");
+            entity.Property(e => e.CheminFichier).HasColumnName("chemin_fichier");
+            entity.Property(e => e.DateImportation)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnName("date_importation");
+            entity.Property(e => e.EstImporte)
+                .HasDefaultValue(true)
+                .HasColumnName("est_importe");
+            entity.Property(e => e.NbrLigne).HasColumnName("nbr_ligne");
         });
 
         modelBuilder.Entity<LaboMedium>(entity =>
