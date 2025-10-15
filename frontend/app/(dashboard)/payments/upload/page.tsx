@@ -39,18 +39,30 @@ export default function UploadPaymentPage() {
 
   const handleUpload = async () => {
     if (!selectedFile) return;
+    const uploadURL = "http://localhost:5174/api/Payment/upload-releve";
 
     setIsUploading(true);
+    try {
+      const response = await fetch(uploadURL, {
+        method: "POST",
+        body: selectedFile,
+      });
 
-    // Simulate upload process
-    setTimeout(() => {
+      if (!response.ok) {
+        setIsUploading(false);
+        setUploadComplete(true);
+        setUploadSuccess(false);
+        return;
+      }
+
       setIsUploading(false);
       setUploadComplete(true);
-      setUploadSuccess(Date.now() % 2 === 0);
-
-      // Redirect after 2 seconds
-      setTimeout(() => {}, 2000);
-    }, 2000);
+      setUploadSuccess(true);
+    } catch (error) {
+      setIsUploading(false);
+      setUploadComplete(true);
+      setUploadSuccess(false);
+    }
   };
 
   const handleRetry = async () => {
