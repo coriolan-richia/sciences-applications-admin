@@ -22,6 +22,10 @@ namespace backend.Controllers
             if (request.File == null || request.File.Length == 0)
                 return BadRequest("Aucun fichier uploader");
 
+            bool isUploaderExist = await _facDBContext.Utilisateurs.AnyAsync(u => u.IdUtilisateur== request.IdUploader);
+            if (!isUploaderExist)
+                return BadRequest("Cet utilisateur n'existe pas");
+
             var folder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
@@ -39,21 +43,30 @@ namespace backend.Controllers
                 await request.File.CopyToAsync(stream);
             }
 
-            int nbrLigne = await ImportReleveBancaire(filePath,request.IdUploader);
-            return Ok("Fichier importé avec succès");
+            try
+            {
+                var (Success, Message) = await ImportReleveBancaire(filePath, request.IdUploader);
+                if (!Success)
+                    return BadRequest(Message);
+                
+                return Ok("Fichier importé avec succès");
+            } catch(Exception ex)
+            {
+                return BadRequest("Erreur lors du traitement : " + ex.Message);
+            }
         }
         
-        private async Task<int> ImportReleveBancaire(string filePath, int IdUploader)
+        private async Task<(bool Success, string Message)> ImportReleveBancaire(string filePath, int IdUploader)
         {
             using var package = new ExcelPackage(new FileInfo(filePath));
             OfficeOpenXml.ExcelWorksheet ws = package.Workbook.Worksheets[0];
             int totalRows = ws.Dimension.Rows;
 
             await InsertHistoriquePaiement(filePath, true, totalRows - 1);
-            await InsertPaiement(ws,totalRows,IdUploader);
+            var result = await InsertPaiement(ws,totalRows,IdUploader);
 
             await _facDBContext.SaveChangesAsync();
-            return 0;
+            return result;
         }
         
         private static string GenerateRandomName(int lenght)
@@ -84,7 +97,7 @@ namespace backend.Controllers
             }
         }
     
-        private async Task<IActionResult> InsertPaiement(OfficeOpenXml.ExcelWorksheet ws, int totalRows, int IdUploader)
+        private async Task<(bool Success, string Message)> InsertPaiement(OfficeOpenXml.ExcelWorksheet ws, int totalRows, int IdUploader)
         {
 
             try
@@ -141,19 +154,19 @@ namespace backend.Controllers
                 await _facDBContext.SaveChangesAsync();
 
                 // return Ok(new { });
-                if(existingReferences.Count != 0)
+                if(existingReferences.Count > 0)
                 {
-                    return BadRequest(new { message = "Les réferences suivantes sont déjà utilisées", references = existingReferences});
+                    return (false, "Les références suivantes existent déjà : " + string.Join(", ", existingReferences));
                 }
                 else
                 {
-                    return Ok(new { });
+                    return (true, "OK");
                 }
 
             }
             catch(Exception ex)
             {
-                return BadRequest("Impossible d'accèder à la table Paiement" + ex);
+                return (false,"Impossible d'accèder à la table Paiement" + ex.Message);
             }
         }
     }
