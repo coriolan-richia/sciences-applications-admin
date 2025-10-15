@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict FR8OZd0UP0oYuEqVSLHG0qcoul9TuhGlN4GAcITfF4f9BhvFcFe7r431InO5bQd
+\restrict Mksd32G2NeIe0FTCYc8FUOvX82pezlfstjx7qNtWuGmYmPgX8t25haUB7p22xte
 
 -- Dumped from database version 14.19 (Ubuntu 14.19-0ubuntu0.22.04.1)
 -- Dumped by pg_dump version 14.19 (Ubuntu 14.19-0ubuntu0.22.04.1)
@@ -17,6 +17,22 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+CREATE SCHEMA public;
+
+
+ALTER SCHEMA public OWNER TO postgres;
+
+--
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
+--
+
+COMMENT ON SCHEMA public IS 'standard public schema';
+
 
 --
 -- Name: type_formation; Type: TYPE; Schema: public; Owner: admin
@@ -766,6 +782,43 @@ ALTER TABLE public.grade_id_grade_seq1 OWNER TO admin;
 --
 
 ALTER SEQUENCE public.grade_id_grade_seq1 OWNED BY public.grade.id_grade;
+
+
+--
+-- Name: historique_paiement; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.historique_paiement (
+    id_historique integer NOT NULL,
+    chemin_fichier text,
+    date_importation timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    est_importe boolean DEFAULT true,
+    nbr_ligne integer
+);
+
+
+ALTER TABLE public.historique_paiement OWNER TO admin;
+
+--
+-- Name: historique_paiement_id_historique_seq; Type: SEQUENCE; Schema: public; Owner: admin
+--
+
+CREATE SEQUENCE public.historique_paiement_id_historique_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.historique_paiement_id_historique_seq OWNER TO admin;
+
+--
+-- Name: historique_paiement_id_historique_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: admin
+--
+
+ALTER SEQUENCE public.historique_paiement_id_historique_seq OWNED BY public.historique_paiement.id_historique;
 
 
 --
@@ -2081,6 +2134,13 @@ ALTER TABLE ONLY public.grade ALTER COLUMN id_grade SET DEFAULT nextval('public.
 
 
 --
+-- Name: historique_paiement id_historique; Type: DEFAULT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.historique_paiement ALTER COLUMN id_historique SET DEFAULT nextval('public.historique_paiement_id_historique_seq'::regclass);
+
+
+--
 -- Name: labo_media id_labo_media; Type: DEFAULT; Schema: public; Owner: admin
 --
 
@@ -2330,6 +2390,7 @@ INSERT INTO public.appartenance VALUES (5, 'Representant etudiant');
 INSERT INTO public.bac VALUES (2, 2025, 8200135, NULL, true);
 INSERT INTO public.bac VALUES (35, 2025, 5600140, NULL, true);
 INSERT INTO public.bac VALUES (36, 2025, 3006023, NULL, true);
+INSERT INTO public.bac VALUES (37, 2025, 3103005, NULL, true);
 
 
 --
@@ -2450,6 +2511,12 @@ INSERT INTO public.grade VALUES (15, 'Attac.2 plan');
 INSERT INTO public.grade VALUES (16, 'Femme de ch');
 INSERT INTO public.grade VALUES (17, 'Planton s l/e');
 INSERT INTO public.grade VALUES (18, 'Assistant/sce');
+
+
+--
+-- Data for Name: historique_paiement; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
 
 
 --
@@ -3322,13 +3389,13 @@ INSERT INTO public.portail VALUES (35, 'Licence d''Ingénierie en Energie Renouv
 INSERT INTO public.portail VALUES (36, 'Licence en Technique Non Desctructive', 'LTND', false);
 INSERT INTO public.portail VALUES (37, 'Licence d'' Ingénierie en Gestion des Catastrophes et Réduction des Risques', 'LIGCRR', false);
 INSERT INTO public.portail VALUES (34, 'Licence d''Ingénierie en Physique des Signaux et Systèmes', 'LIPSS', false);
-INSERT INTO public.portail VALUES (41, 'FPST', 'FPST', false);
-INSERT INTO public.portail VALUES (43, 'FP GEODE', 'FP GEODE', false);
-INSERT INTO public.portail VALUES (44, 'PSEG', 'PSEG', false);
 INSERT INTO public.portail VALUES (40, 'Arôme Cosmétiques Phytomédicaments', 'ACP', false);
 INSERT INTO public.portail VALUES (45, 'Entomologie Appliquée', 'ENTOAP', false);
-INSERT INTO public.portail VALUES (38, 'Licence d'' Ingénierie ', 'LISTE', false);
 INSERT INTO public.portail VALUES (1, 'Portail Sciences de la Vie et de la Terre', 'PSVT', true);
+INSERT INTO public.portail VALUES (41, 'Formation Professionalisante en Science de la Terre', 'FPST', false);
+INSERT INTO public.portail VALUES (38, 'Licence d'' Ingénierie en Sciences et Techniques de l'' Eau', 'LISTE', false);
+INSERT INTO public.portail VALUES (44, 'P S Evolution et Gestion', 'PSEG', false);
+INSERT INTO public.portail VALUES (43, 'Formation Professionalisante en Géologie Appliquée au Développement', 'FP GEODE', false);
 
 
 --
@@ -3431,6 +3498,8 @@ INSERT INTO public.preinscription VALUES (41, 'damyeden@gmail.com', '0333333333'
 INSERT INTO public.preinscription VALUES (42, 'teh012343@gmail.com', '0333333333', 'sff', 'sf', '2025-10-10 00:00:00', '2025-10-10 13:10:51.410619', NULL, false, 5, NULL, false, NULL, 36, 'presentielle');
 INSERT INTO public.preinscription VALUES (43, 'fax@gmail.com', '0346666666', 'jkhdsjhdk', 'sdqsdjhk', '2025-10-11 00:00:00', '2025-10-11 07:42:41.797482', NULL, false, 1, NULL, false, NULL, 36, 'presentielle');
 INSERT INTO public.preinscription VALUES (44, 'sandaniainaadrien@gmail.com', '0328754036', 'ADBN2KESS562025', 'BNI 64HA Nord', '2025-07-10 00:00:00', '2025-10-11 09:25:32.578021', NULL, false, 2, NULL, false, NULL, 2, 'sms');
+INSERT INTO public.preinscription VALUES (45, 'rasamoelisonfortina@gmail.com', '0329925694', '87399', 'Ambanidia', '2025-10-14 00:00:00', '2025-10-14 06:48:47.236336', NULL, false, 5, NULL, false, NULL, 37, 'presentielle');
+INSERT INTO public.preinscription VALUES (46, 'rasamoelisonfortina@gmail.com', '0329925694', '87397', 'Ambanidia ', '2025-10-14 00:00:00', '2025-10-14 06:54:21.203373', NULL, false, 4, NULL, false, NULL, 37, 'presentielle');
 
 
 --
@@ -3853,7 +3922,7 @@ SELECT pg_catalog.setval('public.bac_id_bac_seq', 1, false);
 -- Name: bac_id_bac_seq1; Type: SEQUENCE SET; Schema: public; Owner: admin
 --
 
-SELECT pg_catalog.setval('public.bac_id_bac_seq1', 36, true);
+SELECT pg_catalog.setval('public.bac_id_bac_seq1', 37, true);
 
 
 --
@@ -3938,6 +4007,13 @@ SELECT pg_catalog.setval('public.grade_id_grade_seq', 1, false);
 --
 
 SELECT pg_catalog.setval('public.grade_id_grade_seq1', 1, false);
+
+
+--
+-- Name: historique_paiement_id_historique_seq; Type: SEQUENCE SET; Schema: public; Owner: admin
+--
+
+SELECT pg_catalog.setval('public.historique_paiement_id_historique_seq', 1, false);
 
 
 --
@@ -4154,7 +4230,7 @@ SELECT pg_catalog.setval('public.preinscription_id_preinscription_seq', 1, false
 -- Name: preinscription_id_preinscription_seq1; Type: SEQUENCE SET; Schema: public; Owner: admin
 --
 
-SELECT pg_catalog.setval('public.preinscription_id_preinscription_seq1', 44, true);
+SELECT pg_catalog.setval('public.preinscription_id_preinscription_seq1', 46, true);
 
 
 --
@@ -4442,6 +4518,14 @@ ALTER TABLE ONLY public.fonction
 
 ALTER TABLE ONLY public.grade
     ADD CONSTRAINT pk_grade PRIMARY KEY (id_grade);
+
+
+--
+-- Name: historique_paiement pk_historique_paiement; Type: CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.historique_paiement
+    ADD CONSTRAINT pk_historique_paiement PRIMARY KEY (id_historique);
 
 
 --
@@ -5025,5 +5109,5 @@ ALTER TABLE ONLY public.role_utilisateur
 -- PostgreSQL database dump complete
 --
 
--- \unrestrict FR8OZd0UP0oYuEqVSLHG0qcoul9TuhGlN4GAcITfF4f9BhvFcFe7r431InO5bQd
+-- \unrestrict Mksd32G2NeIe0FTCYc8FUOvX82pezlfstjx7qNtWuGmYmPgX8t25haUB7p22xte
 
