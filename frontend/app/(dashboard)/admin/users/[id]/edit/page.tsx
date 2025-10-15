@@ -1,20 +1,26 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { PageHeader } from "@/components/page-header"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, AlertCircle } from "lucide-react"
-import Link from "next/link"
-import { useRouter, useParams } from "next/navigation"
-import { mockUsers } from "@/lib/mock-data"
-import { useAuth } from "@/lib/auth-context"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useState, useEffect } from "react";
+import { PageHeader } from "@/components/page-header";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ArrowLeft, AlertCircle } from "lucide-react";
+import Link from "next/link";
+import { useRouter, useParams } from "next/navigation";
+import { mockUsers } from "@/lib/mock-data";
+import { useAuth } from "@/lib/auth-context";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,95 +30,210 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+
+type userEditType = {
+  idUser: string;
+  identifiant: string;
+  idRole: string;
+  password?: string;
+};
+
+const initialFormData: userEditType = {
+  idUser: "",
+  identifiant: "",
+  idRole: "",
+};
 
 export default function EditUserPage() {
-  const router = useRouter()
-  const params = useParams()
-  const { user: currentUser } = useAuth()
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    role: "",
-  })
-  const [error, setError] = useState<string | null>(null)
+  const router = useRouter();
+  const params = useParams();
+  // const { user: currentUser } = useAuth();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [userToEdit, setUserToEdit] = useState<userEditType>(initialFormData);
+  const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState<userEditType>(initialFormData);
+  const [error, setError] = useState<string | null>(null);
 
-  const userId = params.id as string
-  const userToEdit = mockUsers.find((u) => u.id === userId)
+  const currentUser = JSON.parse(localStorage.getItem("user") ?? "");
+  if (currentUser == null) {
+    router.push("/login");
+  }
+  const userId = params.id as string;
+  // console.log({ authId: currentUser?.idUtilisateur, targetId: userId });
+  // const userToEdit = mockUsers.find((u) => u.id === userId);
+
+  const getOneUser = async () => {
+    const getUserUrl = "http://localhost:5174/api/Utilisateur/get-one-user";
+    try {
+      const response = await fetch(getUserUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          authId: currentUser?.idUtilisateur,
+          targetId: userId,
+        }),
+      });
+
+      if (!response.ok) {
+        alert("Erreur HTTP : " + response.statusText);
+        console.error("ERROR", response);
+        return;
+      }
+
+      const data = await response.json();
+      setUserToEdit({
+        idUser: data.idUser.toString(),
+        idRole: data.idRole.toString(),
+        identifiant: data.identifiant,
+      });
+    } catch (error) {
+      console.log("Error :", error);
+      return;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (userToEdit) {
-      setFormData({
-        name: userToEdit.name,
-        email: userToEdit.email,
-        role: userToEdit.role,
-      })
-    }
-  }, [userToEdit])
+    getOneUser();
+  }, [userId]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
+  useEffect(() => {
+    // Mise à jour de formData une fois que userToEdit est mis à jour
+    if (userToEdit.idUser) {
+      setFormData({ ...userToEdit });
+    }
+  }, [userToEdit]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    const updateUserUrl = "http://localhost:5174/api/Utilisateur/update-user";
+    e.preventDefault();
+    setError(null);
 
     // Validation: Can't change your own role
-    if (currentUser?.id === userId && formData.role !== currentUser.role) {
-      setError("You cannot change your own role. Please ask another administrator.")
-      return
+    if (
+      currentUser?.idUtilisateur === userId &&
+      formData.idRole !== currentUser.role
+    ) {
+      setError(
+        "You cannot change your own role. Please ask another administrator."
+      );
+      return;
     }
 
     // Validation: Must have at least one superadmin
-    if (userToEdit?.role === "superadmin" && formData.role !== "superadmin") {
-      const superadminCount = mockUsers.filter((u) => u.role === "superadmin").length
-      if (superadminCount <= 1) {
-        setError("Cannot change role. At least one SuperAdmin must exist in the system.")
-        return
+    // if (userToEdit?.idRole === "1" && formData.idRole !== "1") {
+    //   const superadminCount = mockUsers.filter(
+    //     (u) => u.role === "superadmin"
+    //   ).length;
+    //   if (superadminCount <= 1) {
+    //     setError(
+    //       "Cannot change role. At least one SuperAdmin must exist in the system."
+    //     );
+    //     return;
+    //   }
+    // }
+
+    try {
+      const response = await fetch(updateUserUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          authId: currentUser.idUtilisateur,
+          targetIdentifiant: formData.identifiant,
+          password: formData.password,
+          roleId: formData.idRole,
+        }),
+      });
+
+      if (!response.ok) {
+        alert("Erreur HTTP : " + response.statusText);
+        console.error("ERROR", response);
+        return;
       }
+
+      router.push("/admin/users");
+    } catch (error) {
+      console.log("Error :", error);
+      return;
     }
 
-    console.log("[v0] User updated:", formData)
-    router.push("/admin/users")
-  }
+    // console.log("[v0] User updated:", formData);
+    router.push("/admin/users");
+  };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
+    const deleteUserUrl = "http://localhost:5174/api/Utilisateur/delete-user";
+    setError(null);
     // Validation: Can't delete yourself
-    if (currentUser?.id === userId) {
-      setError("You cannot delete your own account.")
-      setShowDeleteDialog(false)
-      return
+    if (currentUser?.idUtilisateur === userId) {
+      setError("You cannot delete your own account.");
+      setShowDeleteDialog(false);
+      return;
     }
 
     // Validation: Must have at least one superadmin
-    if (userToEdit?.role === "superadmin") {
-      const superadminCount = mockUsers.filter((u) => u.role === "superadmin").length
-      if (superadminCount <= 1) {
-        setError("Cannot delete user. At least one SuperAdmin must exist in the system.")
-        setShowDeleteDialog(false)
-        return
+    // if (userToEdit?.idRole === "1") {
+    //   const superadminCount = mockUsers.filter(
+    //     (u) => u.role === "superadmin"
+    //   ).length;
+    //   if (superadminCount <= 1) {
+    //     setError(
+    //       "Cannot delete user. At least one SuperAdmin must exist in the system."
+    //     );
+    //     setShowDeleteDialog(false);
+    //     return;
+    //   }
+    // }
+
+    try {
+      const response = await fetch(deleteUserUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          authId: currentUser.idUtilisateur,
+          targetId: formData.idUser,
+        }),
+      });
+
+      if (!response.ok) {
+        alert("Erreur HTTP : " + response.statusText);
+        console.error("ERROR", response);
+        return;
       }
+
+      router.push("/admin/users");
+    } catch (error) {
+      console.log("Error :", error);
+      return;
     }
 
-    console.log("[v0] User deleted:", userId)
-    router.push("/admin/users")
-  }
+    // console.log("[v0] User deleted:", userId);
+    router.push("/admin/users");
+  };
 
-  if (currentUser?.role !== "superadmin") {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <Card className="w-full max-w-md p-6">
-          <h2 className="text-center text-xl font-semibold">Access Denied</h2>
-          <p className="mt-2 text-center text-muted-foreground">You do not have permission to access this page.</p>
-        </Card>
-      </div>
-    )
-  }
+  // if (currentUser?.role !== "superadmin") {
+  //   return (
+  //     <div className="flex h-full items-center justify-center">
+  //       <Card className="w-full max-w-md p-6">
+  //         <h2 className="text-center text-xl font-semibold">Access Denied</h2>
+  //         <p className="mt-2 text-center text-muted-foreground">
+  //           You do not have permission to access this page.
+  //         </p>
+  //       </Card>
+  //     </div>
+  //   );
+  // }
 
   if (!userToEdit) {
     return (
       <div className="flex h-full items-center justify-center">
         <Card className="w-full max-w-md p-6">
           <h2 className="text-center text-xl font-semibold">User Not Found</h2>
-          <p className="mt-2 text-center text-muted-foreground">The requested user could not be found.</p>
+          <p className="mt-2 text-center text-muted-foreground">
+            The requested user could not be found.
+          </p>
           <div className="mt-4 text-center">
             <Button asChild>
               <Link href="/admin/users">Back to Users</Link>
@@ -120,7 +241,7 @@ export default function EditUserPage() {
           </div>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -151,47 +272,54 @@ export default function EditUserPage() {
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
+                  <Label htmlFor="identifiant">Nom d'Utilisateur</Label>
                   <Input
-                    id="name"
+                    id="identifiant"
                     type="text"
-                    placeholder="John Doe"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Ex: admin"
+                    value={formData.identifiant}
+                    onChange={(e) =>
+                      setFormData({ ...formData, identifiant: e.target.value })
+                    }
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
+                  <Label htmlFor="password">Mot de passe</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="user@college.edu"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    id="password"
+                    type="password"
+                    placeholder="Votre mot de asse"
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="role">Role</Label>
+                  <Label htmlFor="role">Rôle</Label>
                   <Select
-                    value={formData.role}
-                    onValueChange={(value) => setFormData({ ...formData, role: value })}
-                    disabled={currentUser?.id === userId}
+                    value={formData.idRole}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, idRole: value })
+                    }
+                    disabled={currentUser?.idUtilisateur === userId}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a role" />
+                      <SelectValue placeholder="Selectionner un rôle" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="superadmin">SuperAdmin</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="viewer">Viewer</SelectItem>
+                      <SelectItem value="1">Superadministrateur</SelectItem>
+                      <SelectItem value="2">Admin</SelectItem>
                     </SelectContent>
                   </Select>
-                  {currentUser?.id === userId && (
-                    <p className="text-xs text-muted-foreground">You cannot change your own role</p>
+                  {currentUser?.idUtilisateur === userId && (
+                    <p className="text-xs text-muted-foreground">
+                      You cannot change your own role
+                    </p>
                   )}
                 </div>
 
@@ -200,17 +328,19 @@ export default function EditUserPage() {
                     type="button"
                     variant="destructive"
                     onClick={() => setShowDeleteDialog(true)}
-                    disabled={currentUser?.id === userId}
+                    disabled={currentUser?.idUtilisateur === userId}
                   >
-                    Delete User
+                    Supprimer l'utilisateur
                   </Button>
                   <div className="flex gap-2">
                     <Link href="/admin/users">
                       <Button type="button" variant="outline">
-                        Cancel
+                        Annuler
                       </Button>
                     </Link>
-                    <Button type="submit">Save Changes</Button>
+                    <Button type="submit" onClick={handleSubmit}>
+                      Enregsitrer les modifications
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -224,18 +354,22 @@ export default function EditUserPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the user account for{" "}
-              <strong>{userToEdit.name}</strong> ({userToEdit.email}).
+              This action cannot be undone. This will permanently delete the
+              user account for <strong>{userToEdit.identifiant}</strong> (
+              {userToEdit.identifiant}).
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-white"
+            >
               Delete User
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }
