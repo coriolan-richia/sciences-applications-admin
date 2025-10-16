@@ -1,21 +1,17 @@
 export interface Payment {
   id: string;
-  reference: string;
-  amount: number;
   date: string;
-  agence: string;
-  studentName?: string;
-  bacNumber?: string;
-  status: "matched" | "unmatched";
+  label?: string;
+  reference: string;
+  value: string;
+  amount: number;
+  matched: boolean;
 }
 
-export function getPaymentStatusLabel(status: string) {
-  return status === "matched"
-    ? "Associé"
-    : status === "unmatched"
-    ? "Non Associé"
-    : "Non Défini";
+export function getPaymentMatchedLabel(status: boolean): string {
+  return status ? "Associé" : "Non Associé";
 }
+
 export interface PaymentUpload {
   id: string;
   filename: string;

@@ -1,6 +1,6 @@
 import {
   type Payment,
-  getPaymentStatusLabel as getStatusLabel,
+  getPaymentMatchedLabel as getMatchedLabel,
 } from "@/types/payment";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -11,8 +11,8 @@ interface PaymentListItemProps {
 
 export function PaymentListItem({ payment }: PaymentListItemProps) {
   const statusColors = {
-    matched: "bg-green-500/10 text-green-500 border-green-500/20",
-    unmatched: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
+    true: "bg-green-500/10 text-green-500 border-green-500/20",
+    false: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
   };
 
   return (
@@ -20,23 +20,28 @@ export function PaymentListItem({ payment }: PaymentListItemProps) {
       <div className="w-32 font-mono text-sm font-medium text-foreground">
         {payment.reference}
       </div>
-      <div className="w-32 text-sm text-foreground">
-        {payment.amount.toLocaleString()} MAD
-      </div>
+
       <div className="w-32 text-sm text-muted-foreground">
         {new Date(payment.date).toLocaleDateString()}
       </div>
-      <div className="w-48 text-sm text-muted-foreground">{payment.agence}</div>
+
+      <div className="w-32 text-sm text-foreground">
+        {payment.amount.toLocaleString()} Ar
+      </div>
+
       <div className="flex-1 text-sm text-muted-foreground">
-        {payment.studentName || "-"}
+        {payment.label || "-"}
       </div>
-      <div className="w-32 font-mono text-sm text-muted-foreground">
-        {payment.bacNumber || "-"}
-      </div>
+
+      <div className="w-32 text-sm text-muted-foreground">{payment.value}</div>
+
       <Badge
-        className={cn("w-24 justify-center", statusColors[payment.status])}
+        className={cn(
+          "w-24 justify-center",
+          statusColors[`${payment.matched}`]
+        )}
       >
-        {getStatusLabel(payment.status)}
+        {getMatchedLabel(payment.matched)}
       </Badge>
     </div>
   );

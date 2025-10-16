@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,19 +18,52 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { getPaymentStatusLabel as getStatusLabel } from "@/types/payment";
+import {
+  type Payment,
+  getPaymentMatchedLabel as getMatchedLabel,
+} from "@/types/payment";
+import { API } from "@/lib/api";
 
 export default function PaymentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<string>("date-desc");
-
+  const [paymentList, setPaymentList] = useState<Payment[]>([]);
+  const fetchUrl = `${API.payment}/list-all`;
   // [FETCH]
-  const filteredPayments = mockPayments.filter(
+  const mapPayment = (entry: any): Payment => ({
+    ...entry,
+    label: entry.libelle,
+    value: entry.valeur,
+    amount: entry.debitCredit,
+  });
+
+  const loadList = async () => {
+    try {
+      const response = await fetch(fetchUrl, { method: "POST" });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} ${response.statusText}`);
+      }
+      const list = await response.json();
+
+      setPaymentList(list.map(mapPayment));
+    } catch (err) {
+      console.error("Failed to fetch payments:", err);
+    }
+  };
+
+  useEffect(() => {
+    loadList();
+  }, []);
+
+  useEffect(() => {
+    console.log(paymentList);
+  }, [paymentList]);
+
+  const filteredPayments = paymentList.filter(
     (p) =>
       p.reference.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.agence.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.bacNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.studentName?.toLowerCase().includes(searchQuery.toLowerCase())
+      p.value?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.label?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const sortedPayments = [...filteredPayments].sort((a, b) => {
@@ -44,9 +77,9 @@ export default function PaymentsPage() {
       case "amount-asc":
         return a.amount - b.amount;
       case "status-matched":
-        return a.status === "matched" ? -1 : 1;
+        return a.matched ? -1 : 1;
       case "status-unmatched":
-        return a.status === "unmatched" ? -1 : 1;
+        return !a.matched ? -1 : 1;
       default:
         return 0;
     }
@@ -105,10 +138,10 @@ export default function PaymentsPage() {
                       Montant (Croissante)
                     </SelectItem>
                     <SelectItem value="status-matched">
-                      {getStatusLabel("matched")} en Premier
+                      {getMatchedLabel(true)} en Premier
                     </SelectItem>
                     <SelectItem value="status-unmatched">
-                      {getStatusLabel("unmatched")} en Premier
+                      {getMatchedLabel(false)} en Premier
                     </SelectItem>
                   </SelectContent>
                 </Select>
@@ -121,26 +154,23 @@ export default function PaymentsPage() {
                     Nombre Total de Paiements
                   </p>
                   <p className="text-2xl font-semibold text-foreground">
-                    {mockPayments.length}
+                    {sortedPayments.length}
                   </p>
                 </div>
                 <div className="rounded-lg border border-border bg-card p-4">
                   <p className="text-sm text-muted-foreground">
-                    {getStatusLabel("matched")}
+                    {getMatchedLabel(true)}
                   </p>
                   <p className="text-2xl font-semibold text-green-500">
-                    {mockPayments.filter((p) => p.status === "matched").length}
+                    {sortedPayments.filter((p) => p.matched).length}
                   </p>
                 </div>
                 <div className="rounded-lg border border-border bg-card p-4">
                   <p className="text-sm text-muted-foreground">
-                    {getStatusLabel("unmatched")}
+                    {getMatchedLabel(false)}
                   </p>
                   <p className="text-2xl font-semibold text-yellow-500">
-                    {
-                      mockPayments.filter((p) => p.status === "unmatched")
-                        .length
-                    }
+                    {sortedPayments.filter((p) => !p.matched).length}
                   </p>
                 </div>
               </div>
@@ -149,16 +179,23 @@ export default function PaymentsPage() {
               <div className="rounded-lg border border-border bg-card">
                 <div className="flex items-center gap-4 border-b border-border bg-secondary/30 px-6 py-3 text-xs font-medium text-muted-foreground">
                   <div className="w-32">Reéférence</div>
-                  <div className="w-32">Montant</div>
                   <div className="w-32">Date</div>
-                  <div className="w-48">Agence</div>
-                  <div className="flex-1">Nom de l'Étudiant</div>
-                  <div className="w-32">Numéro au Bac</div>
+                  <div className="w-32">Montant</div>
+                  <div className="flex-1">Libellé</div>
+                  <div className="w-32">Valeur?</div>
                   <div className="w-24">Statut</div>
                 </div>
-                {sortedPayments.map((payment) => (
-                  <PaymentListItem key={payment.id} payment={payment} />
-                ))}
+                {sortedPayments.length == 0 ? (
+                  <div className="flex items-center gap-4 border-b border-border px-6 py-4 transition-colors hover:bg-secondary/50">
+                    <div className="flex-1 text-center text-sm text-muted-foreground">
+                      Aucun enregistrement
+                    </div>
+                  </div>
+                ) : (
+                  sortedPayments.map((payment) => (
+                    <PaymentListItem key={payment.id} payment={payment} />
+                  ))
+                )}
               </div>
             </TabsContent>
 
