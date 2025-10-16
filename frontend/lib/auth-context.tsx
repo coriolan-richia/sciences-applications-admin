@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import type { User, AuthState } from "@/types/auth";
+import { API } from "./api";
 
 interface AuthContextType extends AuthState {
   login: (identifiant: string, password: string) => Promise<LoginResult>;
@@ -38,10 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: false,
   });
 
-  // On recherche s'il y a un utilisateur connecté stocké dans le localStorage
-  // S'il existe, alors on connecte cet utilisateur à l'application
   useEffect(() => {
-    // Quand l'appli est monté, on cherche s'il y a un utilisateur connecté dans le localStorage
     const storedUser = localStorage.getItem("user");
 
     // Si l'utilisateur existe, on le connecte
@@ -53,20 +51,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // La fonction Login authentifie une personne depuis la page d'authentification
-  // La fonction login:
-  //    est Asynchrone
-  //    prend en paramètre un identifiant et un mot de passe.
-  //    retourne une promesse qui se résoudra plus tard en booléen
   const login = async (
     identifiant: string,
     password: string
   ): Promise<LoginResult> => {
-    // L'url d'athentification
-    const authUrl = "http://localhost:5174/api/Authentication";
+    const authUrl = `${API.authentication}`;
 
     try {
-      // Requête vers l'api
       const response = await fetch(authUrl, {
         method: "POST",
         headers: {
@@ -80,7 +71,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       let responseAsText = await response.text();
 
-      // Lecture du message
       let data: any = null;
       if (responseAsText) {
         try {
@@ -90,7 +80,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      // Erreurs HTTP
       if (!response.ok) {
         const errorMessage =
           data?.error ||
@@ -109,10 +98,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
       }
 
-      // Si un identifiant est disponible dans la réponse, on enregistre l'utilisateur authentifié dans:
-      //  Le localStorage
-      //  L'état d'authentification, qui est alors marqué comme authentifié.
-      //  La fonction de login retourne un booléen true
       if (!data?.identifiant) {
         return { success: false, type: "auth" };
       }

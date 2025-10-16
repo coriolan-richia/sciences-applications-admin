@@ -18,7 +18,6 @@ import {
 import { ArrowLeft, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
-import { mockUsers } from "@/lib/mock-data";
 import { useAuth } from "@/lib/auth-context";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
@@ -31,7 +30,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
+import { API } from "@/lib/api";
 type userEditType = {
   idUser: string;
   identifiant: string;
@@ -64,7 +63,7 @@ export default function EditUserPage() {
   // const userToEdit = mockUsers.find((u) => u.id === userId);
 
   const getOneUser = async () => {
-    const getUserUrl = "http://localhost:5174/api/Utilisateur/get-one-user";
+    const getUserUrl = `${API.utilisateur}/get-one-user`;
     try {
       const response = await fetch(getUserUrl, {
         method: "POST",
@@ -107,7 +106,7 @@ export default function EditUserPage() {
   }, [userToEdit]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    const updateUserUrl = "http://localhost:5174/api/Utilisateur/update-user";
+    const updateUserUrl = `${API.utilisateur}/update-user`;
     e.preventDefault();
     setError(null);
 
@@ -164,7 +163,8 @@ export default function EditUserPage() {
   };
 
   const handleDelete = async () => {
-    const deleteUserUrl = "http://localhost:5174/api/Utilisateur/delete-user";
+    // const deleteUserUrl = "http://localhost:5174/api/Utilisateur/delete-user";
+    const deleteUserUrl = `${API.utilisateur}/delete-user`;
     setError(null);
     // Validation: Can't delete yourself
     if (currentUser?.idUtilisateur === userId) {

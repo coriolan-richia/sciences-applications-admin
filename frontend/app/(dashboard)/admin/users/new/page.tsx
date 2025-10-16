@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { API } from "@/lib/api";
 
 export default function NewUserPage() {
   const router = useRouter();
@@ -27,7 +28,7 @@ export default function NewUserPage() {
     role: 2,
   });
 
-  const fetchUrl = "http://localhost:5174/api/Utilisateur/insert-user";
+  const fetchUrl = `${API.utilisateur}/insert-user`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
