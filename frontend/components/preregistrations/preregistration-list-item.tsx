@@ -4,7 +4,7 @@ import {
 } from "@/types/preregistration";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, parseFrDate } from "@/lib/utils";
 
 interface PreregistrationListItemProps {
   preregistration: Preregistration;
@@ -13,11 +13,6 @@ interface PreregistrationListItemProps {
 export function PreregistrationListItem({
   preregistration,
 }: PreregistrationListItemProps) {
-  function parseFrDate(dateStr: string) {
-    const [day, month, yearAndTime] = dateStr.split("/");
-    const [year, time] = yearAndTime.split(" ");
-    return new Date(`${year}-${month}-${day}T${time}`);
-  }
   const statusColors = {
     verified: "bg-green-500/10 text-green-500 border-green-500/20",
     pending: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",

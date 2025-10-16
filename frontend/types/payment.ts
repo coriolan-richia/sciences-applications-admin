@@ -17,12 +17,8 @@ export interface PaymentUpload {
   filename: string;
   uploadDate: string;
   recordCount: number;
-  status: "processing" | "completed" | "failed";
+  status: boolean;
 }
-export function getPaymentUploadStatusLabel(status: string) {
-  return status === "processing"
-    ? "En Cours d'Importation"
-    : status === "completed"
-    ? "Accomplie"
-    : "Échouée";
+export function getPaymentUploadStatusLabel(status: boolean): string {
+  return status ? "Accomplie" : "Échouée";
 }
