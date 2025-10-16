@@ -31,6 +31,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { API } from "@/lib/api";
+import { Checkbox } from "@/components/ui/checkbox";
 type userEditType = {
   idUser: string;
   identifiant: string;
@@ -42,6 +43,7 @@ const initialFormData: userEditType = {
   idUser: "",
   identifiant: "",
   idRole: "",
+  password: "",
 };
 
 export default function EditUserPage() {
@@ -53,14 +55,19 @@ export default function EditUserPage() {
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState<userEditType>(initialFormData);
   const [error, setError] = useState<string | null>(null);
+  const [changePassword, setChangePassword] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const currentUser = JSON.parse(localStorage.getItem("user") ?? "");
   if (currentUser == null) {
     router.push("/login");
   }
   const userId = params.id as string;
-  // console.log({ authId: currentUser?.idUtilisateur, targetId: userId });
-  // const userToEdit = mockUsers.find((u) => u.id === userId);
+
+  useEffect(() => {
+    setConfirmPassword("");
+    setFormData((prev) => ({ ...prev, password: "" }));
+  }, [changePassword]);
 
   const getOneUser = async () => {
     const getUserUrl = `${API.utilisateur}/get-one-user`;
@@ -284,19 +291,77 @@ export default function EditUserPage() {
                     required
                   />
                 </div>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="changePassword">Mot de passe</Label>
+                    <Label htmlFor="changePassword" className="h-8">
+                      <Checkbox
+                        className="h-4 w-4"
+                        id="changePassword"
+                        checked={changePassword}
+                        onCheckedChange={(e) => {
+                          setChangePassword(e === true);
+                        }}
+                      />
+                      Cochez pour modifier le mot de passe
+                    </Label>
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="password">Mot de passe</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Votre mot de asse"
-                    value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
-                    required
-                  />
+                  {changePassword && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="password">Nouveau mot de passe</Label>
+                        <Input
+                          id="password"
+                          type="password"
+                          placeholder="Votre mot de passe"
+                          value={formData.password}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              password: e.target.value,
+                            })
+                          }
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="password-confirm">
+                          Confirmation du mot de passe
+                        </Label>
+                        <Input
+                          id="password-confirm"
+                          type="password"
+                          placeholder="Réécrivez votre mot de passe"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          required
+                        />
+                        {confirmPassword !== formData.password ? (
+                          confirmPassword != "" && formData.password != "" ? (
+                            <div className="text-sm text-red-500">
+                              Les mots de passes ne correspondent pas.
+                            </div>
+                          ) : confirmPassword != "" ? (
+                            <div className="text-sm text-yellow-500">
+                              Fournissez un mot de passe
+                            </div>
+                          ) : (
+                            <div className="text-sm text-blue-500">
+                              Veuillez confirmer votre mot de passe.
+                            </div>
+                          )
+                        ) : (
+                          confirmPassword != "" && (
+                            <div className="text-sm text-green-500">
+                              Le mot de passe correspond
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div className="space-y-2">
