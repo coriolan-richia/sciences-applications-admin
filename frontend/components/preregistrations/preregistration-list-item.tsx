@@ -13,6 +13,11 @@ interface PreregistrationListItemProps {
 export function PreregistrationListItem({
   preregistration,
 }: PreregistrationListItemProps) {
+  function parseFrDate(dateStr: string) {
+    const [day, month, yearAndTime] = dateStr.split("/");
+    const [year, time] = yearAndTime.split(" ");
+    return new Date(`${year}-${month}-${day}T${time}`);
+  }
   const statusColors = {
     verified: "bg-green-500/10 text-green-500 border-green-500/20",
     pending: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
@@ -20,7 +25,7 @@ export function PreregistrationListItem({
   };
 
   return (
-    <Link href={`/preregistrations/#${preregistration.id}`}>
+    <Link href={`/preregistrations/3#${preregistration.id}`}>
       <div className="flex items-center gap-4 border-b border-border px-6 py-4 transition-colors hover:bg-secondary/50">
         <div className="w-32 font-mono text-sm font-medium text-foreground">
           {preregistration.bacNumber}
@@ -35,7 +40,9 @@ export function PreregistrationListItem({
           {preregistration.studyBranch}
         </div>
         <div className="w-32 text-sm text-muted-foreground">
-          {new Date(preregistration.preregistrationDate).toLocaleDateString()}
+          {new Date(
+            parseFrDate(preregistration.preregistrationDate)
+          ).toLocaleDateString()}
         </div>
         <Badge
           className={cn(
