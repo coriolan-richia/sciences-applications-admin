@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Edit, Shield, Eye, ArrowUpDown } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
+import { API } from "@/lib/api";
 import type { UserForListing } from "@/types/user";
 import {
   Select,
@@ -27,7 +28,7 @@ export default function UsersPage() {
   const [users, setUsers] = useState<UserForListing[]>(
     [] // mockUsers as Array<User & { password?: string }>
   );
-  const fetchUrl = "http://localhost:5174/api/Utilisateur/list-users";
+  const fetchUrl = `${API.utilisateur}/list-users`;
 
   let authUser = JSON.parse(localStorage.getItem("user") ?? "");
   if (authUser === null) {

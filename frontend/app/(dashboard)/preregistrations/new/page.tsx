@@ -23,6 +23,7 @@ import Link from "next/link";
 // import { useRouter } from "next/navigation";
 import { isNullOrEmpty } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { API } from "@/lib/api";
 
 const initialFormData = {
   email: "",
@@ -70,8 +71,7 @@ export default function NewPreregistrationPage() {
 
   const doesBacExist = async (): Promise<boolean> => {
     try {
-      const fetchUrl =
-        "http://localhost:5174/api/Preinscription/does-bac-exist";
+      const fetchUrl = `${API.preinscription}/does-bac-exist`;
       const response = await fetch(fetchUrl, {
         method: "POST",
         headers: {
@@ -99,8 +99,7 @@ export default function NewPreregistrationPage() {
 
   const getAdequateParcours = async (): Promise<void> => {
     try {
-      const fetchUrl =
-        "http://localhost:5174/api/Preinscription/get-adequate-parcours";
+      const fetchUrl = `${API.preinscription}/get-adequate-parcours`;
       const response = await fetch(fetchUrl, {
         method: "POST",
         headers: {
@@ -213,8 +212,7 @@ export default function NewPreregistrationPage() {
 
     if (!dataAreOk) return;
 
-    let submitUrl =
-      "http://localhost:5174/api/Preinscription/insert-preinscription";
+    const submitUrl = `${API.preinscription}/insert-preinscription`;
     try {
       const response = await fetch(submitUrl, {
         method: "POST",

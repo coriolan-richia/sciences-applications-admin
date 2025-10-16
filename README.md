@@ -3,12 +3,10 @@
 An application for handling applications and preregistrations at the Faculty of Sciences of the University of Antananarivo.
 For the administrations.
 
-### Important
-DROP YOUR DATABASE "Fac",
-Redump with the another one
-
 ### configure this
+
 Here is My appsettings.json , please configure yours
+
 ```
 {
   "ConnectionStrings": {
@@ -29,4 +27,14 @@ Here is My appsettings.json , please configure yours
   },
   "AllowedHosts": "*"
 }
+```
+
+### API ROUTES
+
+Since it's not practical to hardcode the API URL, I've configured the app so that we read it from the environment variable.
+
+Create for yourself at the root of the frontend project a file `.env.local` containing the next line.
+
+```
+NEXT_PUBLIC_API_URL=http://localhost:5174/api
 ```

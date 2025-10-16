@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { API } from "@/lib/api";
 
 export default function UploadPaymentPage() {
   // const router = useRouter();
@@ -41,7 +42,7 @@ export default function UploadPaymentPage() {
     const currentUser = JSON.parse(localStorage.getItem("user") ?? "");
 
     if (!selectedFile) return;
-    const uploadURL = "http://localhost:5174/api/Payment/upload-releve";
+    const uploadURL = `${API.payment}/upload-releve`;
 
     const formData = new FormData();
     formData.append("file", selectedFile);
@@ -55,7 +56,7 @@ export default function UploadPaymentPage() {
       });
 
       if (!response.ok) {
-        alert(response.statusText);
+        console.log(response.statusText);
         setIsUploading(false);
         setUploadComplete(true);
         setUploadSuccess(false);

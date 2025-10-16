@@ -22,15 +22,16 @@ import {
   getPreregistrationStatusLabel as getStatusLabel,
   Preregistration,
 } from "@/types/preregistration";
+import { API } from "@/lib/api";
 
 // La page d'accueil de la préinscription
 export default function PreregistrationsPage() {
-  const [view, setView] = useState<"card" | "list">("card");
+  const [view, setView] = useState<"card" | "list">("list");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<string>("date-desc");
   const [data, setData] = useState<Preregistration[]>([]);
 
-  const fetchUrl = "http://localhost:5174/api/Preinscription/list-all";
+  const fetchUrl = `${API.preinscription}/list-all`;
 
   // [FETCH]
 
@@ -137,9 +138,10 @@ export default function PreregistrationsPage() {
                   <SelectItem value="branch-desc">Mention (Z-A)</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline" title="Actualiser">
+              {/* <Button variant="outline" title="Actualiser">
                 <RefreshCw className="h-4 w-4" />
-              </Button>
+                Actualiser
+              </Button> */}
             </div>
 
             <ViewToggle view={view} onViewChange={setView} />
