@@ -8,7 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Upload, Search, FileSpreadsheet, ArrowUpDown } from "lucide-react";
 import { PaymentUploadCard } from "@/components/payments/payment-upload-card";
 import { PaymentListItem } from "@/components/payments/payment-list-item";
-import { mockPayments, mockPaymentUploads } from "@/lib/mock-data";
 import Link from "next/link";
 import {
   Select,
@@ -20,15 +19,20 @@ import {
 
 import {
   type Payment,
+  PaymentUpload,
   getPaymentMatchedLabel as getMatchedLabel,
 } from "@/types/payment";
 import { API } from "@/lib/api";
+import { Card } from "@/components/ui/card";
 
 export default function PaymentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<string>("date-desc");
   const [paymentList, setPaymentList] = useState<Payment[]>([]);
-  const fetchUrl = `${API.payment}/list-all`;
+  const [historyList, setHistoryList] = useState<PaymentUpload[]>([]);
+  const listAllUrl = `${API.payment}/list-all`;
+
+  const listHitoryUrl = `${API.payment}/list-history`;
   // [FETCH]
   const mapPayment = (entry: any): Payment => ({
     ...entry,
@@ -37,9 +41,9 @@ export default function PaymentsPage() {
     amount: entry.debitCredit,
   });
 
-  const loadList = async () => {
+  const loadPaymentList = async () => {
     try {
-      const response = await fetch(fetchUrl, { method: "POST" });
+      const response = await fetch(listAllUrl, { method: "POST" });
       if (!response.ok) {
         throw new Error(`HTTP ${response.status} ${response.statusText}`);
       }
@@ -51,13 +55,24 @@ export default function PaymentsPage() {
     }
   };
 
-  useEffect(() => {
-    loadList();
-  }, []);
+  const loadUploadList = async () => {
+    try {
+      const response = await fetch(listHitoryUrl, { method: "POST" });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} ${response.statusText}`);
+      }
+      const list = await response.json();
+
+      setHistoryList(list);
+    } catch (err) {
+      console.error("Failed to fetch upload history:", err);
+    }
+  };
 
   useEffect(() => {
-    console.log(paymentList);
-  }, [paymentList]);
+    loadPaymentList();
+    loadUploadList();
+  }, []);
 
   const filteredPayments = paymentList.filter(
     (p) =>
@@ -186,7 +201,7 @@ export default function PaymentsPage() {
                   <div className="w-24">Statut</div>
                 </div>
                 {sortedPayments.length == 0 ? (
-                  <div className="flex items-center gap-4 border-b border-border px-6 py-4 transition-colors hover:bg-secondary/50">
+                  <div className="flex items-center gap-4 border-b border-border px-6 py-4">
                     <div className="flex-1 text-center text-sm text-muted-foreground">
                       Aucun enregistrement
                     </div>
@@ -202,14 +217,22 @@ export default function PaymentsPage() {
             <TabsContent value="uploads" className="space-y-6">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <FileSpreadsheet className="h-4 w-4" />
-                <span>{mockPaymentUploads.length} fichiers importés</span>
+                <span>{historyList.length} fichiers importés</span>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {mockPaymentUploads.map((upload) => (
-                  <PaymentUploadCard key={upload.id} upload={upload} />
-                ))}
-              </div>
+              {historyList.length != 0 ? (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {historyList.map((upload) => (
+                    <PaymentUploadCard key={upload.id} upload={upload} />
+                  ))}
+                </div>
+              ) : (
+                <Card className="flex items-center p-5">
+                  <div className="flex-1 text-center text-sm text-muted-foreground">
+                    Aucune importation de relevés enregistrée.
+                  </div>
+                </Card>
+              )}
             </TabsContent>
           </Tabs>
         </div>

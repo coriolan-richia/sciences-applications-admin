@@ -14,3 +14,9 @@ export function cn(...inputs: ClassValue[]) {
 export function isNullOrEmpty(value: string): boolean {
   return value === null || value === undefined || value === "";
 }
+
+export function parseFrDate(dateStr: string) {
+  const [day, month, yearAndTime] = dateStr.split("/");
+  const [year, time] = yearAndTime.split(" ");
+  return new Date(`${year}-${month}-${day}T${time}`);
+}

@@ -6,14 +6,9 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, GraduationCap, BookOpen } from "lucide-react";
 import Link from "next/link";
-
+import { parseFrDate } from "@/lib/utils";
 interface PreregistrationCardProps {
   preregistration: Preregistration;
-}
-function parseFrDate(dateStr: string) {
-  const [day, month, yearAndTime] = dateStr.split("/");
-  const [year, time] = yearAndTime.split(" ");
-  return new Date(`${year}-${month}-${day}T${time}`);
 }
 
 export function PreregistrationCard({
