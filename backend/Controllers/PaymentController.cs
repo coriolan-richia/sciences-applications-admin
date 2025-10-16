@@ -16,6 +16,53 @@ namespace backend.Controllers
     {
         private readonly FacContext _facDBContext = facDBContext;
 
+        [HttpPost("list-history")]
+        public async Task<IActionResult> ListHistory()
+        {
+            try
+            {
+                List<HistoriquePaiement> historiquePaiements = await _facDBContext.HistoriquePaiements.ToListAsync();
+                var result = historiquePaiements.Select(h => new HistoryPayment
+                {
+                    Id = h.IdHistorique.ToString(),
+                    UploadDate = h.DateImportation?.ToString("dd/MM/yyyy hh:mm:ss") ?? "Date N/A",
+                    Filename = Path.GetFileName(h.CheminFichier) ?? "Fichier inconnu",
+                    RecordCount = h.NbrLigne ?? 0,
+                    Status = h.EstImporte ?? true,
+                }).ToList();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Erreur interne du serveur: " + ex.Message);
+            }
+        }
+        
+        [HttpPost("list-all")]
+        public async Task<IActionResult> ListAll()
+        {
+            try
+            {
+                List<Paiement> paiements = await _facDBContext.Paiements.ToListAsync();
+                var result = paiements.Select( p=> new PaymentListingModel
+                {
+                    Id = p.IdPaiement.ToString(),
+                    Date = p.DatePaiement?.ToString("dd/MM/yyyy") ?? "Date N/A",
+                    Libelle = p.Libelle ?? "Libelle N/A",
+                    Reference = p.Reference ?? "Référence N/A",
+                    Valeur = p.Reference ?? "Date valeur N/A",
+                    DebitCredit = p.Montant ?? 0,
+                    Matched = p.IdPreinscription!=null,
+                }
+                ).ToList();
+                return Ok(result);
+            } 
+            catch(Exception ex)
+            {
+                return BadRequest("Erreur interne du serveur: " + ex.Message);
+            }
+        }
+
         [HttpPost("upload-releve")]
         public async Task<IActionResult> UploadReleve([FromForm] PaymentForm request)
         {
