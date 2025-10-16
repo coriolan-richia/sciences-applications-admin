@@ -1,4 +1,6 @@
-﻿namespace backend.DTOs.Utilisateur;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace backend.DTOs.Utilisateur;
 
 public class UserForListing
 {
@@ -43,9 +45,15 @@ public class ListUsersRequest
 public class InsertUserRequest
 {
     
-    public int IdUser { get; set; }
+    public int? IdUser { get; set; }
+    
+    [Required(ErrorMessage = "L'identifiant est obligatoire.")]
     public string NewUserIdentifiant { get; set; } = string.Empty;
+    
+    [Required(ErrorMessage = "Le mot de passe est obligatoire.")]
     public string NewUserMotDePasse { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Un rôle pour l'utilisateur est obligatoire.")]
     public int IdNewUserRole { get; set; }
         
 }

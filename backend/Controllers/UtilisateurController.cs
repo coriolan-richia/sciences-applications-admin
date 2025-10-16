@@ -182,6 +182,41 @@ namespace MyApp.Namespace
         
         [HttpPost("insert-user")]
         public async Task<IActionResult> InsertUser([FromBody] InsertUserRequest request){
+
+            // No logged user. ==> Unauthorized
+            // User is logged in but not allowed. ==> Forbidden
+            // new user existing ==> Conflict
+            // Unique constraint violated ==> Conflict
+            // Empty fields ==> Bad request
+
+
+            if (request.IdUser == null)
+            {
+                return Unauthorized(new
+                {
+                    status = 401,
+                    error = "Not Authorized",
+                    message = "Utilisateur non Authentifié ou non autorisé.",
+                });
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var errorResponse = new
+                {
+                    status = 400,
+                    error = "ValidationError",
+                    messages = "Certains Champs sont invalides",
+                    details = ModelState.Where(x => x.Value.Errors.Count > 0)
+                    .Select(x => new
+                    {
+                        field = x.Key,
+                        issue = x.Value.Errors.First().ErrorMessage
+                    })
+                };
+                return BadRequest(errorResponse);
+            }
+            
             var authUser = _facDBContext.Utilisateurs
                 .Include(u => u.RoleUtilisateurs)
                 .ThenInclude(ru => ru.IdRoleNavigation)
@@ -189,13 +224,23 @@ namespace MyApp.Namespace
 
             if (authUser is null)
             {
-                return BadRequest(new { error = "Votre utilisateur authentifié n'est pas inscrit sur le serveur." });
+                return Unauthorized(new
+                {
+                    status = 401,
+                    error = "Not Authorized",
+                    message = "L'utilisateur n'est pas authentifié.",
+                });
             }
 
             int? idRole = authUser?.RoleUtilisateurs.FirstOrDefault()?.IdRole;
             if (idRole != 1)
             {
-                return StatusCode(401, new { error = "Vous n'êtes pas autorisé à accéder à cette ressource;" });
+                return StatusCode(403,new
+                {
+                    status = 403,
+                    error = "Forbidden",
+                    message = "Vous n'êtes pas autorisé à accéder à cette ressource."
+                });
 
             }
 
@@ -203,7 +248,12 @@ namespace MyApp.Namespace
 
             if (existingUser is not null)
             {
-                return BadRequest(new { message = "L'identifiant d'utilisateur souhaité est déjà utilisé" });
+                return Conflict(new
+                {
+                    status = 409,
+                    error = "Conflict",
+                    message = "L'identifiant d'utilisateur souhaité est déjà utilisé.",
+                });
             }
             
             Utilisateur newUser = new Utilisateur
@@ -215,7 +265,12 @@ namespace MyApp.Namespace
             _facDBContext.Utilisateurs.Add(newUser);
             await _facDBContext.SaveChangesAsync();
 
-            return Ok(new { status = true });
+            return StatusCode(201,new
+            {
+                status = 201,
+                error = "Creation Successful",
+                message = "L'utilisateur a été créé avec succès.",
+            });
         }
     }
 }
