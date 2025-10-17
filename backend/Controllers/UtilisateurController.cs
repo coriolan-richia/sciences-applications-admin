@@ -207,11 +207,11 @@ namespace MyApp.Namespace
                     status = 400,
                     error = "ValidationError",
                     messages = "Certains Champs sont invalides",
-                    details = ModelState.Where(x => x.Value.Errors.Count > 0)
+                    details = ModelState.Where(x => x.Value != null && x.Value.Errors.Count > 0)
                     .Select(x => new
                     {
                         field = x.Key,
-                        issue = x.Value.Errors.First().ErrorMessage
+                        issue = x.Value!.Errors.First().ErrorMessage
                     })
                 };
                 return BadRequest(errorResponse);
