@@ -8,7 +8,6 @@ import { Plus, Search, FileCheck, ArrowUpDown, RefreshCw } from "lucide-react";
 import { ViewToggle } from "@/components/preregistrations/view-toggle";
 import { PreregistrationCard } from "@/components/preregistrations/preregistration-card";
 import { PreregistrationListItem } from "@/components/preregistrations/preregistration-list-item";
-import { mockPreregistrations } from "@/lib/mock-data";
 import Link from "next/link";
 import {
   Select,

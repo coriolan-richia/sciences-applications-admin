@@ -8,6 +8,7 @@ import { Download, ArrowLeft, Settings } from "lucide-react";
 import Link from "next/link";
 import { parcours, generateMockCandidatures } from "@/lib/mock-data";
 import { notFound } from "next/navigation";
+import { PageHeader } from "@/components/page-header";
 
 export default function ParcoursDetailPage({
   params,
@@ -27,60 +28,46 @@ export default function ParcoursDetailPage({
 
   return (
     <div className="flex h-full flex-col">
-      <Sidebar />
-        <div className="mx-auto max-w-7xl">
-          {/* Header */}
-          <div className="mb-6">
-            <Button variant="ghost" size="sm" asChild className="mb-4">
-              <Link href="/preselection">
+      <PageHeader
+        title={parcoursData.nom}
+        description={parcoursData.description}
+        action={
+          <div className="flex flex-row items-center gap-2">
+            <Link href="/preselection">
+              <Button variant={"outline"}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Retour aux résultats
-              </Link>
+              </Button>
+            </Link>
+            <Link href={`/preselection/conditions/${params.id}`}>
+              <Button>
+                <Settings className="mr-2 h-4 w-4" />
+                Conditions
+              </Button>
+            </Link>
+            <Button>
+              <Download className="h-4 w-4" />
+              Exporter PDF
             </Button>
-
-            <div className="flex items-start justify-between">
-              <div>
-                <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                  {parcoursData.nom}
-                </h1>
-                <p className="mt-2 text-muted-foreground">
-                  {parcoursData.description}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/preselection/conditions/${params.id}`}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Conditions
-                  </Link>
-                </Button>
-                <Button size="sm" className="gap-2">
-                  <Download className="h-4 w-4" />
-                  Exporter PDF
-                </Button>
-              </div>
-            </div>
           </div>
+        }
+      />
 
-          {/* Statistiques */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="space-y-6 p-8">
           <CandidaturesStats
             candidatures={candidatures}
             parcours={parcoursData}
           />
 
-          {/* Filtres et vue */}
           <div className="mb-6 flex items-center justify-between gap-4">
             <CandidaturesFilters />
             <ViewToggle />
           </div>
 
-          {/* Liste des candidatures - Vue par défaut */}
           <CandidaturesList candidatures={candidatures} />
-
-          {/* Vue en cartes - Alternative (commentée pour l'instant) */}
-          {/* <CandidaturesCards candidatures={candidatures} /> */}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

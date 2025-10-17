@@ -29,6 +29,11 @@ const navigation = [
     href: "/preselection",
     icon: CheckSquare,
   },
+  {
+    name: "Ancient",
+    href: "/select",
+    icon: CheckSquare,
+  },
 ];
 
 export function Sidebar() {

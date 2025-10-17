@@ -1,7 +1,7 @@
-import { cn } from "@/lib/utils"
-import { AppSidebar } from "@/components/app-sidebar"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileText, CreditCard, Users, ClipboardCheck } from "lucide-react"
+import { cn } from "@/lib/utils";
+import { Sidebar } from "@/components/ui/sidebar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileText, CreditCard, Users, ClipboardCheck } from "lucide-react";
 
 export default function DashboardPage() {
   const stats = [
@@ -33,28 +33,37 @@ export default function DashboardPage() {
       icon: ClipboardCheck,
       color: "text-chart-4",
     },
-  ]
+  ];
 
   return (
-    <div className="flex min-h-screen">
-      <AppSidebar />
-      <main className="ml-64 flex-1 p-8">
+    <div className="flex h-full flex-col">
+      <Sidebar />
         <div className="mx-auto max-w-7xl">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">Tableau de bord</h1>
-            <p className="mt-2 text-muted-foreground">Vue d'ensemble de la gestion des préinscriptions</p>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+              Tableau de bord
+            </h1>
+            <p className="mt-2 text-muted-foreground">
+              Vue d'ensemble de la gestion des préinscriptions
+            </p>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {stats.map((stat) => (
               <Card key={stat.title}>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    {stat.title}
+                  </CardTitle>
                   <stat.icon className={cn("h-5 w-5", stat.color)} />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-foreground">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground">{stat.description}</p>
+                  <div className="text-2xl font-bold text-foreground">
+                    {stat.value}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {stat.description}
+                  </p>
                 </CardContent>
               </Card>
             ))}
@@ -62,5 +71,5 @@ export default function DashboardPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }
