@@ -58,7 +58,7 @@ namespace MyApp.Namespace
             
             RoleUtilisateur? targetRoleUser = _facDBContext.RoleUtilisateurs.Where(ru => ru.IdUtilisateur == request.TargetId).FirstOrDefault();
             
-            GetOneUserResponse responseUser = new GetOneUserResponse{ IdUser = targetUser.IdUtilisateur, Identifiant = targetUser.Identifiant, IdRole = targetRoleUser.IdRole  };
+            GetOneUserResponse responseUser = new GetOneUserResponse{ IdUser = targetUser.IdUtilisateur, Identifiant = targetUser.Identifiant, IdRole = targetRoleUser?.IdRole  };
             
 
             return Ok(responseUser);
@@ -270,10 +270,10 @@ namespace MyApp.Namespace
                 status = 400,
                 title = inMessage,
                 
-                error = modelState.Where(x => x.Value.Errors?.Count > 0)
+                error = modelState.Where(x => x.Value != null && x.Value.Errors.Count > 0)
                 .ToDictionary(
                     x => x.Key,
-                    x => x.Value.Errors?.Select(e => e.ErrorMessage).ToArray()
+                    x => x.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
                 )
             };
             return BadRequest(errorResponse);
