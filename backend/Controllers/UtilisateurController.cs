@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using backend.Context;
@@ -21,38 +22,41 @@ namespace MyApp.Namespace
         [HttpPost("get-one-user")]
         public async Task<IActionResult> GetOneUser([FromBody] GetOneUserRequest request)
         {
+            if (request.AuthId is null)
+            {
+                return NonAuthenticableUser();
+            }
+            
             if (!ModelState.IsValid)
             {
-                return BadRequest("L'identifiant fourni est invalide");
+                return ProblematicModelState(ModelState,"Model Error");
             }
             
             Utilisateur? authUser = _facDBContext.Utilisateurs.FirstOrDefault(u => u.IdUtilisateur == request.AuthId);
             if (authUser is null)
             {
-                return BadRequest("L'utilisateur authentifié est inconnu");
+                return UnknownUser();
             }
 
             RoleUtilisateur? authRoleUser = _facDBContext.RoleUtilisateurs.FirstOrDefault(ru => ru.IdUtilisateur == request.AuthId);
-            if (authRoleUser is null)
+            if (authRoleUser is null||authRoleUser.IdRole!=1)
             {
-                return StatusCode(401,"Vous n'avez aucun droit");
-            }
-            if (authRoleUser.IdRole!= 1)
-            {
-                return StatusCode(401,"Vous n'avez pas le droit d'effectuer cette action");
+                return CustomForbid();
             }
 
             Utilisateur? targetUser = await _facDBContext.Utilisateurs.Include(u => u.RoleUtilisateurs).FirstOrDefaultAsync(u => u.IdUtilisateur == request.TargetId);
-            
+
             if (targetUser is null)
             {
-                return BadRequest("Aucun utilisateur ne correspond à cet identifiant.");
+                return NotFound(new
+                {
+                    status = 404,
+                    error = "User Not Found",
+                    message = "L'utilisateur ciblé n'existe pas.",
+                });
             }
+            
             RoleUtilisateur? targetRoleUser = _facDBContext.RoleUtilisateurs.Where(ru => ru.IdUtilisateur == request.TargetId).FirstOrDefault();
-            if (targetRoleUser is null)
-            {
-                return BadRequest("Cet utilisateur n'est associé à aucun role");
-            }
             
             GetOneUserResponse responseUser = new GetOneUserResponse{ IdUser = targetUser.IdUtilisateur, Identifiant = targetUser.Identifiant, IdRole = targetRoleUser.IdRole  };
             
@@ -62,6 +66,11 @@ namespace MyApp.Namespace
 
         [HttpPost("update-user")]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest request){
+            if (request.AuthId == null)
+            {
+                return NonAuthenticableUser();
+            }
+
             var authUser = _facDBContext.Utilisateurs
                 .Include(u => u.RoleUtilisateurs)
                 .ThenInclude(ru => ru.IdRoleNavigation)
@@ -69,183 +78,161 @@ namespace MyApp.Namespace
 
             if (authUser is null)
             {
-                return BadRequest(new { error = "Votre utilisateur authentifié n'est pas inscrit sur le serveur." });
+                return UnknownUser();
             }
 
             int? idRole = authUser?.RoleUtilisateurs.FirstOrDefault()?.IdRole;
-            if (idRole is null)
+            if (idRole!=1)
             {
-                return StatusCode(401, "Vous n'avez aucune droit");
+                return CustomForbid();
             }
-            if (idRole != 1)
-            {
-                return StatusCode(401, new { error = "Vous n'êtes pas autorisé à accéder à cette ressource;" });
-
-            }
+            
 
             Utilisateur? targetUser = _facDBContext.Utilisateurs.Include(u => u.RoleUtilisateurs).FirstOrDefault(u => u.Identifiant == request.TargetIdentifiant);
             if (targetUser is null)
             {
-                return BadRequest("Cet utilisateur n'existe pas");
+                return UnknownUser();
             }
             
             targetUser.Identifiant = request.TargetIdentifiant;
             if (!string.IsNullOrEmpty(request.Password)) targetUser.MotDePasse = _hasher.HashPassword(targetUser, request.Password);
 
             
-            var roleUtilisateurs = targetUser.RoleUtilisateurs.FirstOrDefault();
-            if (roleUtilisateurs is null)
+            var roleUtilisateur = targetUser.RoleUtilisateurs.FirstOrDefault();
+            if (roleUtilisateur is not null)
             {
-                return StatusCode(400, "Cet utilisateur n'a aucun rôle.");
+                roleUtilisateur.IdRole = request.RoleId;
+
             }
-            roleUtilisateurs.IdRole = request.RoleId??2;
+            else
+            {
+                targetUser.RoleUtilisateurs.Add(new RoleUtilisateur{
+                    IdUtilisateur = targetUser.IdUtilisateur,
+                    IdRole = request.RoleId,
+                });
+            }
 
             _facDBContext.Utilisateurs.Update(targetUser);
             await _facDBContext.SaveChangesAsync();
 
-            return Ok(new { status = true });
+            return Ok(new
+            {
+                status = 200,
+                error = "Update Successful",
+                message = "Utilisateur mis à jour avec succès.",
+                data = targetUser
+            });
+
         }
 
         [HttpPost("delete-user")]
         public async Task<IActionResult> DeleteUser([FromBody] DeleteUserRequest request)
         {
-            if (!ModelState.IsValid)
+            if (request.AuthId == null)
             {
-                return BadRequest("L'identifiant fourni est invalide");
+                return NonAuthenticableUser();
             }
-            
+
             Utilisateur? authUser = _facDBContext.Utilisateurs.FirstOrDefault(u => u.IdUtilisateur == request.AuthId);
             if (authUser is null)
             {
-                return BadRequest("L'utilisateur authentifié est inconnu");
+                return UnknownUser();
             }
 
             RoleUtilisateur? authRoleUser = _facDBContext.RoleUtilisateurs.FirstOrDefault(ru => ru.IdUtilisateur == request.AuthId);
-            if (authRoleUser is null)
+            if (authRoleUser is null||authRoleUser.IdRole != 1)
             {
-                return StatusCode(401,"Vous n'avez aucun droit");
-            }
-            if (authRoleUser.IdRole!= 1)
-            {
-                return StatusCode(401,"Vous n'avez pas le droit d'effectuer cette action");
+                return CustomForbid();
             }
 
             Utilisateur? targetUser = _facDBContext.Utilisateurs.FirstOrDefault(u => u.IdUtilisateur == request.TargetId);
             List<RoleUtilisateur> targetRoleUsers = _facDBContext.RoleUtilisateurs.Where(ru => ru.IdUtilisateur == request.TargetId).ToList();
             if (targetUser is null)
             {
-                return BadRequest("Aucun utilisateur ne correspond à cet identifiant.");
+                return NotFound(new
+                {
+                    status = 404,
+                    error = "User Not Found",
+                    message = "L'utilisateur ciblé n'existe pas.",
+                });
             }
 
             _facDBContext.RoleUtilisateurs.RemoveRange(targetRoleUsers);
             _facDBContext.Utilisateurs.Remove(targetUser);
             await _facDBContext.SaveChangesAsync();
 
-            return Ok(new { success = true, message= "Suppression réussie de l'utilisateur."});
+            return NoContent();
 
         }
+        
         [HttpPost("list-users")]
         public async Task<IActionResult> ListUsers([FromBody] ListUsersRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return NonAuthenticableUser();
+            }
+
             var authUser = _facDBContext.Utilisateurs
                 .Include(u => u.RoleUtilisateurs)
                 .ThenInclude(ru => ru.IdRoleNavigation)
                 .FirstOrDefault(u => u.IdUtilisateur == request.authId);
-
             if (authUser is null)
             {
-                return BadRequest(new { error = "Votre utilisateur authentifié n'est pas inscrit sur le serveur." });
+                return UnknownUser();
             }
 
             int? idRole = authUser?.RoleUtilisateurs.FirstOrDefault()?.IdRole;
             if (idRole != 1)
             {
-                return StatusCode(401, new { error = "Vous n'êtes pas autorisé à accéder à cette ressource;" });
+                return CustomForbid();
 
             }
 
-            List<UserForListing> users = await (from us in _facDBContext.Utilisateurs
-                                                join ru in _facDBContext.RoleUtilisateurs on us.IdUtilisateur equals ru.IdUtilisateur
-                                                join ro in _facDBContext.Roles on ru.IdRole equals ro.IdRole
-                                                group new { ru, ro } by new { us.IdUtilisateur, us.Identifiant } into g
-                                                select new UserForListing
-                                                {
-                                                    IdUtilisateur = g.Key.IdUtilisateur,
-                                                    Identifiant = g.Key.Identifiant,
-                                                    Role = g.Select(x => x.ro.NomRole).FirstOrDefault()??"undefined"
-                                                }).ToListAsync();
-
-
+            List<UserForListing> users = await (
+                from us in _facDBContext.Utilisateurs
+                join ru in _facDBContext.RoleUtilisateurs on us.IdUtilisateur equals ru.IdUtilisateur
+                join ro in _facDBContext.Roles on ru.IdRole equals ro.IdRole
+                group new { ru, ro } by new { us.IdUtilisateur, us.Identifiant } into g
+                select new UserForListing
+                {
+                    IdUtilisateur = g.Key.IdUtilisateur,
+                    Identifiant = g.Key.Identifiant,
+                    Role = g.Select(x => x.ro.NomRole).FirstOrDefault() ?? "undefined"
+                }).ToListAsync();
 
             return Ok(users);
         }
-        
+
         [HttpPost("insert-user")]
-        public async Task<IActionResult> InsertUser([FromBody] InsertUserRequest request){
-
-            // No logged user. ==> Unauthorized
-            // User is logged in but not allowed. ==> Forbidden
-            // new user existing ==> Conflict
-            // Unique constraint violated ==> Conflict
-            // Empty fields ==> Bad request
-
-
+        public async Task<IActionResult> InsertUser([FromBody] InsertUserRequest request)
+        {
             if (request.IdUser == null)
             {
-                return Unauthorized(new
-                {
-                    status = 401,
-                    error = "Not Authorized",
-                    message = "Utilisateur non Authentifié ou non autorisé.",
-                });
+                return NonAuthenticableUser();
             }
 
             if (!ModelState.IsValid)
             {
-                var errorResponse = new
-                {
-                    status = 400,
-                    error = "ValidationError",
-                    messages = "Certains Champs sont invalides",
-                    details = ModelState.Where(x => x.Value.Errors.Count > 0)
-                    .Select(x => new
-                    {
-                        field = x.Key,
-                        issue = x.Value.Errors.First().ErrorMessage
-                    })
-                };
-                return BadRequest(errorResponse);
+                return ProblematicModelState(ModelState, "Some fields are invalid.");
             }
-            
+
             var authUser = _facDBContext.Utilisateurs
                 .Include(u => u.RoleUtilisateurs)
                 .ThenInclude(ru => ru.IdRoleNavigation)
                 .FirstOrDefault(u => u.IdUtilisateur == request.IdUser);
-
             if (authUser is null)
             {
-                return Unauthorized(new
-                {
-                    status = 401,
-                    error = "Not Authorized",
-                    message = "L'utilisateur n'est pas authentifié.",
-                });
+                return UnknownUser();
             }
 
             int? idRole = authUser?.RoleUtilisateurs.FirstOrDefault()?.IdRole;
             if (idRole != 1)
             {
-                return StatusCode(403,new
-                {
-                    status = 403,
-                    error = "Forbidden",
-                    message = "Vous n'êtes pas autorisé à accéder à cette ressource."
-                });
-
+                return CustomForbid();
             }
 
             Utilisateur? existingUser = _facDBContext.Utilisateurs.FirstOrDefault(u => u.Identifiant == request.NewUserIdentifiant);
-
             if (existingUser is not null)
             {
                 return Conflict(new
@@ -255,21 +242,70 @@ namespace MyApp.Namespace
                     message = "L'identifiant d'utilisateur souhaité est déjà utilisé.",
                 });
             }
-            
+
             Utilisateur newUser = new Utilisateur
             {
                 Identifiant = request.NewUserIdentifiant
             };
             newUser.MotDePasse = _hasher.HashPassword(newUser, request.NewUserMotDePasse);
-            newUser.RoleUtilisateurs.Add(new RoleUtilisateur{IdRole = request.IdNewUserRole });
+            newUser.RoleUtilisateurs.Add(new RoleUtilisateur { IdRole = request.IdNewUserRole });
             _facDBContext.Utilisateurs.Add(newUser);
             await _facDBContext.SaveChangesAsync();
 
-            return StatusCode(201,new
+            return StatusCode(201, new
             {
                 status = 201,
                 error = "Creation Successful",
                 message = "L'utilisateur a été créé avec succès.",
+                data = newUser,
+            });
+        }
+
+
+        // Private Methods
+        private BadRequestObjectResult ProblematicModelState(ModelStateDictionary modelState, string inMessage)
+        {
+            var errorResponse = new
+            {
+                status = 400,
+                title = inMessage,
+                
+                error = modelState.Where(x => x.Value.Errors?.Count > 0)
+                .ToDictionary(
+                    x => x.Key,
+                    x => x.Value.Errors?.Select(e => e.ErrorMessage).ToArray()
+                )
+            };
+            return BadRequest(errorResponse);
+        }
+
+        private ObjectResult CustomForbid()
+        {
+            return StatusCode(403, new
+            {
+                status = 403,
+                error = "Forbidden",
+                message = "Vous n'êtes pas autorisé à accéder à cette ressource."
+            });
+        }
+
+        private UnauthorizedObjectResult UnknownUser()
+        {
+            return Unauthorized(new
+            {
+                status = 401,
+                error = "Not Authorized",
+                message = "L'utilisateur tentant d'effectuer cette action n'est pas reconnu.",
+            });
+        }
+
+        private UnauthorizedObjectResult NonAuthenticableUser()
+        {
+            return Unauthorized(new
+            {
+                status = 401,
+                error = "Not Authorized",
+                message = "Utilisateur non Authentifié.",
             });
         }
     }
