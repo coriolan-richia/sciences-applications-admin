@@ -8,6 +8,14 @@ import type {
 import type { User } from "@/types/user";
 import type { BranchConfiguration } from "@/types/preselection";
 
+export const studyBranches: StudyBranch[] = [
+  { id: "1", name: "Computer Science", code: "CS" },
+  { id: "2", name: "Electrical Engineering", code: "EE" },
+  { id: "3", name: "Mechanical Engineering", code: "ME" },
+  { id: "4", name: "Business Administration", code: "BA" },
+  { id: "5", name: "Mathematics", code: "MATH" },
+];
+
 export const mockPreselectionCriteria: PreselectionCriteria[] = [
   {
     id: "1",

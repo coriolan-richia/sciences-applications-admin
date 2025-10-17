@@ -31,6 +31,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { API } from "@/lib/api";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ConfirmPassword } from "@/components/admin/user/confirm-password";
+
 type userEditType = {
   idUser: string;
   identifiant: string;
@@ -42,6 +45,7 @@ const initialFormData: userEditType = {
   idUser: "",
   identifiant: "",
   idRole: "",
+  password: "",
 };
 
 export default function EditUserPage() {
@@ -50,17 +54,29 @@ export default function EditUserPage() {
   // const { user: currentUser } = useAuth();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [userToEdit, setUserToEdit] = useState<userEditType>(initialFormData);
-  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState<userEditType>(initialFormData);
   const [error, setError] = useState<string | null>(null);
+  const [changePassword, setChangePassword] = useState(false);
 
   const currentUser = JSON.parse(localStorage.getItem("user") ?? "");
   if (currentUser == null) {
     router.push("/login");
   }
   const userId = params.id as string;
-  // console.log({ authId: currentUser?.idUtilisateur, targetId: userId });
-  // const userToEdit = mockUsers.find((u) => u.id === userId);
+
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, password: "" }));
+  }, [changePassword]);
+
+  useEffect(() => {
+    getOneUser();
+  }, [userId]);
+
+  useEffect(() => {
+    if (userToEdit.idUser) {
+      setFormData({ ...userToEdit });
+    }
+  }, [userToEdit]);
 
   const getOneUser = async () => {
     const getUserUrl = `${API.utilisateur}/get-one-user`;
@@ -89,28 +105,14 @@ export default function EditUserPage() {
     } catch (error) {
       console.log("Error :", error);
       return;
-    } finally {
-      setLoading(false);
     }
   };
-
-  useEffect(() => {
-    getOneUser();
-  }, [userId]);
-
-  useEffect(() => {
-    // Mise à jour de formData une fois que userToEdit est mis à jour
-    if (userToEdit.idUser) {
-      setFormData({ ...userToEdit });
-    }
-  }, [userToEdit]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     const updateUserUrl = `${API.utilisateur}/update-user`;
     e.preventDefault();
     setError(null);
 
-    // Validation: Can't change your own role
     if (
       currentUser?.idUtilisateur === userId &&
       formData.idRole !== currentUser.role
@@ -163,9 +165,9 @@ export default function EditUserPage() {
   };
 
   const handleDelete = async () => {
-    // const deleteUserUrl = "http://localhost:5174/api/Utilisateur/delete-user";
     const deleteUserUrl = `${API.utilisateur}/delete-user`;
     setError(null);
+
     // Validation: Can't delete yourself
     if (currentUser?.idUtilisateur === userId) {
       setError("You cannot delete your own account.");
@@ -209,7 +211,6 @@ export default function EditUserPage() {
       return;
     }
 
-    // console.log("[v0] User deleted:", userId);
     router.push("/admin/users");
   };
 
@@ -284,19 +285,47 @@ export default function EditUserPage() {
                     required
                   />
                 </div>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="changePassword">Mot de passe</Label>
+                    <Label htmlFor="changePassword" className="h-8">
+                      <Checkbox
+                        className="h-4 w-4"
+                        id="changePassword"
+                        checked={changePassword}
+                        onCheckedChange={(e) => {
+                          setChangePassword(e === true);
+                        }}
+                      />
+                      Cochez pour modifier le mot de passe
+                    </Label>
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="password">Mot de passe</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Votre mot de asse"
-                    value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
-                    required
-                  />
+                  {changePassword && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="password">Nouveau mot de passe</Label>
+                        <Input
+                          id="password"
+                          type="password"
+                          placeholder="Votre mot de passe"
+                          value={formData.password}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              password: e.target.value,
+                            })
+                          }
+                          required
+                        />
+                      </div>
+
+                      <ConfirmPassword
+                        password={formData.password ?? ""}
+                        reset={changePassword}
+                      />
+                    </>
+                  )}
                 </div>
 
                 <div className="space-y-2">

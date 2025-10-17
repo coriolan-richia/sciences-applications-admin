@@ -4,6 +4,8 @@ export interface PreselectionCriteria {
   branchName: string;
   type: "mention" | "subject";
   value: string;
+  subjectName?: string;
+  minimumMention?: string;
   minScore?: number;
   priority: number;
 }
