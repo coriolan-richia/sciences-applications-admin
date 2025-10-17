@@ -19,13 +19,14 @@ import {
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { API } from "@/lib/api";
+import { ConfirmPassword } from "@/components/admin/user/confirm-password";
 
 export default function NewUserPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     identifiant: "",
     password: "",
-    role: 2,
+    role: "",
   });
 
   const fetchUrl = `${API.utilisateur}/insert-user`;
@@ -109,30 +110,33 @@ export default function NewUserPage() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Mot de passe</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Mot de passe"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  required
-                />
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="password">Mot de passe</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Mot de passe"
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <ConfirmPassword password={formData.password} reset={true} />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="role">Rôle</Label>
                 <Select
-                  value={formData.role.toString()}
+                  value={formData.role || undefined}
                   onValueChange={(value) =>
-                    setFormData({ ...formData, role: parseInt(value) })
+                    setFormData({ ...formData, role: value })
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Choisir un rôle" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="2">Administrateur</SelectItem>
@@ -140,9 +144,9 @@ export default function NewUserPage() {
                   </SelectContent>
                 </Select>
                 <p className="text-sm text-muted-foreground">
-                  {formData.role === 1 &&
+                  {formData.role === "1" &&
                     "Accès complet à toutes les fonctionnalités, y compris la gestion des utilisateurs"}
-                  {formData.role === 2 &&
+                  {formData.role === "2" &&
                     "Peut gérer les préinscriptions, les paiements et les présélection"}
                   {/* {formData.role === "viewer" &&
                     "Read-only access to all sections"} */}

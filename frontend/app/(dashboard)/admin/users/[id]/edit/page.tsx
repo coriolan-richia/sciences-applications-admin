@@ -32,6 +32,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { API } from "@/lib/api";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ConfirmPassword } from "@/components/admin/user/confirm-password";
+
 type userEditType = {
   idUser: string;
   identifiant: string;
@@ -52,11 +54,9 @@ export default function EditUserPage() {
   // const { user: currentUser } = useAuth();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [userToEdit, setUserToEdit] = useState<userEditType>(initialFormData);
-  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState<userEditType>(initialFormData);
   const [error, setError] = useState<string | null>(null);
   const [changePassword, setChangePassword] = useState(false);
-  const [confirmPassword, setConfirmPassword] = useState("");
 
   const currentUser = JSON.parse(localStorage.getItem("user") ?? "");
   if (currentUser == null) {
@@ -65,9 +65,18 @@ export default function EditUserPage() {
   const userId = params.id as string;
 
   useEffect(() => {
-    setConfirmPassword("");
     setFormData((prev) => ({ ...prev, password: "" }));
   }, [changePassword]);
+
+  useEffect(() => {
+    getOneUser();
+  }, [userId]);
+
+  useEffect(() => {
+    if (userToEdit.idUser) {
+      setFormData({ ...userToEdit });
+    }
+  }, [userToEdit]);
 
   const getOneUser = async () => {
     const getUserUrl = `${API.utilisateur}/get-one-user`;
@@ -96,28 +105,14 @@ export default function EditUserPage() {
     } catch (error) {
       console.log("Error :", error);
       return;
-    } finally {
-      setLoading(false);
     }
   };
-
-  useEffect(() => {
-    getOneUser();
-  }, [userId]);
-
-  useEffect(() => {
-    // Mise à jour de formData une fois que userToEdit est mis à jour
-    if (userToEdit.idUser) {
-      setFormData({ ...userToEdit });
-    }
-  }, [userToEdit]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     const updateUserUrl = `${API.utilisateur}/update-user`;
     e.preventDefault();
     setError(null);
 
-    // Validation: Can't change your own role
     if (
       currentUser?.idUtilisateur === userId &&
       formData.idRole !== currentUser.role
@@ -170,9 +165,9 @@ export default function EditUserPage() {
   };
 
   const handleDelete = async () => {
-    // const deleteUserUrl = "http://localhost:5174/api/Utilisateur/delete-user";
     const deleteUserUrl = `${API.utilisateur}/delete-user`;
     setError(null);
+
     // Validation: Can't delete yourself
     if (currentUser?.idUtilisateur === userId) {
       setError("You cannot delete your own account.");
@@ -216,7 +211,6 @@ export default function EditUserPage() {
       return;
     }
 
-    // console.log("[v0] User deleted:", userId);
     router.push("/admin/users");
   };
 
@@ -326,40 +320,10 @@ export default function EditUserPage() {
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="password-confirm">
-                          Confirmation du mot de passe
-                        </Label>
-                        <Input
-                          id="password-confirm"
-                          type="password"
-                          placeholder="Réécrivez votre mot de passe"
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          required
-                        />
-                        {confirmPassword !== formData.password ? (
-                          confirmPassword != "" && formData.password != "" ? (
-                            <div className="text-sm text-red-500">
-                              Les mots de passes ne correspondent pas.
-                            </div>
-                          ) : confirmPassword != "" ? (
-                            <div className="text-sm text-yellow-500">
-                              Fournissez un mot de passe
-                            </div>
-                          ) : (
-                            <div className="text-sm text-blue-500">
-                              Veuillez confirmer votre mot de passe.
-                            </div>
-                          )
-                        ) : (
-                          confirmPassword != "" && (
-                            <div className="text-sm text-green-500">
-                              Le mot de passe correspond
-                            </div>
-                          )
-                        )}
-                      </div>
+                      <ConfirmPassword
+                        password={formData.password ?? ""}
+                        reset={changePassword}
+                      />
                     </>
                   )}
                 </div>
