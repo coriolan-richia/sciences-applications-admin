@@ -8,12 +8,18 @@ import {
   CheckSquare,
   LogOut,
   Shield,
+  LayoutDashboard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 
 const navigation = [
+  {
+    name: "Tableau de bord",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+  },
   {
     name: "Préinscriptions",
     href: "/preregistrations",
@@ -27,11 +33,6 @@ const navigation = [
   {
     name: "Présélection",
     href: "/preselection",
-    icon: CheckSquare,
-  },
-  {
-    name: "Ancient",
-    href: "/select",
     icon: CheckSquare,
   },
 ];

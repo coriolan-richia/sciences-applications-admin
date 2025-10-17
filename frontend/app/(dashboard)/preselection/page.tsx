@@ -1,4 +1,3 @@
-import { Sidebar } from "@/components/ui/sidebar";
 import {
   Card,
   CardContent,
@@ -14,6 +13,8 @@ import {
   Users,
   CheckCircle,
   Clock,
+  Shield,
+  Play,
 } from "lucide-react";
 import Link from "next/link";
 import { parcours } from "@/lib/mock-data";
@@ -48,10 +49,19 @@ export default function PreselectionPage() {
         title="Présélection"
         description="Vue d'ensemble des résultats de présélection par parcours"
         action={
-          <Button size="lg" className="gap-2">
-            <Download className="h-4 w-4" />
-            Exporter tout (PDF)
-          </Button>
+          <div className="flex gap-2">
+            <Link href="/preselection/admin">
+              <Button variant="outline">
+                <Shield className="h-4 w-4" />
+                Espace admin
+              </Button>
+            </Link>
+
+            <Button>
+              <Download className="h-4 w-4" />
+              Exporter tout (PDF)
+            </Button>
+          </div>
         }
       />
 

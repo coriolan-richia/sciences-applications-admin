@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, use } from "react";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Play, CheckCircle2, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
+import { parcours } from "@/lib/mock-data";
 
 interface ProcessLog {
   id: string;
@@ -29,12 +30,18 @@ export function getProcessLogTypeLabel(
   }
 }
 
-export default function RunPreselectionPage() {
+export default function RunPreselectionPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const router = useRouter();
   const [isRunning, setIsRunning] = useState(false);
   const [hasRun, setHasRun] = useState(false);
   const [logs, setLogs] = useState<ProcessLog[]>([]);
 
+  const { id } = useParams<{ id: string }>();
+  const current = parcours.find((p) => p.id === id);
   const handleRun = () => {
     setIsRunning(true);
     setLogs([]);
@@ -74,7 +81,7 @@ export default function RunPreselectionPage() {
       {
         id: "6",
         type: "success",
-        message: "38 candidatures traitées pour Physique et Application",
+        message: `38 candidatures traitées pour la mention ${current?.nom}`,
         timestamp: new Date().toISOString(),
       },
       {
@@ -115,7 +122,7 @@ export default function RunPreselectionPage() {
   };
 
   const getLogIcon = (type?: string) => {
-    if (!type) return <div className="h-4 w-4 rounded-full bg-blue-500" />;
+    if (!type) return <div className="h-4 w-4 rounded-full bg-blue-500"></div>;
 
     switch (type) {
       case "success":
@@ -143,10 +150,10 @@ export default function RunPreselectionPage() {
   return (
     <div className="flex h-full flex-col">
       <PageHeader
-        title="Lancer le Processus de Présélection"
+        title={`Présélection  - ${current?.nom}`}
         description="Exécution la présélection basée sur les conditions établies"
         action={
-          <Link href="/preselection">
+          <Link href={`/preselection/admin/${current?.id}`}>
             <Button variant="outline">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Retour
@@ -161,7 +168,7 @@ export default function RunPreselectionPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-semibold text-foreground">
-                  Opération de présélection
+                  Lancement de l'opération de présélection
                 </h2>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Appliquer les conditions à toutes les préinscriptions

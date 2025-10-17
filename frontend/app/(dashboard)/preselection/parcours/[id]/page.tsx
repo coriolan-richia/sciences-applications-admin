@@ -1,28 +1,28 @@
-import { Sidebar } from "@/components/ui/sidebar";
 import { CandidaturesList } from "@/components/preselection/candidatures-list";
 import { CandidaturesFilters } from "@/components/preselection/candidatures-filters";
 import { CandidaturesStats } from "@/components/preselection/candidatures-stats";
 import { ViewToggle } from "@/components/preselection/view-toggle";
 import { Button } from "@/components/ui/button";
-import { Download, ArrowLeft, Settings } from "lucide-react";
+import { Download, ArrowLeft, Settings, Play } from "lucide-react";
 import Link from "next/link";
 import { parcours, generateMockCandidatures } from "@/lib/mock-data";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
 
-export default function ParcoursDetailPage({
+export default async function ParcoursDetailPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const parcoursData = parcours.find((p) => p.id === params.id);
+  const par = await params;
+  const parcoursData = parcours.find((p) => p.id === par.id);
 
   if (!parcoursData) {
     notFound();
   }
 
   const candidatures = generateMockCandidatures(
-    params.id,
+    par.id,
     parcoursData.nombreCandidatures
   );
 
@@ -39,7 +39,13 @@ export default function ParcoursDetailPage({
                 Retour aux résultats
               </Button>
             </Link>
-            <Link href={`/preselection/conditions/${params.id}`}>
+            <Link href={`/preselection/run/${par.id}`}>
+              <Button>
+                <Play className="mr-2 h-4 w-4" />
+                Lancer la présélection
+              </Button>
+            </Link>
+            <Link href={`/preselection/conditions/${par.id}`}>
               <Button>
                 <Settings className="mr-2 h-4 w-4" />
                 Conditions

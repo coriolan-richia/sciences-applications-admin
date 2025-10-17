@@ -1,12 +1,12 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Eye, Mail } from "lucide-react"
-import type { Candidature } from "@/lib/types"
-import { cn } from "@/lib/utils"
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Eye, Mail } from "lucide-react";
+import type { Candidature } from "@/types/preselections";
+import { cn } from "@/lib/utils";
 
 interface CandidaturesListProps {
-  candidatures: Candidature[]
+  candidatures: Candidature[];
 }
 
 const statutConfig = {
@@ -30,14 +30,14 @@ const statutConfig = {
     variant: "outline" as const,
     color: "bg-muted text-muted-foreground",
   },
-}
+};
 
 const mentionConfig = {
   TRES_BIEN: { label: "Très Bien", color: "text-chart-3" },
   BIEN: { label: "Bien", color: "text-chart-2" },
   ASSEZ_BIEN: { label: "Assez Bien", color: "text-chart-4" },
   PASSABLE: { label: "Passable", color: "text-muted-foreground" },
-}
+};
 
 export function CandidaturesList({ candidatures }: CandidaturesListProps) {
   return (
@@ -73,7 +73,12 @@ export function CandidaturesList({ candidatures }: CandidaturesListProps) {
               </div>
 
               <div className="col-span-2 flex items-center">
-                <span className={cn("font-medium", mentionConfig[candidature.mentionBac].color)}>
+                <span
+                  className={cn(
+                    "font-medium",
+                    mentionConfig[candidature.mentionBac].color
+                  )}
+                >
                   {mentionConfig[candidature.mentionBac].label}
                 </span>
               </div>
@@ -84,8 +89,14 @@ export function CandidaturesList({ candidatures }: CandidaturesListProps) {
 
               <div className="col-span-2 flex items-center">
                 <div>
-                  <div className="font-medium text-foreground">{candidature.noteBac}/20</div>
-                  {candidature.score && <div className="text-xs text-muted-foreground">Score: {candidature.score}</div>}
+                  <div className="font-medium text-foreground">
+                    {candidature.noteBac}/20
+                  </div>
+                  {candidature.score && (
+                    <div className="text-xs text-muted-foreground">
+                      Score: {candidature.score}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -109,9 +120,10 @@ export function CandidaturesList({ candidatures }: CandidaturesListProps) {
 
         {/* Pagination info */}
         <div className="border-t border-border px-6 py-4 text-sm text-muted-foreground">
-          Affichage de 1 à {Math.min(20, candidatures.length)} sur {candidatures.length} candidatures
+          Affichage de 1 à {Math.min(20, candidatures.length)} sur{" "}
+          {candidatures.length} candidatures
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

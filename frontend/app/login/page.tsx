@@ -43,7 +43,7 @@ export default function LoginPage() {
     console.log("Résultat de la connexion:", success);
 
     if (success.success) {
-      router.push("/preregistrations");
+      router.push("/dashboard");
     } else {
       switch (success.type) {
         case "auth":
