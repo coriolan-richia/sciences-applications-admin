@@ -16,10 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { API } from "@/lib/api";
-import { ConfirmPassword } from "@/components/admin/user/confirm-password";
+import { ConfirmPassword, PasswordInput } from "@/components/ui/password";
 
 export default function NewUserPage() {
   const router = useRouter();
@@ -113,9 +113,9 @@ export default function NewUserPage() {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="password">Mot de passe</Label>
-                  <Input
+                  <PasswordInput
                     id="password"
-                    type="password"
+                    className="pr-10"
                     placeholder="Mot de passe"
                     value={formData.password}
                     onChange={(e) =>

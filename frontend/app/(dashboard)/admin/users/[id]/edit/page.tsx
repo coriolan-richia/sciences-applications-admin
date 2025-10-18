@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { API } from "@/lib/api";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ConfirmPassword } from "@/components/admin/user/confirm-password";
+import { ConfirmPassword, PasswordInput } from "@/components/ui/password";
 
 type userEditType = {
   idUser: string;
@@ -305,9 +305,8 @@ export default function EditUserPage() {
                     <>
                       <div className="space-y-2">
                         <Label htmlFor="password">Nouveau mot de passe</Label>
-                        <Input
+                        <PasswordInput
                           id="password"
-                          type="password"
                           placeholder="Votre mot de passe"
                           value={formData.password}
                           onChange={(e) =>

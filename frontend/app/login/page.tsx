@@ -18,7 +18,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/lib/auth-context";
 import { AlertCircle } from "lucide-react";
-
+import { PasswordInput } from "@/components/ui/password";
 // La page de login
 export default function LoginPage() {
   const [identifiant, setidentifiant] = useState("");
@@ -105,15 +105,14 @@ export default function LoginPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Mot de passe</Label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 placeholder="Insérez votre mot de passe"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
                 autoComplete="current-password"
                 disabled={isLoading}
+                required
               />
             </div>
 
