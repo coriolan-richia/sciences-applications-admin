@@ -245,19 +245,18 @@ namespace MyApp.Namespace
 
             Utilisateur newUser = new Utilisateur
             {
-                Identifiant = request.NewUserIdentifiant
+                Identifiant = request.NewUserIdentifiant,
             };
             newUser.MotDePasse = _hasher.HashPassword(newUser, request.NewUserMotDePasse);
             newUser.RoleUtilisateurs.Add(new RoleUtilisateur { IdRole = request.IdNewUserRole });
             _facDBContext.Utilisateurs.Add(newUser);
             await _facDBContext.SaveChangesAsync();
 
-            return StatusCode(201, new
+            return Ok( new
             {
                 status = 201,
                 error = "Creation Successful",
                 message = "L'utilisateur a été créé avec succès.",
-                data = newUser,
             });
         }
 
