@@ -8,6 +8,7 @@ using System.Text;
 using backend.Context;
 using backend.Models.Enums;
 using backend.Models.Fac;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,11 @@ var FacConnectionString = builder.Configuration.GetConnectionString("ConnectionT
 var BacConnectionString = builder.Configuration.GetConnectionString("ConnectionToBac") ?? throw new InvalidOperationException("Connection string"
         + "'ConnectionToBac' not found.");
 
+var dataSourceBuilder = new NpgsqlDataSourceBuilder(FacConnectionString);
+dataSourceBuilder.MapEnum<TypeModePreinscription>();
+var dataSource = dataSourceBuilder.Build();
+
+builder.Services.AddDbContext<FacContext>(options => options.UseNpgsql(dataSource));/*
 builder.Services.AddDbContext<FacContext>(options =>
     options.UseNpgsql(
         FacConnectionString,
@@ -24,6 +30,8 @@ builder.Services.AddDbContext<FacContext>(options =>
     
     )
 );
+*/
+
 ExcelPackage.License.SetNonCommercialPersonal("MIT PROM 2027");
 
 builder.Services.AddDbContext<BacContext>(options =>
