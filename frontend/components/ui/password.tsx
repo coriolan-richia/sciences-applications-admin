@@ -86,9 +86,13 @@ export const PasswordInput = ({
   return (
     <>
       <div className="flex flex-row items-center relative">
-        <Input type={showPassword ? "text" : "password"} {...props} />
+        <Input
+          type={showPassword ? "text" : "password"}
+          className="pr-10 "
+          {...props}
+        />
         <div
-          className="absolute right-2"
+          className="absolute right-2 scale-75"
           title={showPassword ? toMaskTitle : toShowTitle}
           onClick={() => setShowPassword((p) => !p)}
         >
