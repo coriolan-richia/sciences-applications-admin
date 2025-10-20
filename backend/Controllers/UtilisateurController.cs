@@ -120,7 +120,6 @@ namespace MyApp.Namespace
                 status = 200,
                 error = "Update Successful",
                 message = "Utilisateur mis à jour avec succès.",
-                data = targetUser
             });
 
         }
