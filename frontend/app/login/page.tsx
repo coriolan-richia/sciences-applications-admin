@@ -33,14 +33,14 @@ export default function LoginPage() {
     setError("");
     setIsLoading(true);
 
-    console.log(
+    /* console.log(
       "Tentative de connexion avec:",
       `{${identifiant}, ${password}}`
-    );
+    ); */
 
     const success = await login(identifiant, password);
 
-    console.log("Résultat de la connexion:", success);
+    // console.log("Résultat de la connexion:", success);
 
     if (success.success) {
       router.push("/dashboard");

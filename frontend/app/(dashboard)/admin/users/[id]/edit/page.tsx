@@ -103,7 +103,7 @@ export default function EditUserPage() {
         identifiant: data.identifiant,
       });
     } catch (error) {
-      console.log("Error :", error);
+      // console.log("Error :", error);
       return;
     }
   };
@@ -156,7 +156,7 @@ export default function EditUserPage() {
 
       router.push("/admin/users");
     } catch (error) {
-      console.log("Error :", error);
+      // console.log("Error :", error);
       return;
     }
 

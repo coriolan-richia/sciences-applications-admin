@@ -89,7 +89,7 @@ export default function NewPreregistrationPage() {
       }
 
       const data = await response.json();
-      console.log("Esistenza :", data.exist);
+      // console.log("Esistenza :", data.exist);
       return data.exist; // supposons que l'API renvoie { exists: true/false }
     } catch (error) {
       addToFormError("Erreur du serveur.");

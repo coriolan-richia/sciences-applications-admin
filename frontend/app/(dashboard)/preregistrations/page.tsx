@@ -39,7 +39,7 @@ export default function PreregistrationsPage() {
       // try {
       const response = await fetch(fetchUrl);
       let responseAsJSON = await response.json();
-      console.log(responseAsJSON);
+      // console.log(responseAsJSON);
       setData(responseAsJSON);
     }
     loadList();
