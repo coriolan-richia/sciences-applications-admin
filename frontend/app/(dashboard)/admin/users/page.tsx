@@ -35,36 +35,38 @@ export default function UsersPage() {
     router.push("/login");
     return;
   }
+
   // console.log("UserId ", authUser.idUtilisateur);
-  useEffect(() => {
-    const loadList = async () => {
-      try {
-        const response = await fetch(fetchUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            authId: authUser.IdUtilisateur ?? 1,
-          }),
-        });
+  const loadList = async () => {
+    try {
+      console.log("HIC " + authUser.idUtilisateur);
+      const response = await fetch(fetchUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          authId: authUser.idUtilisateur ?? 0,
+        }),
+      });
 
-        // console.log("UserId ", user.idUtilisateur);
+      // console.log("UserId ", user.idUtilisateur);
 
-        if (!response.ok) {
-          console.error("Problème HTTP :", response.statusText);
-          return;
-        }
-
-        const data = await response.json();
-        setUsers(data);
-
-        // In a real app, this would call an API
-      } catch (error) {
-        console.error("Erreur de réseau :", error);
+      if (!response.ok) {
+        console.error("Problème HTTP :", response.statusText);
+        return;
       }
-    };
 
+      const data = await response.json();
+      setUsers(data);
+
+      // In a real app, this would call an API
+    } catch (error) {
+      console.error("Erreur de réseau :", error);
+    }
+  };
+
+  useEffect(() => {
     loadList();
   }, []);
 

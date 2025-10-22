@@ -99,7 +99,7 @@ export default function EditUserPage() {
       const data = await response.json();
       setUserToEdit({
         idUser: data.idUser.toString(),
-        idRole: data.idRole.toString(),
+        idRole: data.roleName.toString(),
         identifiant: data.identifiant,
       });
     } catch (error) {
@@ -144,7 +144,7 @@ export default function EditUserPage() {
           authId: currentUser.idUtilisateur,
           targetIdentifiant: formData.identifiant,
           password: formData.password,
-          role: formData.idRole,
+          roleName: formData.idRole,
         }),
       });
 

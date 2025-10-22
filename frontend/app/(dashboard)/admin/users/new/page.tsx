@@ -48,7 +48,7 @@ export default function NewUserPage() {
           idUser: user.idUtilisateur ?? 0,
           newUserIdentifiant: formData.identifiant,
           newUserMotDePasse: formData.password,
-          idNewUserRole: formData.role,
+          NewUserRoleName: formData.role,
         }),
       });
 
@@ -86,16 +86,6 @@ export default function NewUserPage() {
         <Card className="mx-auto max-w-2xl">
           <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* <div className="space-y-2">
-                <Label htmlFor="name"></Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                />
-              </div> */}
-
               <div className="space-y-2">
                 <Label htmlFor="identifiant">Identifiant</Label>
                 <Input
@@ -107,6 +97,7 @@ export default function NewUserPage() {
                     setFormData({ ...formData, identifiant: e.target.value })
                   }
                   required
+                  autoComplete="username"
                 />
               </div>
 
@@ -121,6 +112,7 @@ export default function NewUserPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
+                    autoComplete="new-password"
                     required
                   />
                 </div>
@@ -139,8 +131,10 @@ export default function NewUserPage() {
                     <SelectValue placeholder="Choisir un rôle" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="2">Administrateur</SelectItem>
-                    <SelectItem value="1">Superadministrateur</SelectItem>
+                    <SelectItem value="superadmin">
+                      Super administrateur
+                    </SelectItem>
+                    <SelectItem value="admin">Administrateur</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-sm text-muted-foreground">
