@@ -1,9 +1,9 @@
+"use client";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { mockPreregistrations } from "@/lib/mock-data";
-import { notFound } from "next/navigation";
+import { use, useEffect } from "react";
 import {
   ArrowLeft,
   Mail,
@@ -15,20 +15,56 @@ import {
   BookOpen,
 } from "lucide-react";
 import Link from "next/link";
-import { getPreregistrationStatusLabel as getStatusLabel } from "@/types/preregistration";
+import {
+  getPreregistrationStatusLabel as getStatusLabel,
+  Preregistration,
+} from "@/types/preregistration";
+import { API } from "@/lib/api";
+import { useState } from "react";
 
-export default async function PreregistrationDetailPage({
+export default function PreregistrationDetailPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const { id } = await params;
-  // [FETCH]
-  const preregistration = mockPreregistrations.find((p) => p.id === id);
+  const [preregistration, setPreregistration] = useState<
+    Preregistration | undefined
+  >(undefined);
+  const { id } = params;
 
-  if (!preregistration) {
-    notFound();
-  }
+  const getUser = async () => {
+    try {
+      const response = await fetch(fetchUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          preregistrationId: id,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Erreur : ", response.statusText);
+        return;
+      }
+      const data = await response.json();
+
+      setPreregistration(data as Preregistration);
+    } catch (error) {
+      console.error("Erreur de connexion : ", error);
+    }
+  };
+  const fetchUrl = `${API.preinscription}/get-one-preinscription`;
+  useEffect(() => {
+    getUser();
+  }, []);
+
+  // const prereg = mockPreregistrations.find((p) => p.id === id);
+
+  // if (!preregistration) {
+  //   notFound();
+  // }
 
   const statusColors = {
     verified: "bg-green-500/10 text-green-500 border-green-500/20",
@@ -40,7 +76,7 @@ export default async function PreregistrationDetailPage({
     <div className="flex h-full flex-col">
       <PageHeader
         title="Détails de Préinscription"
-        description={`Numéro au bac: ${preregistration.bacNumber}`}
+        description={`Numéro au bac: ${preregistration?.bacNumber}`}
         action={
           <Link href="/preregistrations">
             <Button variant="outline">
@@ -56,10 +92,10 @@ export default async function PreregistrationDetailPage({
           {/* Status Badge */}
           <div className="flex items-center gap-3">
             <Badge
-              className={statusColors[preregistration.status]}
+              className={statusColors[preregistration?.status ?? "pending"]}
               // variant="outline"
             >
-              {getStatusLabel(preregistration.status)}
+              {getStatusLabel(preregistration?.status ?? "pending")}
             </Badge>
           </div>
 
@@ -74,7 +110,7 @@ export default async function PreregistrationDetailPage({
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-muted-foreground" />
                   <p className="font-medium text-foreground">
-                    {preregistration.email}
+                    {preregistration?.email}
                   </p>
                 </div>
               </div>
@@ -83,7 +119,7 @@ export default async function PreregistrationDetailPage({
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-muted-foreground" />
                   <p className="font-medium text-foreground">
-                    {preregistration.phone}
+                    {preregistration?.phone}
                   </p>
                 </div>
               </div>
@@ -101,20 +137,20 @@ export default async function PreregistrationDetailPage({
                 <div className="flex items-center gap-2">
                   <GraduationCap className="h-4 w-4 text-muted-foreground" />
                   <p className="font-mono font-medium text-foreground">
-                    {preregistration.bacNumber}
+                    {preregistration?.bacNumber}
                   </p>
                 </div>
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Année du Bac</p>
                 <p className="font-medium text-foreground">
-                  {preregistration.bacYear}
+                  {preregistration?.bacYear}
                 </p>
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Série du Bac</p>
                 <p className="font-medium text-foreground">
-                  {preregistration.bacOption}
+                  {preregistration?.bacOption}
                 </p>
               </div>
             </div>
@@ -131,7 +167,7 @@ export default async function PreregistrationDetailPage({
                 <div className="flex items-center gap-2">
                   <BookOpen className="h-4 w-4 text-muted-foreground" />
                   <p className="font-medium text-foreground">
-                    {preregistration.studyBranch}
+                    {preregistration?.studyBranch}
                   </p>
                 </div>
               </div>
@@ -143,7 +179,7 @@ export default async function PreregistrationDetailPage({
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <p className="font-medium text-foreground">
                     {new Date(
-                      preregistration.preregistrationDate
+                      preregistration?.preregistrationDate ?? ""
                     ).toLocaleDateString()}
                   </p>
                 </div>
@@ -156,7 +192,7 @@ export default async function PreregistrationDetailPage({
             <h2 className="mb-4 text-lg font-semibold text-foreground">
               Informations de Paiement
             </h2>
-            {preregistration.paymentDate ? (
+            {preregistration?.paymentDate ? (
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">
@@ -166,7 +202,7 @@ export default async function PreregistrationDetailPage({
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <p className="font-medium text-foreground">
                       {new Date(
-                        preregistration.paymentDate
+                        preregistration?.paymentDate
                       ).toLocaleDateString()}
                     </p>
                   </div>
@@ -178,7 +214,7 @@ export default async function PreregistrationDetailPage({
                   <div className="flex items-center gap-2">
                     <CreditCard className="h-4 w-4 text-muted-foreground" />
                     <p className="font-mono font-medium text-foreground">
-                      {preregistration.paymentReference}
+                      {preregistration?.paymentReference}
                     </p>
                   </div>
                 </div>
@@ -189,7 +225,7 @@ export default async function PreregistrationDetailPage({
                   <div className="flex items-center gap-2">
                     <Building2 className="h-4 w-4 text-muted-foreground" />
                     <p className="font-medium text-foreground">
-                      {preregistration.paymentAgence}
+                      {preregistration?.paymentAgence}
                     </p>
                   </div>
                 </div>

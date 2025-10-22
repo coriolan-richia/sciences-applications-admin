@@ -20,7 +20,7 @@ export function PreregistrationListItem({
   };
 
   return (
-    <Link href={`/preregistrations/3#${preregistration.id}`}>
+    <Link href={`/preregistrations/${preregistration.id}`}>
       <div className="flex items-center gap-4 border-b border-border px-6 py-4 transition-colors hover:bg-secondary/50">
         <div className="w-32 font-mono text-sm font-medium text-foreground">
           {preregistration.bacNumber}

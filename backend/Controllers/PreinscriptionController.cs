@@ -14,7 +14,25 @@ namespace backend.Controllers
     {
         private readonly FacContext _facDBContext = facDBContext;
         private readonly BacContext _bacDBContext = bacDBContext;
-        
+
+        [HttpPost("get-one-preinscription")]
+        public async Task<IActionResult> GetOnePreinscription([FromBody] int PreregistrationId)
+        {
+            try
+            {
+                Preinscription? preinscription = await _facDBContext.Preinscriptions.FirstOrDefaultAsync(p => p.IdPreinscription == PreregistrationId);
+                if (preinscription is null)
+                {
+                    return NotFound();
+                }
+                
+                return Ok(preinscription);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, new { message = "Erreur interne du serveur", error = ex.Message });
+            }
+        }
 
         [HttpPost("insert-preinscription")]
         public async Task<IActionResult> InsertPreinscription([FromBody] NewPreinscription request)
@@ -165,6 +183,9 @@ namespace backend.Controllers
                 from p in preinscriptions
                 join ba in bacs on p.IdBac equals ba.IdBac
                 join b in bacheliers on ba.NumBacc.ToString() equals b.NumeroCandidat
+                // join b in bacheliers
+                //     on new { Num = ba.NumBacc.ToString(), Annee = ba.AnneeBacc } 
+                //     equals new { Num = b.NumeroCandidat, Annee = b.Annee.Year }
                 join o in options on b.IdOption equals o.IdOption
                 join pr in portails on p.IdPortail equals pr.IdPortail into parcoursGroup
                 from pr in parcoursGroup.DefaultIfEmpty()
