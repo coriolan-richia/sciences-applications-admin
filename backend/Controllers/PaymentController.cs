@@ -50,7 +50,7 @@ namespace backend.Controllers
                     Date = p.DatePaiement?.ToString("dd/MM/yyyy") ?? "Date N/A",
                     Libelle = p.Libelle ?? "Libelle N/A",
                     Reference = p.Reference ?? "Référence N/A",
-                    Valeur = p.Reference ?? "Date valeur N/A",
+                    Valeur = p.Valeur?.ToString("dd/MM/yyyy") ?? "Date valeur N/A",
                     DebitCredit = p.Montant ?? 0,
                     Matched = p.IdPreinscription!=null,
                 }
@@ -156,18 +156,22 @@ namespace backend.Controllers
                     string libelle = ws.Cells[row, 2].Text.Trim();
                     string reference = ws.Cells[row, 3].Text.Trim();
                     string valeurText = ws.Cells[row, 4].Text.Trim();
-                    string debitText = ws.Cells[row, 5].Text.Trim();
-                    string creditText = ws.Cells[row, 6].Text.Trim();
+                    string debitText = ws.Cells[row, 6].Text.Trim();
+                    string creditText = ws.Cells[row, 7].Text.Trim();
                     // 01/09/2025 REGLMT CHEQUE COMPENSE NO. 0000219 4413934 26/08/2025 300000
 
                     DateOnly? datePaiement = null;
                     DateOnly? valeur = null;
 
-                    if (DateTime.TryParseExact(dateText, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt1))
+                    if (DateTime.TryParseExact(dateText, "dd/MM/yy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt1))
+                    {
                         datePaiement = DateOnly.FromDateTime(dt1);
+                    }
 
-                    if (DateTime.TryParseExact(valeurText, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt2))
+                    if (DateTime.TryParseExact(valeurText, "dd/MM/yy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt2))
+                    {
                         valeur = DateOnly.FromDateTime(dt2);
+                    }
 
                     int montant = 0;
                     if (!string.IsNullOrWhiteSpace(debitText))

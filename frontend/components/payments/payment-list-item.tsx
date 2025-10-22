@@ -3,7 +3,7 @@ import {
   getPaymentMatchedLabel as getMatchedLabel,
 } from "@/types/payment";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, parseFrDate } from "@/lib/utils";
 
 interface PaymentListItemProps {
   payment: Payment;
@@ -21,9 +21,7 @@ export function PaymentListItem({ payment }: PaymentListItemProps) {
         {payment.reference}
       </div>
 
-      <div className="w-32 text-sm text-muted-foreground">
-        {new Date(payment.date).toLocaleDateString()}
-      </div>
+      <div className="w-32 text-sm text-muted-foreground">{payment.date}</div>
 
       <div className="w-32 text-sm text-foreground">
         {payment.amount.toLocaleString()} Ar

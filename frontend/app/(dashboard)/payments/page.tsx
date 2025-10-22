@@ -193,11 +193,11 @@ export default function PaymentsPage() {
               {/* Payment List */}
               <div className="rounded-lg border border-border bg-card">
                 <div className="flex items-center gap-4 border-b border-border bg-secondary/30 px-6 py-3 text-xs font-medium text-muted-foreground">
-                  <div className="w-32">Reéférence</div>
+                  <div className="w-32">Référence</div>
                   <div className="w-32">Date</div>
                   <div className="w-32">Montant</div>
                   <div className="flex-1">Libellé</div>
-                  <div className="w-32">Valeur?</div>
+                  <div className="w-32">Date Valeur</div>
                   <div className="w-24">Statut</div>
                 </div>
                 {sortedPayments.length == 0 ? (

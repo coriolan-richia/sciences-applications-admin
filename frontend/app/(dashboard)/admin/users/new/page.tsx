@@ -52,7 +52,7 @@ export default function NewUserPage() {
         }),
       });
 
-      console.log("UserId ", user.idUtilisateur);
+      // console.log("UserId ", user.idUtilisateur);
 
       if (!response.ok) {
         console.error("Problème HTTP :", response.statusText);
@@ -60,7 +60,7 @@ export default function NewUserPage() {
       }
 
       // In a real app, this would call an API
-      console.log("Création de l'utilisateur:", formData);
+      // console.log("Création de l'utilisateur:", formData);
       router.push("/admin/users");
     } catch (error) {
       console.error("Erreur de réseau :", error);

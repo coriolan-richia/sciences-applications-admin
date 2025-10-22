@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using backend.Models.Fac;
+using backend.Models.Enums;
 
 namespace backend.Context;
 
@@ -105,7 +106,8 @@ public partial class FacContext : DbContext
         modelBuilder
             .HasPostgresEnum("type_formation", new[] { "Professionnalisante", "Académique" })
             .HasPostgresEnum("type_media", new[] { "Image", "vidéo" })
-            .HasPostgresEnum("type_mode_preinscription", new[] { "enligne", "poste", "sms", "presentielle" })
+            // .HasPostgresEnum<TypeModePreinscription>("type_mode_preinscription", new[] { "enligne", "poste", "sms", "presentielle" })
+            .HasPostgresEnum<TypeModePreinscription>("type_mode_preinscription")
             .HasPostgresEnum("type_niveau", new[] { "L1", "L2", "L3", "M1", "M2", "D1", "D2" })
             .HasPostgresEnum("type_sexe", new[] { "M", "F" });
 

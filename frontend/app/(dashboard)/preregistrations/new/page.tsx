@@ -89,7 +89,7 @@ export default function NewPreregistrationPage() {
       }
 
       const data = await response.json();
-      console.log("Esistenza :", data.exist);
+      // console.log("Esistenza :", data.exist);
       return data.exist; // supposons que l'API renvoie { exists: true/false }
     } catch (error) {
       addToFormError("Erreur du serveur.");
@@ -494,7 +494,7 @@ export default function NewPreregistrationPage() {
                   <AlertDescription>
                     <ul className="list-circle">
                       {formError.map((message) => (
-                        <li>{message}</li>
+                        <li key={message}>{message}</li>
                       ))}
                     </ul>
                   </AlertDescription>

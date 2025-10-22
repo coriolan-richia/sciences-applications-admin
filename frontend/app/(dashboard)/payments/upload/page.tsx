@@ -56,7 +56,7 @@ export default function UploadPaymentPage() {
       });
 
       if (!response.ok) {
-        console.log(response.statusText);
+        // console.log(response.statusText);
         setIsUploading(false);
         setUploadComplete(true);
         setUploadSuccess(false);

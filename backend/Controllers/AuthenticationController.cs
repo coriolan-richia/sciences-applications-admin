@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using backend.Models.Fac;
 using backend.DTOs;
 using backend.Services;
+using System.Linq;
 
 namespace backend.Controllers
 {
@@ -16,21 +17,68 @@ namespace backend.Controllers
         private readonly IPasswordHasher<Utilisateur> _hasher = hasher;
         private readonly JwtService _jwtService = jwtService;
 
-        [HttpGet("register")]
-        public IActionResult Register()
+        [HttpGet("initialize")]
+        public async Task<IActionResult> Initialize()
         {
-            var already = _facDBContext.Utilisateurs.SingleOrDefault(u => u.Identifiant == "admin");
+            bool exist = false;
+            var user = _facDBContext.Utilisateurs.Include(u => u.RoleUtilisateurs).ThenInclude(ru => ru.IdRoleNavigation).SingleOrDefault(u => u.Identifiant == "admin");
 
-            if (already is not null)
+            // if (already is not null)
+            // {
+            //     return BadRequest("L'utilisateur 'admin' existe déjà.");
+            // }
+
+            var supAdminRole = _facDBContext.Roles.FirstOrDefault(r => r.NomRole == "superadmin");
+            if (supAdminRole is null)
             {
-                return BadRequest("L'utilisateur 'admin' existe déjà.");
+                supAdminRole = new Role { NomRole = "superadmin" };
+                _facDBContext.Roles.Add(supAdminRole);
             }
 
-            var user = new Utilisateur { Identifiant = "admin" };
-            user.MotDePasse = _hasher.HashPassword(user, "123456");
-            _facDBContext.Utilisateurs.Add(user);
-            _facDBContext.SaveChanges();
+            var adminRole = _facDBContext.Roles.FirstOrDefault(r => r.NomRole == "admin");
+            if (adminRole is null)
+            {
+                adminRole = new Role { NomRole = "admin" };
+                _facDBContext.Roles.Add(adminRole);
+            }
 
+            await _facDBContext.SaveChangesAsync();
+
+            if(user is null)
+            {
+                user = new Utilisateur();
+                user.Identifiant = "admin";
+                user.MotDePasse = _hasher.HashPassword(user, "123456");
+
+                user.RoleUtilisateurs = new List<RoleUtilisateur> {
+                    new RoleUtilisateur { IdRoleNavigation = supAdminRole }
+                };
+                _facDBContext.Utilisateurs.Add(user);
+            }
+            else
+            {
+                exist = true;
+
+                var roleUtilisateur = user.RoleUtilisateurs.FirstOrDefault();
+                if (roleUtilisateur is not null)
+                {
+                    roleUtilisateur.IdRoleNavigation = supAdminRole;
+
+                }
+                else
+                {
+                    user.RoleUtilisateurs.Add(new RoleUtilisateur
+                    {
+                        IdRoleNavigation = supAdminRole,
+                    });
+                }
+
+                _facDBContext.Utilisateurs.Update(user);
+            }
+            
+            await _facDBContext.SaveChangesAsync();
+
+            if (exist) return Ok("Utilisateur mis à jour.");
             return Ok("Utilisateur 'admin' créé avec succès.");
         }
 
@@ -42,7 +90,7 @@ namespace backend.Controllers
                 return BadRequest(new { message = "Identifiant et mot de passe requis." });
             }
 
-            var user = await _facDBContext.Utilisateurs.FirstOrDefaultAsync(u => u.Identifiant == loginData.Identifiant);
+            var user = await _facDBContext.Utilisateurs.Include(u => u.RoleUtilisateurs).ThenInclude(ru => ru.IdRoleNavigation).FirstOrDefaultAsync(u => u.Identifiant == loginData.Identifiant);
 
             if (user == null)
             {
@@ -62,7 +110,7 @@ namespace backend.Controllers
             {
                 user.IdUtilisateur,
                 user.Identifiant,
-                user.RoleUtilisateurs,
+                user.RoleUtilisateurs.FirstOrDefault()?.IdRoleNavigation?.NomRole,
                 token,
             };
 

@@ -37,14 +37,14 @@ public class UpdateUserRequest
     public string? Password { get; set; }
 
     [Required(ErrorMessage = "Un utilisateur doit avoir un rôle.")]
-    public int RoleId { get; set; }
+    public string RoleName { get; set; } = string.Empty;
 }
 
 public class GetOneUserResponse
 {
     public int? IdUser { get; set; }
     public string Identifiant { get; set; } = string.Empty;
-    public int? IdRole { get; set; }
+    public string RoleName { get; set; } = string.Empty;
 }
 
 public class ListUsersRequest
@@ -64,6 +64,6 @@ public class InsertUserRequest
     public string NewUserMotDePasse { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Un rôle pour l'utilisateur est obligatoire.")]
-    public int IdNewUserRole { get; set; }
+    public string NewUserRoleName { get; set; } = string.Empty;
         
 }
