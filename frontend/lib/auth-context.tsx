@@ -104,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const { ...userWithoutPassword } = data;
       setAuthState({
-        user: { ...userWithoutPassword, role: "superadmin" },
+        user: { ...userWithoutPassword, role: data.nomRole },
         isAuthenticated: true,
       });
 

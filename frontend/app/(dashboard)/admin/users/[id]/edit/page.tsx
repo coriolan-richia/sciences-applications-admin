@@ -144,7 +144,7 @@ export default function EditUserPage() {
           authId: currentUser.idUtilisateur,
           targetIdentifiant: formData.identifiant,
           password: formData.password,
-          roleId: formData.idRole,
+          role: formData.idRole,
         }),
       });
 
@@ -340,8 +340,10 @@ export default function EditUserPage() {
                       <SelectValue placeholder="Selectionner un rôle" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">Superadministrateur</SelectItem>
-                      <SelectItem value="2">Admin</SelectItem>
+                      <SelectItem value="superadmin">
+                        Super administrateur
+                      </SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
                   {currentUser?.idUtilisateur === userId && (
