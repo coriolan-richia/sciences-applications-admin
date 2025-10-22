@@ -32,20 +32,19 @@ namespace MyApp.Namespace
                 return ProblematicModelState(ModelState,"Model Error");
             }
             
-            Utilisateur? authUser = _facDBContext.Utilisateurs.FirstOrDefault(u => u.IdUtilisateur == request.AuthId);
+            Utilisateur? authUser = _facDBContext.Utilisateurs.Include(u=> u.RoleUtilisateurs).ThenInclude(ru => ru.IdRoleNavigation).FirstOrDefault(u => u.IdUtilisateur == request.AuthId);
             if (authUser is null)
             {
                 return UnknownUser();
             }
 
-            RoleUtilisateur? authRoleUser = _facDBContext.RoleUtilisateurs.FirstOrDefault(ru => ru.IdUtilisateur == request.AuthId);
-            if (authRoleUser is null||authRoleUser.IdRole!=1)
+            var role = authUser.RoleUtilisateurs.FirstOrDefault()?.IdRoleNavigation.NomRole;
+            if (role != "superadmin")
             {
                 return CustomForbid();
             }
 
-            Utilisateur? targetUser = await _facDBContext.Utilisateurs.Include(u => u.RoleUtilisateurs).FirstOrDefaultAsync(u => u.IdUtilisateur == request.TargetId);
-
+            Utilisateur? targetUser = await _facDBContext.Utilisateurs.Include(u => u.RoleUtilisateurs).ThenInclude(ru => ru.IdRoleNavigation).FirstOrDefaultAsync(u => u.IdUtilisateur == request.TargetId);
             if (targetUser is null)
             {
                 return NotFound(new
@@ -56,10 +55,9 @@ namespace MyApp.Namespace
                 });
             }
             
-            RoleUtilisateur? targetRoleUser = _facDBContext.RoleUtilisateurs.Where(ru => ru.IdUtilisateur == request.TargetId).FirstOrDefault();
             
-            GetOneUserResponse responseUser = new GetOneUserResponse{ IdUser = targetUser.IdUtilisateur, Identifiant = targetUser.Identifiant, IdRole = targetRoleUser?.IdRole  };
             
+            GetOneUserResponse responseUser = new GetOneUserResponse{ IdUser = targetUser.IdUtilisateur, Identifiant = targetUser.Identifiant, RoleName = targetUser.RoleUtilisateurs.FirstOrDefault()?.IdRoleNavigation?.NomRole??"undefined"  };
 
             return Ok(responseUser);
         }
@@ -81,12 +79,11 @@ namespace MyApp.Namespace
                 return UnknownUser();
             }
 
-            int? idRole = authUser?.RoleUtilisateurs.FirstOrDefault()?.IdRole;
-            if (idRole!=1)
+            var RoleName = authUser?.RoleUtilisateurs.FirstOrDefault()?.IdRoleNavigation.NomRole;
+            if (RoleName!="superadmin")
             {
                 return CustomForbid();
             }
-            
 
             Utilisateur? targetUser = _facDBContext.Utilisateurs.Include(u => u.RoleUtilisateurs).FirstOrDefault(u => u.Identifiant == request.TargetIdentifiant);
             if (targetUser is null)
@@ -97,18 +94,17 @@ namespace MyApp.Namespace
             targetUser.Identifiant = request.TargetIdentifiant;
             if (!string.IsNullOrEmpty(request.Password)) targetUser.MotDePasse = _hasher.HashPassword(targetUser, request.Password);
 
-            
+
             var roleUtilisateur = targetUser.RoleUtilisateurs.FirstOrDefault();
             if (roleUtilisateur is not null)
             {
-                roleUtilisateur.IdRole = request.RoleId;
-
+                roleUtilisateur.IdRoleNavigation = new Role{ NomRole = request.RoleName };
             }
             else
             {
                 targetUser.RoleUtilisateurs.Add(new RoleUtilisateur{
                     IdUtilisateur = targetUser.IdUtilisateur,
-                    IdRole = request.RoleId,
+                    IdRoleNavigation = new Role{ NomRole = request.RoleName },
                 });
             }
 
@@ -132,14 +128,14 @@ namespace MyApp.Namespace
                 return NonAuthenticableUser();
             }
 
-            Utilisateur? authUser = _facDBContext.Utilisateurs.FirstOrDefault(u => u.IdUtilisateur == request.AuthId);
+            Utilisateur? authUser = _facDBContext.Utilisateurs.Include(u => u.RoleUtilisateurs).ThenInclude(ru => ru.IdRoleNavigation).FirstOrDefault(u => u.IdUtilisateur == request.AuthId);
             if (authUser is null)
             {
                 return UnknownUser();
             }
 
-            RoleUtilisateur? authRoleUser = _facDBContext.RoleUtilisateurs.FirstOrDefault(ru => ru.IdUtilisateur == request.AuthId);
-            if (authRoleUser is null||authRoleUser.IdRole != 1)
+            var role = authUser.RoleUtilisateurs.FirstOrDefault()?.IdRoleNavigation.NomRole;
+            if (role != "superadmin")
             {
                 return CustomForbid();
             }
@@ -161,7 +157,6 @@ namespace MyApp.Namespace
             await _facDBContext.SaveChangesAsync();
 
             return NoContent();
-
         }
         
         [HttpPost("list-users")]
@@ -181,11 +176,10 @@ namespace MyApp.Namespace
                 return UnknownUser();
             }
 
-            int? idRole = authUser?.RoleUtilisateurs.FirstOrDefault()?.IdRole;
-            if (idRole != 1)
+            var role = authUser?.RoleUtilisateurs.FirstOrDefault()?.IdRoleNavigation.NomRole;
+            if (role != "superadmin")
             {
                 return CustomForbid();
-
             }
 
             List<UserForListing> users = await (
@@ -225,8 +219,8 @@ namespace MyApp.Namespace
                 return UnknownUser();
             }
 
-            int? idRole = authUser?.RoleUtilisateurs.FirstOrDefault()?.IdRole;
-            if (idRole != 1)
+            var role = authUser?.RoleUtilisateurs.FirstOrDefault()?.IdRoleNavigation.NomRole;
+            if (role != "superadmin")
             {
                 return CustomForbid();
             }
@@ -247,7 +241,7 @@ namespace MyApp.Namespace
                 Identifiant = request.NewUserIdentifiant,
             };
             newUser.MotDePasse = _hasher.HashPassword(newUser, request.NewUserMotDePasse);
-            newUser.RoleUtilisateurs.Add(new RoleUtilisateur { IdRole = request.IdNewUserRole });
+            newUser.RoleUtilisateurs.Add(new RoleUtilisateur { IdRoleNavigation = new Role { NomRole = request.NewUserRoleName } });
             _facDBContext.Utilisateurs.Add(newUser);
             await _facDBContext.SaveChangesAsync();
 

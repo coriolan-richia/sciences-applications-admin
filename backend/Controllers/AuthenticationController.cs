@@ -90,7 +90,7 @@ namespace backend.Controllers
                 return BadRequest(new { message = "Identifiant et mot de passe requis." });
             }
 
-            var user = await _facDBContext.Utilisateurs.FirstOrDefaultAsync(u => u.Identifiant == loginData.Identifiant);
+            var user = await _facDBContext.Utilisateurs.Include(u => u.RoleUtilisateurs).ThenInclude(ru => ru.IdRoleNavigation).FirstOrDefaultAsync(u => u.Identifiant == loginData.Identifiant);
 
             if (user == null)
             {
@@ -110,7 +110,7 @@ namespace backend.Controllers
             {
                 user.IdUtilisateur,
                 user.Identifiant,
-                user.RoleUtilisateurs,
+                user.RoleUtilisateurs.FirstOrDefault()?.IdRoleNavigation?.NomRole,
                 token,
             };
 

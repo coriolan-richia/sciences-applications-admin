@@ -1,8 +1,9 @@
 namespace backend.DTOs
 {
-    public class PreinscriptionResponse
+    public class GetOnePreinscriptionResponse
     {
         public int Id { get; set; }
+        public string FullName { get; set; } = string.Empty;
         public string BacNumber { get; set; } = string.Empty;
         public string BacYear { get; set; } = string.Empty;
         public string BacOption { get; set; } = string.Empty;
@@ -13,6 +14,13 @@ namespace backend.DTOs
         public DateOnly PaymentDate { get; set; }
         public string PaymentReference { get; set; } = string.Empty;
         public string PaymentAgence { get; set; } = string.Empty;
-        public string status { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+
+        public DateOnly? PreregistrationDate { get; set; }
+    }
+
+    public class GetOnePreinscriptionRequest
+    {
+        public int PreregistrationId { get; set; }
     }
 }

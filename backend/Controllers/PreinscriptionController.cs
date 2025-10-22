@@ -8,25 +8,80 @@ using Microsoft.EntityFrameworkCore;
 
 namespace backend.Controllers
 {
+    
     [ApiController]
     [Route("api/[controller]")]
     public class PreinscriptionController(FacContext facDBContext, BacContext bacDBContext) : ControllerBase
     {
         private readonly FacContext _facDBContext = facDBContext;
         private readonly BacContext _bacDBContext = bacDBContext;
+        
+        private DateOnly? NullableDateOnlyFromNullableDateTime(DateTime? dateTime)
+            => dateTime is null ? null : DateOnly.FromDateTime(dateTime.Value);
 
         [HttpPost("get-one-preinscription")]
-        public async Task<IActionResult> GetOnePreinscription([FromBody] int PreregistrationId)
+        public async Task<IActionResult> GetOnePreinscription([FromBody] GetOnePreinscriptionRequest request)
         {
             try
             {
-                Preinscription? preinscription = await _facDBContext.Preinscriptions.FirstOrDefaultAsync(p => p.IdPreinscription == PreregistrationId);
+
+                Preinscription? preinscription = await _facDBContext.Preinscriptions.Include(p => p.IdBacNavigation).Include(p => p.IdPortailNavigation).FirstOrDefaultAsync(p => p.IdPreinscription == request.PreregistrationId);
                 if (preinscription is null)
                 {
                     return NotFound();
                 }
+
+                // string? numBacc = bacNavigation?.NumBacc.ToString();
+                // string? anneeBacc = bacNavigation?.AnneeBacc.ToString();
                 
-                return Ok(preinscription);
+                var bacNavigation = preinscription.IdBacNavigation;
+                if (bacNavigation is null)
+                {
+                    return Conflict();
+                }
+                Bachelier? bachelier = await _bacDBContext.Bacheliers
+                    .FirstOrDefaultAsync(b =>
+                        b.NumeroCandidat == bacNavigation.NumBacc.ToString()
+                        && b.Annee.Year.ToString() == bacNavigation.AnneeBacc.ToString()
+                    );
+
+                if (bachelier is null)
+                {
+                    return Conflict();                    
+                }
+
+                backend.Models.Bac.Personne? personne = await _bacDBContext.Personnes.FirstOrDefaultAsync(p => p.IdPersonne == bachelier.IdPersonne);
+
+                if (personne is null)
+                {
+                    return Conflict();                    
+                }
+
+                Option? option = await _bacDBContext.Options.FirstOrDefaultAsync(o => o.IdOption == bachelier.IdOption);
+                if (option is null)
+                {
+                    return Conflict();                    
+                }
+
+                var response = new GetOnePreinscriptionResponse
+                {
+                    Id = preinscription.IdPreinscription,
+                    FullName = personne.NomPrenom,
+                    BacNumber = preinscription.IdBacNavigation?.NumBacc.ToString() ?? string.Empty,
+                    BacYear = preinscription.IdBacNavigation?.AnneeBacc.ToString() ?? string.Empty,
+                    BacOption = option.Serie,
+                    StudyBranch = preinscription.IdPortailNavigation?.NomPortail ?? string.Empty,
+                    StudyBranchAbbrev = preinscription.IdPortailNavigation?.Abbreviation ?? string.Empty,
+                    Email = preinscription.Email ?? string.Empty,
+                    Phone = preinscription.Tel ?? string.Empty,
+                    PaymentDate = DateOnly.FromDateTime(preinscription.DatePaiement),
+                    PaymentReference = preinscription.RefBancaire ?? string.Empty,
+                    PaymentAgence = preinscription.Agence ?? string.Empty,
+                    Status = preinscription.EstValide ?? false ? "verified" : "pending",
+                    PreregistrationDate = NullableDateOnlyFromNullableDateTime(preinscription.DatePreinscription),
+                };
+
+                return Ok(response);
             }
             catch(Exception ex)
             {
@@ -182,10 +237,10 @@ namespace backend.Controllers
             var result = (
                 from p in preinscriptions
                 join ba in bacs on p.IdBac equals ba.IdBac
-                join b in bacheliers on ba.NumBacc.ToString() equals b.NumeroCandidat
-                // join b in bacheliers
-                //     on new { Num = ba.NumBacc.ToString(), Annee = ba.AnneeBacc } 
-                //     equals new { Num = b.NumeroCandidat, Annee = b.Annee.Year }
+                // join b in bacheliers on ba.NumBacc.ToString() equals b.NumeroCandidat
+                join b in bacheliers
+                    on new { Num = ba.NumBacc.ToString(), Annee = ba.AnneeBacc } 
+                    equals new { Num = b.NumeroCandidat, Annee = b.Annee.Year }
                 join o in options on b.IdOption equals o.IdOption
                 join pr in portails on p.IdPortail equals pr.IdPortail into parcoursGroup
                 from pr in parcoursGroup.DefaultIfEmpty()

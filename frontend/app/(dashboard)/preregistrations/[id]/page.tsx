@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { use, useEffect } from "react";
+import { use, useState, useEffect } from "react";
 import {
   ArrowLeft,
   Mail,
@@ -20,17 +20,18 @@ import {
   Preregistration,
 } from "@/types/preregistration";
 import { API } from "@/lib/api";
-import { useState } from "react";
 
 export default function PreregistrationDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const [preregistration, setPreregistration] = useState<
     Preregistration | undefined
   >(undefined);
-  const { id } = params;
+  const { id } = use(params);
+
+  const fetchUrl = `${API.preinscription}/get-one-preinscription`;
 
   const getUser = async () => {
     try {
@@ -45,7 +46,7 @@ export default function PreregistrationDetailPage({
       });
 
       if (!response.ok) {
-        console.error("Erreur : ", response.statusText);
+        console.error("Erreur : ", await response.json());
         return;
       }
       const data = await response.json();
@@ -55,7 +56,7 @@ export default function PreregistrationDetailPage({
       console.error("Erreur de connexion : ", error);
     }
   };
-  const fetchUrl = `${API.preinscription}/get-one-preinscription`;
+
   useEffect(() => {
     getUser();
   }, []);

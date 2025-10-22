@@ -494,7 +494,7 @@ export default function NewPreregistrationPage() {
                   <AlertDescription>
                     <ul className="list-circle">
                       {formError.map((message) => (
-                        <li>{message}</li>
+                        <li key={message}>{message}</li>
                       ))}
                     </ul>
                   </AlertDescription>
