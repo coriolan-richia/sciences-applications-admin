@@ -20,6 +20,7 @@ namespace backend.Controllers
         [HttpGet("initialize")]
         public async Task<IActionResult> Initialize()
         {
+            bool exist = false;
             var user = _facDBContext.Utilisateurs.Include(u => u.RoleUtilisateurs).ThenInclude(ru => ru.IdRoleNavigation).SingleOrDefault(u => u.Identifiant == "admin");
 
             // if (already is not null)
@@ -56,24 +57,28 @@ namespace backend.Controllers
             }
             else
             {
-                if (user.RoleUtilisateurs.Any())
+                exist = true;
+
+                var roleUtilisateur = user.RoleUtilisateurs.FirstOrDefault();
+                if (roleUtilisateur is not null)
                 {
-                    _facDBContext.RoleUtilisateurs.RemoveRange(user.RoleUtilisateurs);
+                    roleUtilisateur.IdRoleNavigation = supAdminRole;
+
+                }
+                else
+                {
+                    user.RoleUtilisateurs.Add(new RoleUtilisateur
+                    {
+                        IdRoleNavigation = supAdminRole,
+                    });
                 }
 
-                
-                // Aucun rôle → on ajoute superadmin
-                user.RoleUtilisateurs = new List<RoleUtilisateur> {
-                    new RoleUtilisateur {
-                            IdRoleNavigation = supAdminRole
-                        }
-                };
-                
-                
+                _facDBContext.Utilisateurs.Update(user);
             }
             
             await _facDBContext.SaveChangesAsync();
 
+            if (exist) return Ok("Utilisateur mis à jour.");
             return Ok("Utilisateur 'admin' créé avec succès.");
         }
 
