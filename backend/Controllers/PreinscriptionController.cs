@@ -233,31 +233,31 @@ namespace backend.Controllers
             List<Option> options = await _bacDBContext.Options.ToListAsync();
             List<Portail> portails = await _facDBContext.Portails.ToListAsync();
             List<Bac> bacs = await _facDBContext.Bacs.ToListAsync();
+            List<backend.Models.Bac.Personne> personnes = await _bacDBContext.Personnes.ToListAsync();
 
             var result = (
                 from p in preinscriptions
+
                 join ba in bacs on p.IdBac equals ba.IdBac
-                // join b in bacheliers on ba.NumBacc.ToString() equals b.NumeroCandidat
                 join b in bacheliers
                     on new { Num = ba.NumBacc.ToString(), Annee = ba.AnneeBacc } 
                     equals new { Num = b.NumeroCandidat, Annee = b.Annee.Year }
+                
+                join pers in personnes on b.IdPersonne equals pers.IdPersonne
+
                 join o in options on b.IdOption equals o.IdOption
                 join pr in portails on p.IdPortail equals pr.IdPortail into parcoursGroup
                 from pr in parcoursGroup.DefaultIfEmpty()
+
                 select new ListingModel
                 {
                     Id = p.IdPreinscription.ToString(),
                     BacNumber = b.NumeroCandidat,
                     BacYear = b.Annee.Year,
-                    BacOption = o.Serie,
+                    PersonName = pers.NomPrenom,
                     StudyBranch = pr.NomPortail ?? "Non disponible",
                     StudyBranchAbbrev = pr.Abbreviation ?? "N/A",
                     PreregistrationDate = p.DatePreinscription?.ToString() ?? "No Preregistration date",
-                    Email = p.Email ?? "No Email Adress",
-                    Phone = p.Tel ?? "No Phone Number",
-                    PaymentDate = p.DatePaiement.ToString() ?? "No Payment date",
-                    PaymentReference = p.RefBancaire,
-                    PaymentAgence = p.Agence,
                     Status = p.EstValide ?? false ? "verified" : "pending"
                 }
             ).ToList();
