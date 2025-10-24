@@ -22,6 +22,7 @@ import {
   ListingPreregistration,
 } from "@/types/preregistration";
 import { API } from "@/lib/api";
+import { Card } from "@/components/ui/card";
 
 // La page d'accueil de la préinscription
 export default function PreregistrationsPage() {
@@ -29,19 +30,31 @@ export default function PreregistrationsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<string>("date-desc");
   const [data, setData] = useState<ListingPreregistration[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchUrl = `${API.preinscription}/list-all`;
 
   // [FETCH]
 
-  useEffect(() => {
-    async function loadList() {
-      // try {
+  async function loadList() {
+    setIsLoading(true);
+    try {
       const response = await fetch(fetchUrl);
+
+      if (!response.ok) {
+        return;
+      }
       let responseAsJSON = await response.json();
       // console.log(responseAsJSON);
       setData(responseAsJSON);
+    } catch (error) {
+      console.error("Erreur : ", error);
+    } finally {
+      setIsLoading(false);
     }
+  }
+
+  useEffect(() => {
     loadList();
   }, []);
   // console.log("Preregistrations:", data);
@@ -51,7 +64,8 @@ export default function PreregistrationsPage() {
     (p) =>
       p.bacNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.studyBranch.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.bacOption.toLowerCase().includes(searchQuery.toLowerCase())
+      p.bacOption.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.personName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const sortedPreregistrations = [...filteredPreregistrations].sort((a, b) => {
@@ -110,7 +124,7 @@ export default function PreregistrationsPage() {
           {/* Filters and View Toggle */}
           <div className="flex items-center justify-between gap-4">
             <div className="flex flex-1 items-center gap-3">
-              <div className="relative flex-1 max-w-md">
+              <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   placeholder="Rechercher par numéro du bac, mention choisie..."
@@ -137,13 +151,17 @@ export default function PreregistrationsPage() {
                   <SelectItem value="branch-desc">Mention (Z-A)</SelectItem>
                 </SelectContent>
               </Select>
-              {/* <Button variant="outline" title="Actualiser">
+              <Button
+                variant="outline"
+                title="Actualiser"
+                className="font-light"
+                onClick={loadList}
+              >
                 <RefreshCw className="h-4 w-4" />
                 Actualiser
-              </Button> */}
+              </Button>
+              <ViewToggle view={view} onViewChange={setView} />
             </div>
-
-            <ViewToggle view={view} onViewChange={setView} />
           </div>
 
           {/* Stats */}
@@ -151,7 +169,7 @@ export default function PreregistrationsPage() {
             <div className="rounded-lg border border-border bg-card p-4">
               <p className="text-sm text-muted-foreground">Total</p>
               <p className="text-2xl font-semibold text-foreground">
-                {data.length}
+                {sortedPreregistrations.length}
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card p-4">
@@ -159,7 +177,10 @@ export default function PreregistrationsPage() {
                 {getStatusLabel("verified")}
               </p>
               <p className="text-2xl font-semibold text-green-500">
-                {data.filter((p) => p.status === "verified").length}
+                {
+                  sortedPreregistrations.filter((p) => p.status === "verified")
+                    .length
+                }
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card p-4">
@@ -167,29 +188,38 @@ export default function PreregistrationsPage() {
                 {getStatusLabel("pending")}
               </p>
               <p className="text-2xl font-semibold text-yellow-500">
-                {data.filter((p) => p.status === "pending").length}
+                {
+                  sortedPreregistrations.filter((p) => p.status === "pending")
+                    .length
+                }
               </p>
             </div>
-            {/* <div className="rounded-lg border border-border bg-card p-4">
-              <p className="text-sm text-muted-foreground">
-                {getStatusLabel("rejected")}
-              </p>
-              <p className="text-2xl font-semibold text-red-500">
-                {data.filter((p) => p.status === "rejected").length}
-              </p>
-            </div> */}
           </div>
 
           {/* List/Card View */}
           {view === "card" ? (
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,auto))]  gap-4 fmd:grid-cols-2 flg:grid-cols-3 ">
-              {sortedPreregistrations.map((preregistration) => (
-                <PreregistrationCard
-                  key={preregistration.id}
-                  preregistration={preregistration}
-                />
-              ))}
-            </div>
+            isLoading ? (
+              <Card className="flex items-center p-5">
+                <div className="flex-1 text-center text-sm text-muted-foreground">
+                  Chargement des dossiers de préinscription ...
+                </div>
+              </Card>
+            ) : sortedPreregistrations.length == 0 ? (
+              <Card className="flex items-center p-5">
+                <div className="flex-1 text-center text-sm text-muted-foreground">
+                  Aucun dossier à afficher
+                </div>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,auto))]  gap-4 fmd:grid-cols-2 flg:grid-cols-3 ">
+                {sortedPreregistrations.map((preregistration) => (
+                  <PreregistrationCard
+                    key={preregistration.id}
+                    preregistration={preregistration}
+                  />
+                ))}
+              </div>
+            )
           ) : (
             <div className="rounded-lg border border-border bg-card">
               <div className="flex items-center gap-4 border-b border-border bg-secondary/30 px-6 py-3 text-xs font-medium text-muted-foreground">
@@ -201,12 +231,26 @@ export default function PreregistrationsPage() {
                 <div className="w-32">Date</div>
                 <div className="w-20">Statut</div>
               </div>
-              {sortedPreregistrations.map((preregistration) => (
-                <PreregistrationListItem
-                  key={preregistration.id}
-                  preregistration={preregistration}
-                />
-              ))}
+              {isLoading ? (
+                <div className="flex items-center gap-4 border-b border-border px-6 py-4">
+                  <div className="flex-1 text-center text-sm text-muted-foreground">
+                    Chargement des dossiers de préinscription ...
+                  </div>
+                </div>
+              ) : sortedPreregistrations.length == 0 ? (
+                <div className="flex items-center gap-4 border-b border-border px-6 py-4">
+                  <div className="flex-1 text-center text-sm text-muted-foreground">
+                    Aucun dossier à afficher
+                  </div>
+                </div>
+              ) : (
+                sortedPreregistrations.map((preregistration) => (
+                  <PreregistrationListItem
+                    key={preregistration.id}
+                    preregistration={preregistration}
+                  />
+                ))
+              )}
             </div>
           )}
         </div>

@@ -30,6 +30,8 @@ export default function PaymentsPage() {
   const [sortBy, setSortBy] = useState<string>("date-desc");
   const [paymentList, setPaymentList] = useState<Payment[]>([]);
   const [historyList, setHistoryList] = useState<PaymentUpload[]>([]);
+  const [isPaymentLoading, setIsPaymentLoading] = useState(true);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(true);
   const listAllUrl = `${API.payment}/list-all`;
 
   const listHitoryUrl = `${API.payment}/list-history`;
@@ -42,6 +44,7 @@ export default function PaymentsPage() {
   });
 
   const loadPaymentList = async () => {
+    setIsPaymentLoading(true);
     try {
       const response = await fetch(listAllUrl, { method: "POST" });
       if (!response.ok) {
@@ -52,10 +55,13 @@ export default function PaymentsPage() {
       setPaymentList(list.map(mapPayment));
     } catch (err) {
       console.error("Failed to fetch payments:", err);
+    } finally {
+      setIsPaymentLoading(false);
     }
   };
 
   const loadUploadList = async () => {
+    setIsHistoryLoading(true);
     try {
       const response = await fetch(listHitoryUrl, { method: "POST" });
       if (!response.ok) {
@@ -66,6 +72,8 @@ export default function PaymentsPage() {
       setHistoryList(list);
     } catch (err) {
       console.error("Failed to fetch upload history:", err);
+    } finally {
+      setIsHistoryLoading(false);
     }
   };
 
@@ -128,7 +136,7 @@ export default function PaymentsPage() {
             <TabsContent value="payments" className="space-y-6">
               {/* Search and Sort */}
               <div className="flex items-center gap-3">
-                <div className="relative flex-1 max-w-md">
+                <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     placeholder="Rechercher par référence, agence, numéro au bac..."
@@ -200,10 +208,16 @@ export default function PaymentsPage() {
                   <div className="w-32">Date Valeur</div>
                   <div className="w-24">Statut</div>
                 </div>
-                {sortedPayments.length == 0 ? (
+                {isPaymentLoading ? (
                   <div className="flex items-center gap-4 border-b border-border px-6 py-4">
                     <div className="flex-1 text-center text-sm text-muted-foreground">
-                      Aucun enregistrement
+                      Chargement des données de paiement ...
+                    </div>
+                  </div>
+                ) : sortedPayments.length == 0 ? (
+                  <div className="flex items-center gap-4 border-b border-border px-6 py-4">
+                    <div className="flex-1 text-center text-sm text-muted-foreground">
+                      Aucune donnée de paiement à afficher
                     </div>
                   </div>
                 ) : (
@@ -220,18 +234,24 @@ export default function PaymentsPage() {
                 <span>{historyList.length} fichiers importés</span>
               </div>
 
-              {historyList.length != 0 ? (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {historyList.map((upload) => (
-                    <PaymentUploadCard key={upload.id} upload={upload} />
-                  ))}
-                </div>
-              ) : (
+              {isHistoryLoading ? (
+                <Card className="flex items-center p-5">
+                  <div className="flex-1 text-center text-sm text-muted-foreground">
+                    Chargement de l'historique des importations de relevé ...
+                  </div>
+                </Card>
+              ) : historyList.length == 0 ? (
                 <Card className="flex items-center p-5">
                   <div className="flex-1 text-center text-sm text-muted-foreground">
                     Aucune importation de relevés enregistrée.
                   </div>
                 </Card>
+              ) : (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {historyList.map((upload) => (
+                    <PaymentUploadCard key={upload.id} upload={upload} />
+                  ))}
+                </div>
               )}
             </TabsContent>
           </Tabs>

@@ -80,7 +80,6 @@ export default function PreregistrationDetailPage({
     <div className="flex h-full flex-col">
       <PageHeader
         title="Détails de Préinscription"
-        description={`Numéro au bac: ${preregistration?.bacNumber}`}
         action={
           <Link href="/preregistrations">
             <Button variant="outline">
