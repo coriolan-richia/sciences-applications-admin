@@ -13,6 +13,9 @@ import {
   Building2,
   GraduationCap,
   BookOpen,
+  UserRound,
+  CalendarCheck2,
+  Star,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -69,7 +72,7 @@ export default function PreregistrationDetailPage({
 
   const statusColors = {
     verified: "bg-green-500/10 text-green-500 border-green-500/20",
-    pending: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
+    pending: "bg-yellow-500/10 text-yellow-500 border-yellow-500",
     rejected: "bg-red-500/10 text-red-500 border-red-500/20",
   };
 
@@ -88,12 +91,15 @@ export default function PreregistrationDetailPage({
         }
       />
 
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="flex-1 overflow-y-auto p-8 relative">
         <div className="mx-auto max-w-4xl space-y-6">
           {/* Status Badge */}
-          <div className="flex items-center gap-3">
+          <div className="flex justify-end gap-3 sticky top-0.5">
             <Badge
-              className={statusColors[preregistration?.status ?? "pending"]}
+              className={
+                statusColors[preregistration?.status ?? "pending"] +
+                " px-4 py-1 text-sm "
+              }
               // variant="outline"
             >
               {getStatusLabel(preregistration?.status ?? "pending")}
@@ -102,9 +108,18 @@ export default function PreregistrationDetailPage({
 
           {/* Student Information */}
           <Card className="p-6">
-            <h2 className="mb-4 text-lg font-semibold text-foreground">
+            <h2 className="mb-2 text-lg font-semibold text-foreground">
               Informations sur l'étudiant
             </h2>
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Nom de l'étudiant</p>
+              <div className="flex items-center gap-2">
+                <UserRound className="h-4 w-4 text-muted-foreground" />
+                <p className="font-medium text-foreground">
+                  {preregistration?.fullName}
+                </p>
+              </div>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Email</p>
@@ -129,7 +144,7 @@ export default function PreregistrationDetailPage({
 
           {/* Academic Information */}
           <Card className="p-6">
-            <h2 className="mb-4 text-lg font-semibold text-foreground">
+            <h2 className="mb-2 text-lg font-semibold text-foreground">
               Informations du Bac
             </h2>
             <div className="grid grid-cols-2 gap-4">
@@ -144,22 +159,28 @@ export default function PreregistrationDetailPage({
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Année du Bac</p>
-                <p className="font-medium text-foreground">
-                  {preregistration?.bacYear}
-                </p>
+                <div className="flex items-center gap-2">
+                  <CalendarCheck2 className="h-4 w-4 text-muted-foreground" />
+                  <p className="font-medium text-foreground">
+                    {preregistration?.bacYear}
+                  </p>
+                </div>
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Série du Bac</p>
-                <p className="font-medium text-foreground">
-                  {preregistration?.bacOption}
-                </p>
+                <div className="flex items-center gap-2">
+                  <Star className="h-4 w-4 text-muted-foreground" />
+                  <p className="font-medium text-foreground">
+                    {preregistration?.bacOption}
+                  </p>
+                </div>
               </div>
             </div>
           </Card>
 
           {/* Preregistration Information */}
           <Card className="p-6">
-            <h2 className="mb-4 text-lg font-semibold text-foreground">
+            <h2 className="mb-2 text-lg font-semibold text-foreground">
               Informations sur l'Inscription
             </h2>
             <div className="grid grid-cols-2 gap-4">
@@ -190,7 +211,7 @@ export default function PreregistrationDetailPage({
 
           {/* Payment Information */}
           <Card className="p-6">
-            <h2 className="mb-4 text-lg font-semibold text-foreground">
+            <h2 className="mb-2 text-lg font-semibold text-foreground">
               Informations de Paiement
             </h2>
             {preregistration?.paymentDate ? (

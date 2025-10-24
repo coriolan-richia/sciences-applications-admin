@@ -13,6 +13,7 @@ export function getPreregistrationStatusLabel(status: string): string {
 }
 export interface Preregistration {
   id: string;
+  fullName: string;
   bacNumber: string;
   bacYear: number;
   bacOption: string;
@@ -24,7 +25,19 @@ export interface Preregistration {
   paymentDate?: string;
   paymentReference?: string;
   paymentAgence?: string;
-  status: "pending" | "verified" | "rejected";
+  status: "pending" | "verified";
+}
+
+export interface ListingPreregistration {
+  id: string;
+  bacOption: string;
+  personName: string;
+  bacNumber: string;
+  bacYear: number;
+  studyBranch: string;
+  studyBranchAbbrev: string;
+  preregistrationDate: string;
+  status: "pending" | "verified";
 }
 
 export interface StudyBranch {

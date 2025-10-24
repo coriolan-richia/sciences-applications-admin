@@ -19,7 +19,7 @@ import {
 
 import {
   getPreregistrationStatusLabel as getStatusLabel,
-  Preregistration,
+  ListingPreregistration,
 } from "@/types/preregistration";
 import { API } from "@/lib/api";
 
@@ -28,7 +28,7 @@ export default function PreregistrationsPage() {
   const [view, setView] = useState<"card" | "list">("list");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<string>("date-desc");
-  const [data, setData] = useState<Preregistration[]>([]);
+  const [data, setData] = useState<ListingPreregistration[]>([]);
 
   const fetchUrl = `${API.preinscription}/list-all`;
 
@@ -147,7 +147,7 @@ export default function PreregistrationsPage() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div className="rounded-lg border border-border bg-card p-4">
               <p className="text-sm text-muted-foreground">Total</p>
               <p className="text-2xl font-semibold text-foreground">
@@ -170,14 +170,14 @@ export default function PreregistrationsPage() {
                 {data.filter((p) => p.status === "pending").length}
               </p>
             </div>
-            <div className="rounded-lg border border-border bg-card p-4">
+            {/* <div className="rounded-lg border border-border bg-card p-4">
               <p className="text-sm text-muted-foreground">
                 {getStatusLabel("rejected")}
               </p>
               <p className="text-2xl font-semibold text-red-500">
                 {data.filter((p) => p.status === "rejected").length}
               </p>
-            </div>
+            </div> */}
           </div>
 
           {/* List/Card View */}
@@ -196,7 +196,8 @@ export default function PreregistrationsPage() {
                 <div className="w-32">Numéro au Bac</div>
                 <div className="w-20">Année</div>
                 <div className="w-48">Option au Bac</div>
-                <div className="flex-1">Portail</div>
+                <div className="flex-1">Nom</div>
+                <div className="w-48">Portail</div>
                 <div className="w-32">Date</div>
                 <div className="w-20">Statut</div>
               </div>

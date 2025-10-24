@@ -1,5 +1,5 @@
 import {
-  type Preregistration,
+  type ListingPreregistration,
   getPreregistrationStatusLabel as getStatusLabel,
 } from "@/types/preregistration";
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +7,7 @@ import Link from "next/link";
 import { cn, parseFrDate } from "@/lib/utils";
 
 interface PreregistrationListItemProps {
-  preregistration: Preregistration;
+  preregistration: ListingPreregistration;
 }
 
 export function PreregistrationListItem({
@@ -22,19 +22,22 @@ export function PreregistrationListItem({
   return (
     <Link href={`/preregistrations/${preregistration.id}`}>
       <div className="flex items-center gap-4 border-b border-border px-6 py-4 transition-colors hover:bg-secondary/50">
-        <div className="w-32 font-mono text-sm font-medium text-foreground">
+        <div className="shrink-0 w-32 font-mono text-sm font-medium text-foreground">
           {preregistration.bacNumber}
         </div>
-        <div className="w-20 text-sm text-muted-foreground">
+        <div className="shrink-0 w-20 text-sm text-muted-foreground">
           {preregistration.bacYear}
         </div>
-        <div className="w-48 text-sm text-muted-foreground">
+        <div className="shrink-0 w-48 text-sm text-muted-foreground">
           {preregistration.bacOption}
         </div>
-        <div className="flex-1 text-sm text-muted-foreground">
-          {preregistration.studyBranch}
+        <div className="w-0 flex-1 text-sm text-muted-foreground overflow-x-hidden text-ellipsis">
+          {preregistration.personName ?? "Aucun Nom Disponible"}
         </div>
-        <div className="w-32 text-sm text-muted-foreground">
+        <div className="shrink-0 w-48 text-sm text-muted-foreground">
+          {preregistration.studyBranchAbbrev}
+        </div>
+        <div className="shrink-0 w-32 text-sm text-muted-foreground">
           {new Date(
             parseFrDate(preregistration.preregistrationDate)
           ).toLocaleDateString()}

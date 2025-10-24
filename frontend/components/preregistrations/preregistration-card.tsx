@@ -1,14 +1,14 @@
 import {
-  type Preregistration,
+  type ListingPreregistration,
   getPreregistrationStatusLabel as getStatusLabel,
 } from "@/types/preregistration";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, GraduationCap, BookOpen } from "lucide-react";
+import { Calendar, GraduationCap, BookOpen, UserRound } from "lucide-react";
 import Link from "next/link";
 import { parseFrDate } from "@/lib/utils";
 interface PreregistrationCardProps {
-  preregistration: Preregistration;
+  preregistration: ListingPreregistration;
 }
 
 export function PreregistrationCard({
@@ -35,6 +35,14 @@ export function PreregistrationCard({
             </div>
 
             <div className="space-y-2 text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <UserRound className="h-4 w-4" />
+                <span className="font-semibold">Nom</span>
+                <span className="flex-1 w-0 overflow-x-hidden text-ellipsis">
+                  {preregistration.personName ?? "Aucun Nom Disponible"}
+                </span>
+              </div>
+
               <div className="flex items-center gap-2 text-muted-foreground">
                 <GraduationCap className="h-4 w-4" />
                 <span className="font-semibold">Série du Bac</span>
