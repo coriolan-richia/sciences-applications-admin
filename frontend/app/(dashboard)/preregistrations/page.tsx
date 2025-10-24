@@ -101,16 +101,13 @@ export default function PreregistrationsPage() {
         action={
           <div className="flex items-center gap-2">
             <Link href="/preregistrations/analyze">
-              <Button
-                variant="outline"
-                className=" border-purple-500 text-purple-800"
-              >
+              <Button variant="outline">
                 <FileCheck className="mr-2 h-4 w-4 " />
                 Analyser les Dossiers
               </Button>
             </Link>
             <Link href="/preregistrations/new">
-              <Button className="bg-purple-700">
+              <Button>
                 <Plus className="mr-2 h-4 w-4" />
                 Nouveaux dossiers
               </Button>
@@ -119,49 +116,49 @@ export default function PreregistrationsPage() {
         }
       />
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="space-y-6 p-8">
+      <div className="flex-1 h-0 pb-8 overflow-y-auto">
+        <div className="space-y-6 h-full flex flex-col px-8">
           {/* Filters and View Toggle */}
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex flex-1 items-center gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Rechercher par numéro du bac, mention choisie..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-48">
-                  <ArrowUpDown className="mr-2 h-4 w-4" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="date-desc">Date (Récente)</SelectItem>
-                  <SelectItem value="date-asc">Date (Ancienne)</SelectItem>
-                  <SelectItem value="bac-year-desc">
-                    Année du BAC (Récente)
-                  </SelectItem>
-                  <SelectItem value="bac-year-asc">
-                    Année du BAC (Ancienne)
-                  </SelectItem>
-                  <SelectItem value="branch-asc">Mention (A-Z)</SelectItem>
-                  <SelectItem value="branch-desc">Mention (Z-A)</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button
-                variant="outline"
-                title="Actualiser"
-                className="font-light"
-                onClick={loadList}
-              >
-                <RefreshCw className="h-4 w-4" />
-                Actualiser
-              </Button>
-              <ViewToggle view={view} onViewChange={setView} />
+          <div className="flex items-center gap-4 sticky top-0 pt-8 bg-background backdrop-blur-md h-max">
+            {/* <div className="flex flex-1 items-center gap-3 bg-black"> */}
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher par numéro du bac, mention choisie..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
             </div>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-48">
+                <ArrowUpDown className="mr-2 h-4 w-4" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="date-desc">Date (Récente)</SelectItem>
+                <SelectItem value="date-asc">Date (Ancienne)</SelectItem>
+                <SelectItem value="bac-year-desc">
+                  Année du BAC (Récente)
+                </SelectItem>
+                <SelectItem value="bac-year-asc">
+                  Année du BAC (Ancienne)
+                </SelectItem>
+                <SelectItem value="branch-asc">Mention (A-Z)</SelectItem>
+                <SelectItem value="branch-desc">Mention (Z-A)</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              title="Actualiser"
+              className="font-light"
+              onClick={loadList}
+            >
+              <RefreshCw className="h-4 w-4" />
+              Actualiser
+            </Button>
+            <ViewToggle view={view} onViewChange={setView} />
+            {/* </div> */}
           </div>
 
           {/* Stats */}

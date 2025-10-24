@@ -111,7 +111,7 @@ export default function PaymentsPage() {
   return (
     <div className="flex h-full flex-col">
       <PageHeader
-        title="Paiements"
+        title="Données de Paiements"
         description="Gestion des données de paiements et des relevés"
         action={
           <Link href="/payments/upload">
@@ -123,19 +123,25 @@ export default function PaymentsPage() {
         }
       />
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-8">
-          <Tabs defaultValue="payments" className="space-y-6">
-            <TabsList>
+      <div className="flex-1 h-0">
+        <div className="py-8 h-full flex flex-col">
+          <Tabs
+            defaultValue="payments"
+            className="flex flex-col gap-8 h-0 flex-1"
+          >
+            <TabsList className="mx-8 sticky top-8 backdrop-blur-md">
               <TabsTrigger value="payments">Relevés de Paiement</TabsTrigger>
               <TabsTrigger value="uploads">
                 Historique d'Importation
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="payments" className="space-y-6">
+            <TabsContent
+              value="payments"
+              className=" px-8 space-y-6 overflow-y-auto h-0 flex-1 flex flex-col"
+            >
               {/* Search and Sort */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 sticky top-0 backdrop-blur-md bg-background">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input

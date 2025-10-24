@@ -123,11 +123,7 @@ export default function LoginPage() {
               </Alert>
             )}
 
-            <Button
-              type="submit"
-              className="w-full bg-purple-700"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Connexion ..." : "Se connecter"}
             </Button>
           </form>
