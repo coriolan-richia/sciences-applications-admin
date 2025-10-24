@@ -254,11 +254,13 @@ namespace backend.Controllers
                     Id = p.IdPreinscription.ToString(),
                     BacNumber = b.NumeroCandidat,
                     BacYear = b.Annee.Year,
+                    BacOption = o.Serie,
                     PersonName = pers.NomPrenom,
                     StudyBranch = pr.NomPortail ?? "Non disponible",
                     StudyBranchAbbrev = pr.Abbreviation ?? "N/A",
                     PreregistrationDate = p.DatePreinscription?.ToString() ?? "No Preregistration date",
                     Status = p.EstValide ?? false ? "verified" : "pending"
+
                 }
             ).ToList();
 
