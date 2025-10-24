@@ -85,19 +85,20 @@ export const PasswordInput = ({
   const [showPassword, setShowPassword] = useState(false);
   return (
     <>
-      <div className="flex flex-row items-center relative">
+      <div className="relative">
         <Input
           type={showPassword ? "text" : "password"}
           className="pr-10 "
           {...props}
         />
-        <div
-          className="absolute right-2 scale-75"
+        <button
+          type="button"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           title={showPassword ? toMaskTitle : toShowTitle}
           onClick={() => setShowPassword((p) => !p)}
         >
           {showPassword ? toMaskIcon : toShowIcon}
-        </div>
+        </button>
       </div>
     </>
   );

@@ -9,6 +9,8 @@ import {
   LogOut,
   Shield,
   LayoutDashboard,
+  HelpCircle,
+  Info,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
@@ -35,6 +37,22 @@ const navigation = [
     href: "/preselection",
     icon: CheckSquare,
   },
+  {
+    name: "Gestion des utilisateurs",
+    href: "/admin/users",
+    icon: Shield,
+    role: "superadmin",
+  },
+  {
+    name: "Aide",
+    href: "/help",
+    icon: HelpCircle,
+  },
+  {
+    name: "À propos",
+    href: "about",
+    icon: Info,
+  },
 ];
 
 export function Sidebar() {
@@ -48,7 +66,7 @@ export function Sidebar() {
   };
 
   return (
-    <div className="flex h-screen w-72 flex-col border-r border-border bg-card">
+    <div className="flex h-screen w-72 flex-col border-r border-sidebar-border bg-sidebar">
       {/* Logo/Header */}
       <div className="flex h-16 items-center gap-2 border-b border-border px-6">
         {/* <GraduationCap className="h-6 w-6 text-primary" /> */}
@@ -62,36 +80,24 @@ export function Sidebar() {
         {navigation.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-              )}
-            >
-              <item.icon className="h-5 w-5" />
-              {item.name}
-            </Link>
+            ((user?.role === "superadmin" && item.role === "superadmin") ||
+              item.role === undefined) && (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                  isActive
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                {item.name}
+              </Link>
+            )
           );
         })}
-
-        {user?.role === "superadmin" && (
-          <Link
-            href="/admin/users"
-            className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-              pathname.startsWith("/admin")
-                ? "bg-primary/10 text-primary"
-                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-            )}
-          >
-            <Shield className="h-5 w-5" />
-            Gestion des Utilisateurs
-          </Link>
-        )}
       </nav>
 
       <div className="border-t border-border p-4">

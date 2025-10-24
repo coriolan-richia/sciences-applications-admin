@@ -17,8 +17,10 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/lib/auth-context";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { PasswordInput } from "@/components/ui/password";
+import Image from "next/image";
+
 // La page de login
 export default function LoginPage() {
   const [identifiant, setidentifiant] = useState("");
@@ -75,18 +77,24 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-            <img src="images/fs.jpg" />
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4">
+      <Card className="w-full max-w-md shadow-xl">
+        <CardHeader className="space-y-4 text-center">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
+            <Image
+              src="/images/fs.jpg"
+              alt="Logo"
+              className="rounded-full"
+              width={60}
+              height={60}
+            />
           </div>
-          <CardTitle className="text-2xl font-bold">
-            Gestion des Candidatures
-          </CardTitle>
-          <CardDescription>
-            Connectez-vous pour acceder aux outils d'administration.
-          </CardDescription>
+          <div>
+            <CardTitle className="text-2xl">Faculté des Sciences</CardTitle>
+            <CardDescription className="mt-2">
+              Système de gestion des candidatures
+            </CardDescription>
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -124,16 +132,20 @@ export default function LoginPage() {
             )}
 
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Connexion ..." : "Se connecter"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Connexion en
+                  cours...{" "}
+                </>
+              ) : (
+                "Se connecter"
+              )}
             </Button>
           </form>
+          <div className="mt-4 text-sm text-center text-muted-foreground">
+            <p>© Faculté des Sciences - Université d'Antananarivo</p>
+          </div>
         </CardContent>
-
-        <CardFooter>
-          <p className="text-sm text-center w-full text-gray-500">
-            © Faculté des Sciences - Université d'Antananarivo
-          </p>
-        </CardFooter>
       </Card>
     </div>
   );
