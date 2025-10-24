@@ -9,6 +9,7 @@ namespace backend.DTOs
         public string Id { get; set; } = string.Empty;
         public string BacNumber { get; set; } = string.Empty;
         public int BacYear { get; set; }
+        public string BacOption { get; set; } = string.Empty;
         public string PersonName { get; set; } = string.Empty;
         public string StudyBranch { get; set; } = string.Empty;
         public string StudyBranchAbbrev { get; set; } = string.Empty;
