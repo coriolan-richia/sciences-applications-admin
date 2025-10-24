@@ -258,7 +258,7 @@ namespace backend.Controllers
                     PersonName = pers.NomPrenom,
                     StudyBranch = pr.NomPortail ?? "Non disponible",
                     StudyBranchAbbrev = pr.Abbreviation ?? "N/A",
-                    PreregistrationDate = p.DatePreinscription?.ToString() ?? "No Preregistration date",
+                    PreregistrationDate = p.DatePreinscription?.ToUniversalTime().ToString("o") ?? "No Preregistration date",
                     Status = p.EstValide ?? false ? "verified" : "pending"
 
                 }

@@ -4,7 +4,7 @@ import {
 } from "@/types/preregistration";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { cn, parseFrDate } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface PreregistrationListItemProps {
   preregistration: ListingPreregistration;
@@ -28,19 +28,17 @@ export function PreregistrationListItem({
         <div className="shrink-0 w-20 text-sm text-muted-foreground">
           {preregistration.bacYear}
         </div>
-        <div className="shrink-0 w-48 text-sm text-muted-foreground">
+        <div className="shrink-0 w-20 text-sm text-muted-foreground">
           {preregistration.bacOption}
         </div>
-        <div className="w-0 flex-1 text-sm text-muted-foreground overflow-x-hidden text-ellipsis">
+        <div className="w-0 flex-1 text-sm text-muted-foreground overflow-x-hidden text-ellipsis text-nowrap">
           {preregistration.personName ?? "Aucun Nom Disponible"}
         </div>
         <div className="shrink-0 w-48 text-sm text-muted-foreground">
           {preregistration.studyBranchAbbrev}
         </div>
         <div className="shrink-0 w-32 text-sm text-muted-foreground">
-          {new Date(
-            parseFrDate(preregistration.preregistrationDate)
-          ).toLocaleDateString()}
+          {new Date(preregistration.preregistrationDate).toLocaleDateString()}
         </div>
         <Badge
           className={cn(

@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, GraduationCap, BookOpen, UserRound } from "lucide-react";
 import Link from "next/link";
-import { parseFrDate } from "@/lib/utils";
 interface PreregistrationCardProps {
   preregistration: ListingPreregistration;
 }
@@ -38,7 +37,7 @@ export function PreregistrationCard({
               <div className="flex items-center gap-2 text-muted-foreground">
                 <UserRound className="h-4 w-4" />
                 <span className="font-semibold">Nom</span>
-                <span className="flex-1 w-0 overflow-x-hidden text-ellipsis">
+                <span className="flex-1 w-0 text-nowrap overflow-x-hidden text-ellipsis">
                   {preregistration.personName ?? "Aucun Nom Disponible"}
                 </span>
               </div>
@@ -61,7 +60,7 @@ export function PreregistrationCard({
                 <span className="font-semibold">Date du Dossier</span>
                 <span>
                   {new Date(
-                    parseFrDate(preregistration.preregistrationDate)
+                    preregistration.preregistrationDate
                   ).toLocaleDateString()}
                 </span>
               </div>

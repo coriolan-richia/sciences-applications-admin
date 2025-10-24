@@ -25,7 +25,7 @@ namespace backend.Controllers
                 var result = historiquePaiements.Select(h => new HistoryPayment
                 {
                     Id = h.IdHistorique.ToString(),
-                    UploadDate = h.DateImportation?.ToString("dd/MM/yyyy hh:mm:ss") ?? "Date N/A",
+                    UploadDate = h.DateImportation?.ToUniversalTime().ToString("o") ?? "Date N/A",
                     Filename = Path.GetFileName(h.CheminFichier) ?? "Fichier inconnu",
                     RecordCount = h.NbrLigne ?? 0,
                     Status = h.EstImporte ?? true,

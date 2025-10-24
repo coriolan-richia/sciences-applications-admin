@@ -225,7 +225,7 @@ export default function PreregistrationsPage() {
               <div className="flex items-center gap-4 border-b border-border bg-secondary/30 px-6 py-3 text-xs font-medium text-muted-foreground">
                 <div className="w-32">Numéro au Bac</div>
                 <div className="w-20">Année</div>
-                <div className="w-48">Option au Bac</div>
+                <div className="w-20">Option au Bac</div>
                 <div className="flex-1">Nom</div>
                 <div className="w-48">Portail</div>
                 <div className="w-32">Date</div>

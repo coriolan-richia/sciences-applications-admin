@@ -3,7 +3,7 @@ import {
   getPaymentMatchedLabel as getMatchedLabel,
 } from "@/types/payment";
 import { Badge } from "@/components/ui/badge";
-import { cn, parseFrDate } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface PaymentListItemProps {
   payment: Payment;

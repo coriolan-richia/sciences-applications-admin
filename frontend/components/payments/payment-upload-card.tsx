@@ -3,7 +3,6 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileSpreadsheet, Calendar, Hash } from "lucide-react";
 import { getPaymentUploadStatusLabel as getStatusLabel } from "@/types/payment";
-import { parseFrDate } from "@/lib/utils";
 interface PaymentUploadCardProps {
   upload: PaymentUpload;
 }
@@ -27,9 +26,7 @@ export function PaymentUploadCard({ upload }: PaymentUploadCardProps) {
           <div className="space-y-2 text-sm">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Calendar className="h-4 w-4" />
-              <span>
-                {new Date(parseFrDate(upload.uploadDate)).toLocaleString()}
-              </span>
+              <span>{new Date(upload.uploadDate).toLocaleString()}</span>
             </div>
 
             <div className="flex items-center gap-2 text-muted-foreground">
