@@ -1,6 +1,5 @@
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ??
-  "http://siansa.univ-antananarivo.mg:5175/api";
+  process.env.NEXT_PUBLIC_API_URL;
 
 export const API = {
   preinscription: `${API_BASE_URL}/Preinscription`,

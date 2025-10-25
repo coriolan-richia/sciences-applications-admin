@@ -1,11 +1,9 @@
 export type UserRole = "superadmin" | "admin";
 
 export interface User {
-  id: string;
+  idUtilisateur: string;
   identifiant: string;
-  email?: string;
-  name?: string;
-  role: UserRole;
+  nomRole: UserRole;
 }
 
 export interface ResponseUser {

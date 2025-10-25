@@ -1,9 +1,23 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, CreditCard, Users, ClipboardCheck } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
+import { useEffect } from "react";
+import { useAuth } from "@/lib/auth-context";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
+  const { isAuthenticated, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isAuthenticated && !loading) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, router, loading]);
+
   const stats = [
     {
       title: "Préinscriptions",

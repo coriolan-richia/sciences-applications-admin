@@ -51,17 +51,13 @@ const initialFormData: userEditType = {
 export default function EditUserPage() {
   const router = useRouter();
   const params = useParams();
-  // const { user: currentUser } = useAuth();
+  const { user: currentUser } = useAuth();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [userToEdit, setUserToEdit] = useState<userEditType>(initialFormData);
   const [formData, setFormData] = useState<userEditType>(initialFormData);
   const [error, setError] = useState<string | null>(null);
   const [changePassword, setChangePassword] = useState(false);
 
-  const currentUser = JSON.parse(localStorage.getItem("user") ?? "");
-  if (currentUser == null) {
-    router.push("/login");
-  }
   const userId = params.id as string;
 
   useEffect(() => {
@@ -115,7 +111,7 @@ export default function EditUserPage() {
 
     if (
       currentUser?.idUtilisateur === userId &&
-      formData.idRole !== currentUser.role
+      formData.idRole !== currentUser.nomRole
     ) {
       setError(
         "You cannot change your own role. Please ask another administrator."
@@ -141,7 +137,7 @@ export default function EditUserPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          authId: currentUser.idUtilisateur,
+          authId: currentUser?.idUtilisateur,
           targetIdentifiant: formData.identifiant,
           password: formData.password,
           roleName: formData.idRole,
@@ -194,7 +190,7 @@ export default function EditUserPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          authId: currentUser.idUtilisateur,
+          authId: currentUser?.idUtilisateur,
           targetId: formData.idUser,
         }),
       });

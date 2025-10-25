@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -27,26 +26,23 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { loading, isAuthenticated, login } = useAuth();
   const router = useRouter();
-  const { login } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated && !loading) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, router, loading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
-    /* console.log(
-      "Tentative de connexion avec:",
-      `{${identifiant}, ${password}}`
-    ); */
-
     const success = await login(identifiant, password);
 
-    // console.log("Résultat de la connexion:", success);
-
-    if (success.success) {
-      router.push("/dashboard");
-    } else {
+    if (!success.success) {
       switch (success.type) {
         case "auth":
           setError(

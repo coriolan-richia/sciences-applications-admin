@@ -10,10 +10,12 @@ import {
 
 import type { User, AuthState } from "@/types/auth";
 import { API } from "./api";
+import LoadingPage from "@/components/loading";
 
 interface AuthContextType extends AuthState {
   login: (identifiant: string, password: string) => Promise<LoginResult>;
   logout: () => void;
+  loading: boolean;
 }
 
 interface LoginResult {
@@ -26,28 +28,32 @@ interface LoginResult {
 // Un contexte qui partage l'état d'authentification à toute l'application
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-//[!] Un PROVIDER est un composant React qui fournit des données ou fonctions à tout ce qui est au dessous de lui dans l'arbre.
-
-// Un PROVIDER qui:
-//    Fournit l'état global d'authentification (AuthState)
-//    Recharge l'utilisateur stocké dans localStorage au montage (useEffect) => et le stockq (voir code)
-//    Fournit les fonctions login() et logout() qui sont utilisées pour s'authentifier et se déconnecter.
 export function AuthProvider({ children }: { children: ReactNode }) {
   // Nous n'avons aucun utilisateur de connecté au démarrage.
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     isAuthenticated: false,
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-
-    // Si l'utilisateur existe, on le connecte
-    if (storedUser) {
-      setAuthState({
-        user: JSON.parse(storedUser),
-        isAuthenticated: true,
-      });
+    try {
+      const storedUser = localStorage.getItem("user");
+      // Si l'utilisateur existe, on le connecte
+      if (storedUser) {
+        setAuthState({
+          user: JSON.parse(storedUser),
+          isAuthenticated: true,
+        });
+      } else {
+        setAuthState({
+          user: null,
+          isAuthenticated: false,
+        });
+      }
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -104,7 +110,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const { ...userWithoutPassword } = data;
       setAuthState({
-        user: { ...userWithoutPassword, role: data.nomRole },
+        user: {
+          id: data.idUtilisateur,
+          role: data.nomRole,
+
+          ...userWithoutPassword,
+        },
+
         isAuthenticated: true,
       });
 
@@ -131,8 +143,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("user");
   };
 
+  if (isLoading) return <LoadingPage />;
+  
   return (
-    <AuthContext.Provider value={{ ...authState, login, logout }}>
+    <AuthContext.Provider
+      value={{ ...authState, loading: isLoading, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

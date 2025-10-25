@@ -50,7 +50,7 @@ const navigation = [
   },
   {
     name: "À propos",
-    href: "about",
+    href: "/about",
     icon: Info,
   },
 ];
@@ -59,11 +59,6 @@ export function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const router = useRouter();
-
-  const handleLogout = () => {
-    logout();
-    router.push("/login");
-  };
 
   return (
     <div className="flex h-screen w-72 flex-col border-r border-sidebar-border bg-sidebar">
@@ -80,7 +75,7 @@ export function Sidebar() {
         {navigation.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
-            ((user?.role === "superadmin" && item.role === "superadmin") ||
+            ((user?.nomRole === "superadmin" && item.role === "superadmin") ||
               item.role === undefined) && (
               <Link
                 key={item.name}
@@ -89,7 +84,7 @@ export function Sidebar() {
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                   isActive
                     ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    : "text-muted-foreground hover:bg-primary/5 hover:text-foreground"
                 )}
               >
                 <item.icon className="h-5 w-5" />
@@ -112,7 +107,7 @@ export function Sidebar() {
               </p>
               {/* <p className="text-muted-foreground">{user?.email}</p> */}
               <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                {user?.role}
+                {user?.nomRole}
               </p>
             </div>
           </div>
@@ -120,7 +115,7 @@ export function Sidebar() {
             variant="outline"
             size="sm"
             className="w-full bg-transparent"
-            onClick={handleLogout}
+            onClick={logout}
           >
             <LogOut className="mr-2 h-4 w-4" />
             Déconnexion

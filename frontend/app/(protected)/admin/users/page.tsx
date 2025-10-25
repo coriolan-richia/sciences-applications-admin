@@ -7,7 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Edit, Shield, Eye, ArrowUpDown } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Edit,
+  Shield,
+  Eye,
+  ArrowUpDown,
+  Trash2,
+} from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { API } from "@/lib/api";
@@ -19,34 +27,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { User } from "@/types/auth";
 
 export default function UsersPage() {
   const { user: currentUser } = useAuth();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<string>("id-asc");
-  const [users, setUsers] = useState<UserForListing[]>(
-    [] // mockUsers as Array<User & { password?: string }>
-  );
+  const [users, setUsers] = useState<UserForListing[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const fetchUrl = `${API.utilisateur}/list-users`;
-
-  let authUser = JSON.parse(localStorage.getItem("user") ?? "");
-  if (authUser === null) {
-    router.push("/login");
-    return;
-  }
-
+  
   // console.log("UserId ", authUser.idUtilisateur);
   const loadList = async () => {
     try {
-      console.log("HIC " + authUser.idUtilisateur);
       const response = await fetch(fetchUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          authId: authUser.idUtilisateur ?? 0,
+          authId: currentUser?.idUtilisateur ?? 0,
         }),
       });
 
@@ -63,6 +64,8 @@ export default function UsersPage() {
       // In a real app, this would call an API
     } catch (error) {
       console.error("Erreur de réseau :", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -91,33 +94,7 @@ export default function UsersPage() {
     }
   });
 
-  const getRoleIcon = (role: string) => {
-    switch (role) {
-      case "superadmin":
-        return <Shield className="h-4 w-4" />;
-      case "admin":
-        return <Eye className="h-4 w-4" />;
-      case "viewer":
-        return <Eye className="h-4 w-4" />;
-      default:
-        return <Eye className="h-4 w-4" />;
-    }
-  };
-
-  const getRoleBadgeVariant = (role: string) => {
-    switch (role) {
-      case "superadmin":
-        return "default";
-      case "admin":
-        return "secondary";
-      case "viewer":
-        return "outline";
-      default:
-        return "outline";
-    }
-  };
-
-  if (currentUser?.role !== "superadmin") {
+  if (currentUser?.nomRole !== "superadmin") {
     return (
       <div className="flex h-full items-center justify-center">
         <Card className="w-full max-w-md">
@@ -222,50 +199,103 @@ export default function UsersPage() {
         </div>
 
         {/* Users List */}
-        <Card>
-          <CardContent className="p-0">
-            <div className="divide-y divide-border">
-              {sortedUsers.map((user) => (
-                <div
-                  key={user.idUtilisateur}
-                  className="flex items-center justify-between p-4 hover:bg-muted/50"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                      {getRoleIcon(user.role)}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium text-foreground">
-                          {user.identifiant}
-                        </p>
-                        {user.idUtilisateur === parseInt(currentUser?.id) && (
-                          <Badge variant="outline" className="text-xs">
-                            You
-                          </Badge>
-                        )}
-                      </div>
-                      <Badge variant={getRoleBadgeVariant(user.role)}>
-                        {user.role}
-                      </Badge>
-                      {/* <p className="text-sm text-muted-foreground">
-                        {user.identifiant}
-                      </p> */}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link href={`/admin/users/${user.idUtilisateur}/edit`}>
-                        <Edit className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-              ))}
+        <div className="rounded-lg border border-border bg-card">
+          <div className="flex items-center border-b border-border bg-secondary/30 px-6 py-3 font-medium text-muted-foreground justify-between">
+            <p>Utilisateur</p>
+            <p>Actions</p>
+          </div>
+          {isLoading ? (
+            <div className="flex items-center justify-between px-6 py-3 hover:bg-muted/50">
+              <div className="flex-1 text-center text-sm text-muted-foreground">
+                Chargement de la liste des utilisateurs...
+              </div>
             </div>
-          </CardContent>
-        </Card>
+          ) : sortedUsers.length == 0 ? (
+            <div className="flex items-center justify-between px-6 py-3 hover:bg-muted/50">
+              <div className="flex-1 text-center text-sm text-muted-foreground">
+                Aucun utilisateur à lister
+              </div>
+            </div>
+          ) : (
+            sortedUsers.map((user) => (
+              <UserListItem
+                key={user.idUtilisateur}
+                currentUser={currentUser}
+                user={user}
+              />
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
 }
+
+const UserListItem = ({
+  user,
+  currentUser,
+}: {
+  user: UserForListing;
+  currentUser: User;
+}) => {
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case "superadmin":
+        return <Shield className="h-4 w-4" />;
+      case "admin":
+        return <Eye className="h-4 w-4" />;
+      case "viewer":
+        return <Eye className="h-4 w-4" />;
+      default:
+        return <Eye className="h-4 w-4" />;
+    }
+  };
+
+  const getRoleBadgeVariant = (role: string) => {
+    switch (role) {
+      case "superadmin":
+        return "default";
+      case "admin":
+        return "secondary";
+      case "viewer":
+        return "outline";
+      default:
+        return "outline";
+    }
+  };
+
+  return (
+    <div
+      key={user.idUtilisateur}
+      className="flex items-center not-last:border-b justify-between px-6 py-3 hover:bg-muted/50"
+    >
+      <div className="flex items-center gap-4">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+          {getRoleIcon(user.role)}
+        </div>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <p className="font-medium text-foreground">{user.identifiant}</p>
+
+            {user.idUtilisateur === parseInt(currentUser?.idUtilisateur) && (
+              <Badge variant="outline" className="text-xs">
+                You
+              </Badge>
+            )}
+          </div>
+          <Badge variant={getRoleBadgeVariant(user.role)}>{user.role}</Badge>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <Button variant="secondary" size="sm" asChild>
+          <Link href={`/admin/users/${user.idUtilisateur}/edit`}>
+            <Edit className="h-4 w-4" />
+          </Link>
+        </Button>
+        <Button variant="destructive" size="sm">
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+};

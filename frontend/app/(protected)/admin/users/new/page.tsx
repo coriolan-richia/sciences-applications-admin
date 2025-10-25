@@ -20,6 +20,7 @@ import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { API } from "@/lib/api";
 import { ConfirmPassword, PasswordInput } from "@/components/ui/password";
+import { useAuth } from "@/lib/auth-context";
 
 export default function NewUserPage() {
   const router = useRouter();
@@ -28,16 +29,13 @@ export default function NewUserPage() {
     password: "",
     role: "",
   });
+  const { user } = useAuth();
 
   const fetchUrl = `${API.utilisateur}/insert-user`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    let user = JSON.parse(localStorage.getItem("user") ?? "");
-    if (user === null) {
-      router.push("/login");
-      return;
-    }
+
     try {
       const response = await fetch(fetchUrl, {
         method: "POST",
@@ -45,7 +43,7 @@ export default function NewUserPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          idUser: user.idUtilisateur ?? 0,
+          idUser: user?.idUtilisateur ?? 0,
           newUserIdentifiant: formData.identifiant,
           newUserMotDePasse: formData.password,
           NewUserRoleName: formData.role,

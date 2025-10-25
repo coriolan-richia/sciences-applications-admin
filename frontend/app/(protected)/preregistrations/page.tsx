@@ -116,8 +116,8 @@ export default function PreregistrationsPage() {
         }
       />
 
-      <div className="flex-1 h-0 pb-8 overflow-y-auto">
-        <div className="space-y-6 h-full flex flex-col px-8">
+      <div className="flex-1 h-full overflow-y-auto ">
+        <div className="space-y-6 flex flex-col px-8 mb-8">
           {/* Filters and View Toggle */}
           <div className="flex items-center gap-4 sticky top-0 pt-8 bg-background backdrop-blur-md h-max">
             {/* <div className="flex flex-1 items-center gap-3 bg-black"> */}
